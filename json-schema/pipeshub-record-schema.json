@@ -1,0 +1,329 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/pipeshub/main/json-schema/pipeshub-record-schema.json",
+  "title": "Record",
+  "description": "A record represents a single document, file, or content item within a knowledge base.\nRecords can originate from file uploads or external connectors (Google Drive, OneDrive, etc.).\n",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/pipeshub-openapi.yml#/components/schemas/Record",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique record identifier (UUID format)"
+    },
+    "recordName": {
+      "type": "string",
+      "description": "Display name of the record"
+    },
+    "name": {
+      "type": "string",
+      "description": "Display name (alias for recordName)"
+    },
+    "externalRecordId": {
+      "type": "string",
+      "description": "External storage document ID (links to Storage module)"
+    },
+    "recordType": {
+      "$ref": "#/$defs/RecordTypeEnum"
+    },
+    "origin": {
+      "type": "string",
+      "enum": [
+        "UPLOAD",
+        "CONNECTOR"
+      ],
+      "description": "Source of the record:\n- UPLOAD: Manually uploaded via API/UI\n- CONNECTOR: Synced from external connector\n"
+    },
+    "connectorId": {
+      "type": "string",
+      "description": "ID of the connector that synced this record (null for uploads)"
+    },
+    "connectorName": {
+      "$ref": "#/$defs/ConnectorNameEnum"
+    },
+    "orgId": {
+      "type": "string",
+      "description": "Organization ID that owns this record"
+    },
+    "kbId": {
+      "type": "string",
+      "description": "Knowledge base ID containing this record"
+    },
+    "folderId": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Parent folder ID (null if at KB root)"
+    },
+    "version": {
+      "type": "integer",
+      "description": "Current version number (increments on updates)",
+      "default": 0
+    },
+    "isLatestVersion": {
+      "type": "boolean",
+      "description": "Whether this is the latest version"
+    },
+    "createdAtTimestamp": {
+      "type": "integer",
+      "format": "int64",
+      "description": "Creation timestamp in milliseconds"
+    },
+    "updatedAtTimestamp": {
+      "type": "integer",
+      "format": "int64",
+      "description": "Last update timestamp in milliseconds"
+    },
+    "sourceCreatedAtTimestamp": {
+      "type": "integer",
+      "format": "int64",
+      "description": "Source creation timestamp (from connector)"
+    },
+    "sourceLastModifiedTimestamp": {
+      "type": "integer",
+      "format": "int64",
+      "description": "Source last modified timestamp (from connector)"
+    },
+    "processingStartedAt": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "format": "int64",
+      "description": "Epoch ms when parse/index processing began for the current attempt; null when idle"
+    },
+    "queuedAtTimestamp": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "format": "int64",
+      "description": "Epoch ms the platform last queued this record for indexing; absent until first queued. Platform-owned, unlike updatedAtTimestamp"
+    },
+    "parsingStatus": {
+      "type": "string",
+      "enum": [
+        "NOT_STARTED",
+        "IN_PROGRESS",
+        "FAILED",
+        "COMPLETED",
+        "FILE_TYPE_NOT_SUPPORTED",
+        "AUTO_INDEX_OFF",
+        "EMPTY",
+        "QUEUED"
+      ],
+      "description": "Parse-phase status (ahead of indexing/extraction):\n- NOT_STARTED: Awaiting parsing\n- QUEUED: In parsing queue\n- IN_PROGRESS: Currently being parsed\n- COMPLETED: Successfully parsed\n- FAILED: Parsing failed\n- FILE_TYPE_NOT_SUPPORTED: Unsupported file format\n- AUTO_INDEX_OFF: Auto-indexing disabled for this record\n- EMPTY: File has no extractable content\n"
+    },
+    "indexingStatus": {
+      "type": "string",
+      "enum": [
+        "NOT_STARTED",
+        "PAUSED",
+        "IN_PROGRESS",
+        "COMPLETED",
+        "FAILED",
+        "FILE_TYPE_NOT_SUPPORTED",
+        "AUTO_INDEX_OFF",
+        "EMPTY",
+        "ENABLE_MULTIMODAL_MODELS",
+        "QUEUED"
+      ],
+      "description": "Current indexing/processing status:\n- NOT_STARTED: Awaiting indexing\n- QUEUED: In indexing queue\n- IN_PROGRESS: Currently being indexed\n- COMPLETED: Successfully indexed and searchable\n- FAILED: Indexing failed (check error details)\n- PAUSED: Indexing paused by user\n- FILE_TYPE_NOT_SUPPORTED: Unsupported file format\n- AUTO_INDEX_OFF: Auto-indexing disabled for this record\n- EMPTY: File has no extractable content\n- ENABLE_MULTIMODAL_MODELS: Requires multimodal AI models\n"
+    },
+    "isDeleted": {
+      "type": "boolean",
+      "description": "Soft delete flag",
+      "default": false
+    },
+    "isArchived": {
+      "type": "boolean",
+      "description": "Archive flag for inactive records",
+      "default": false
+    },
+    "webUrl": {
+      "type": "string",
+      "format": "uri",
+      "description": "Direct URL to access the original content"
+    },
+    "mimeType": {
+      "type": "string",
+      "description": "MIME type of the file content"
+    },
+    "sizeInBytes": {
+      "type": "integer",
+      "format": "int64",
+      "description": "File size in bytes"
+    },
+    "extension": {
+      "type": "string",
+      "description": "File extension (without dot)"
+    },
+    "sha256Hash": {
+      "type": "string",
+      "description": "SHA-256 hash for content deduplication"
+    },
+    "type": {
+      "type": "string",
+      "description": "Node type identifier"
+    },
+    "fileRecord": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "File-specific metadata (present when recordType is FILE)",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "extension": {
+          "type": "string"
+        },
+        "mimeType": {
+          "type": "string"
+        },
+        "sizeInBytes": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "webUrl": {
+          "type": "string"
+        },
+        "path": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "isFile": {
+          "type": "boolean"
+        }
+      }
+    },
+    "mailRecord": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "Email-specific metadata (present when recordType is MAIL or GROUP_MAIL)"
+    },
+    "ticketRecord": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "description": "Ticket-specific metadata (present when recordType is TICKET)",
+      "additionalProperties": true
+    }
+  },
+  "required": [
+    "recordName",
+    "recordType",
+    "origin",
+    "orgId"
+  ],
+  "$defs": {
+    "ConnectorNameEnum": {
+      "type": "string",
+      "description": "Name of the source connector. Mirrors the values of the backend\n`Connectors` enum (`backend/python/app/config/constants/arangodb.py`);\nrecords store the enum value (e.g. Google Drive is `DRIVE`,\nSharePoint Online is `SHAREPOINT ONLINE`), not the enum member name.\n",
+      "enum": [
+        "DRIVE",
+        "DRIVE WORKSPACE",
+        "GMAIL",
+        "GMAIL WORKSPACE",
+        "CALENDAR",
+        "ONEDRIVE",
+        "SHAREPOINT ONLINE",
+        "OUTLOOK",
+        "OUTLOOK PERSONAL",
+        "OUTLOOK CALENDAR",
+        "MICROSOFT TEAMS",
+        "NOTION",
+        "NOTION PERSONAL",
+        "SLACK",
+        "SLACK WORKSPACE",
+        "KB",
+        "CONFLUENCE",
+        "CONFLUENCE DATA CENTER",
+        "CONFLUENCE DATA CENTER PERSONAL",
+        "JIRA",
+        "JIRA PERSONAL",
+        "JIRA DATA CENTER",
+        "JIRA DATA CENTER PERSONAL",
+        "BOX",
+        "NEXTCLOUD",
+        "DROPBOX",
+        "DROPBOX PERSONAL",
+        "WEB",
+        "BOOKSTACK",
+        "DRUPAL WIKI",
+        "GITHUB",
+        "GITHUB TEAMS",
+        "SERVICENOW",
+        "SALESFORCE",
+        "S3",
+        "MINIO",
+        "GCS",
+        "AZURE BLOB",
+        "AZURE FILES",
+        "LINEAR",
+        "ZAMMAD",
+        "ZOOM",
+        "GITLAB",
+        "GITLAB PERSONAL",
+        "SNOWFLAKE",
+        "POSTGRESQL",
+        "MARIADB",
+        "UNKNOWN",
+        "RSS",
+        "LOCAL_FS",
+        "CODING_SANDBOX",
+        "DATABASE_SANDBOX",
+        "IMAGE_GENERATION",
+        "ATTACHMENTS"
+      ]
+    },
+    "RecordTypeEnum": {
+      "type": "string",
+      "description": "Type of content. Mirrors the backend `RecordType` enum\n(`backend/python/app/models/entities.py`); connector-sourced records\nmay use any of the connector-specific types below.\n- FILE: Uploaded or synced documents (PDF, DOCX, etc.)\n- DRIVE: Drive/folder container (Google Drive, OneDrive, etc.)\n- WEBPAGE: Web pages crawled or bookmarked\n- DATABASE: Database object (e.g. Notion database)\n- DATASOURCE: Data source object\n- MESSAGE: Chat/messaging content (Slack, Teams)\n- MAIL: Email messages (Gmail, Outlook)\n- GROUP_MAIL: Group/shared mailbox email messages\n- TICKET: Support/issue tickets (Jira, ServiceNow)\n- COMMENT: Comments from collaboration tools\n- INLINE_COMMENT: Inline comments anchored to content (e.g. Confluence)\n- CONFLUENCE_PAGE: Confluence page\n- CONFLUENCE_BLOGPOST: Confluence blog post\n- SHAREPOINT_PAGE: SharePoint page\n- SHAREPOINT_LIST: SharePoint list\n- SHAREPOINT_LIST_ITEM: SharePoint list item\n- SHAREPOINT_DOCUMENT_LIBRARY: SharePoint document library\n- LINK: Web link / bookmark\n- PROJECT: Project entity (e.g. Jira project)\n- PULL_REQUEST: Source-control pull request\n- MEETING: Meeting record (e.g. Zoom)\n- PRODUCT: Product entity (CRM)\n- DEAL: Deal/opportunity entity (CRM)\n- CASE: Case entity (CRM/support)\n- TASK: Task entity\n- ARTIFACT: Generated/derived artifact\n- CODE_FILE: Source-code file\n- SQL_TABLE: SQL table object\n- SQL_VIEW: SQL view object\n- OTHERS: Miscellaneous content types\n",
+      "enum": [
+        "FILE",
+        "DRIVE",
+        "WEBPAGE",
+        "DATABASE",
+        "DATASOURCE",
+        "MESSAGE",
+        "MAIL",
+        "GROUP_MAIL",
+        "TICKET",
+        "COMMENT",
+        "INLINE_COMMENT",
+        "CONFLUENCE_PAGE",
+        "CONFLUENCE_BLOGPOST",
+        "SHAREPOINT_PAGE",
+        "SHAREPOINT_LIST",
+        "SHAREPOINT_LIST_ITEM",
+        "SHAREPOINT_DOCUMENT_LIBRARY",
+        "LINK",
+        "PROJECT",
+        "PULL_REQUEST",
+        "MEETING",
+        "PRODUCT",
+        "DEAL",
+        "CASE",
+        "TASK",
+        "ARTIFACT",
+        "CODE_FILE",
+        "SQL_TABLE",
+        "SQL_VIEW",
+        "OTHERS"
+      ]
+    }
+  }
+}

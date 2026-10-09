@@ -1,0 +1,465 @@
+openapi: 3.2.0
+info:
+  title: Pipeshub Connector Registry API
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@pipeshub.com
+  description: 'Operations tagged Connector Registry across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: '{instance_url}/api/v1'
+  description: Base API URL
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL (without /api/v1)
+- url: '{instance_url}'
+  description: Root URL (used for MCP endpoints mounted at /mcp)
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL
+security:
+- bearerAuth: []
+- oauth2: []
+tags:
+- name: Connector Registry
+  description: Browse available connector types and their configuration schemas
+paths:
+  /connectors/registry:
+    get:
+      tags:
+      - Connector Registry
+      summary: List available connector types
+      description: 'Get all available connector types from the registry.
+
+
+        Overview:
+
+
+        The registry contains all connector types that can be configured as instances.
+
+        Each type has specific authentication requirements, supported scopes, and capabilities.
+
+
+        Connector Types Include:
+
+
+        Google Workspace: Drive, Gmail, Calendar, etc.
+
+
+        Microsoft 365: OneDrive, Outlook, SharePoint, etc.
+
+
+        Cloud Storage: Dropbox, Box, AWS S3
+
+
+        Collaboration: Slack, Confluence, Notion, Jira
+
+
+        Databases: PostgreSQL, MySQL, MongoDB
+
+
+        Filtering:
+
+
+        Use scope to filter by team or personal connectors.
+
+        Use search for full-text search across connector names.'
+      operationId: getConnectorRegistry
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - connector:read
+      parameters:
+      - name: scope
+        in: query
+        description: Filter by scope type
+        schema:
+          $ref: '#/components/schemas/ConnectorScope'
+      - name: page
+        in: query
+        description: Page number
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+      - name: limit
+        in: query
+        description: Items per page
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 200
+          default: 20
+      - name: search
+        in: query
+        description: Search term for connector names
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Connector registry retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  connectors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ConnectorType'
+                  pagination:
+                    $ref: '#/components/schemas/ConnectorPagination'
+        '401':
+          description: Unauthorized
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /connectors/registry/{connectorType}/schema:
+    get:
+      tags:
+      - Connector Registry
+      summary: Get connector configuration schema
+      description: 'Get the configuration schema for a specific connector type.
+
+
+        Overview:
+
+
+        Returns JSON Schema definitions for authentication, sync settings, and
+
+        filter options. Use this to dynamically build configuration forms.
+
+
+        Schema Sections:
+
+
+        authSchema: Fields for authentication (credentials, tokens)
+
+
+        syncSchema: Sync settings (schedule, incremental options)
+
+
+        filterSchema: Filter field definitions'
+      operationId: getConnectorSchema
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - connector:read
+      parameters:
+      - name: connectorType
+        in: path
+        required: true
+        description: Connector type identifier
+        schema:
+          type: string
+        example: google-drive
+      responses:
+        '200':
+          description: Schema retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  schema:
+                    $ref: '#/components/schemas/ConnectorSchema'
+        '401':
+          description: Unauthorized
+        '404':
+          description: Connector type not found
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+components:
+  schemas:
+    ConnectorSchema:
+      type: object
+      description: Schema definition for configuring a connector type
+      properties:
+        connectorType:
+          type: string
+        authSchema:
+          type: object
+          description: JSON Schema for authentication fields
+        syncSchema:
+          type: object
+          description: JSON Schema for sync configuration
+        filterSchema:
+          type: object
+          description: JSON Schema for filter options
+        requiredFields:
+          type: array
+          items:
+            type: string
+          description: Required field names
+    ConnectorType:
+      type: object
+      description: 'A connector type from the registry. Represents an available integration
+
+        that can be configured as a connector instance.
+
+        '
+      properties:
+        connectorType:
+          type: string
+          description: Unique identifier for this connector type
+          example: google-drive
+        displayName:
+          type: string
+          description: Human-readable name
+          example: Google Drive
+        description:
+          type: string
+          description: What this connector does
+        appGroupId:
+          type: string
+          description: Application group identifier
+        appGroup:
+          type: string
+          description: Application group name (e.g., "Google Workspace")
+        authTypes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConnectorAuthType'
+          description: Supported authentication methods
+        supportedScopes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConnectorScope'
+          description: Supported scope types
+        supportsSync:
+          type: boolean
+          description: Whether connector supports data synchronization
+        supportsAgent:
+          type: boolean
+          description: Whether connector supports AI agent integration
+        supportsRealtime:
+          type: boolean
+          description: Whether connector supports real-time updates
+        iconPath:
+          type: string
+          description: Path to connector icon
+        categories:
+          type: array
+          items:
+            type: string
+          description: Categories (e.g., "Storage", "Communication")
+        isBeta:
+          type: boolean
+          description: Whether this is a beta connector
+    ConnectorAuthType:
+      type: string
+      description: 'Authentication method required by the connector:<br>
+
+        <ul>
+
+        <li><code>OAUTH</code> - User OAuth consent flow</li>
+
+        <li><code>OAUTH_ADMIN_CONSENT</code> - Admin OAuth with org-wide consent</li>
+
+        <li><code>API_TOKEN</code> - API key or token authentication</li>
+
+        <li><code>USERNAME_PASSWORD</code> - Username/password credentials</li>
+
+        <li><code>NONE</code> - No authentication required</li>
+
+        </ul>
+
+        '
+      enum:
+      - OAUTH
+      - OAUTH_ADMIN_CONSENT
+      - API_TOKEN
+      - USERNAME_PASSWORD
+      - NONE
+    ConnectorScope:
+      type: string
+      description: 'Scope determines visibility and access control for connectors:<br>
+
+        <ul>
+
+        <li><code>team</code> - Available to all users in the organization (admin-only creation)</li>
+
+        <li><code>personal</code> - Private to the creating user only</li>
+
+        </ul>
+
+        '
+      enum:
+      - team
+      - personal
+      example: team
+    ConnectorPagination:
+      type: object
+      description: Pagination information for connector lists
+      properties:
+        page:
+          type: integer
+          description: Current page number
+        limit:
+          type: integer
+          description: Items per page
+        total:
+          type: integer
+          description: Total number of items
+        hasMore:
+          type: boolean
+          description: Whether more pages exist
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'JWT Bearer token for authenticated requests.
+
+
+        A personal access token (see the **Personal Access Tokens** tag) is a
+
+        `phpat_`-prefixed variant of this same JWT — e.g. `phpat_eyJhbGci...`.
+
+        The prefix is display-only, added for secret-scanner detectability; the
+
+        gateway strips it before verifying the token, so send it exactly as
+
+        issued, prefix included.
+
+        '
+    scopedToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Scoped JWT token for service-to-service authentication.
+
+        Format: "Bearer {scoped_token}"
+
+        Required scopes vary by endpoint.
+
+        '
+    oauth2:
+      type: oauth2
+      description: 'OAuth 2.0 authentication with fine-grained scopes.
+
+        Supports authorization_code (with PKCE) and client_credentials flows.
+
+        OAuth tokens are Bearer JWTs — use the same Authorization header as regular tokens.
+
+        For **client_credentials**, machine JWTs may use `userId === client_id`; the Node gateway resolves the OAuth app creator — see **OAuth Provider** tag.
+
+        '
+      flows:
+        authorizationCode:
+          authorizationUrl: /api/v1/oauth2/authorize
+          tokenUrl: /api/v1/oauth2/token
+          refreshUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:read: Read semantic search results and history
+            semantic:write: Execute semantic search
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+            crawl:delete: Delete crawling jobs
+        clientCredentials:
+          tokenUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:write: Execute semantic search
+            semantic:read: Read semantic search results and history
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+x-refined-from:
+- pipeshub-openapi.yaml
+- pipeshub-openapi.yml

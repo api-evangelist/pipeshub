@@ -1,0 +1,18 @@
+generated: '2026-10-09'
+method: searched
+source: https://docs.pipeshub.com/demo-data
+description: PipesHub publishes no test/live key modes or test credentials. For trying the platform it documents a local Docker demo install and a Demo connector that loads "Acme Corp, a small fictional company, so a fresh install has something worth asking before you connect a real source" — a fictional company across five systems, no files and no OAuth (first release after 0.8.0). A host sandbox.pipeshub.com answers 200 but serves a JavaScript app shell whose purpose is not described in the docs.
+docs:
+- https://docs.pipeshub.com/demo-data
+- https://docs.pipeshub.com/for-agents-local-demo
+modes: []
+fixtures:
+- name: Demo connector (Acme Corp)
+  docs: https://docs.pipeshub.com/demo-data
+environments:
+- name: Local Docker demo
+  docs: https://docs.pipeshub.com/for-agents-local-demo
+- name: sandbox.pipeshub.com
+  url: https://sandbox.pipeshub.com/
+  status: 200
+  note: undocumented JS app shell

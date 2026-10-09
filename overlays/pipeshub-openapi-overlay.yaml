@@ -1,0 +1,68 @@
+overlay: 1.0.0
+info:
+  title: PipesHub API — API Evangelist enhancements
+  version: 1.0.0
+x-generated: '2026-10-09'
+x-method: generated
+x-source: Generated from mcp/pipeshub-mcp.yml, mcp/pipeshub-tool-crosswalk.yml and the provider docs (https://docs.pipeshub.com/mcp/overview.md,
+  https://docs.pipeshub.com/mcp/tools.md).
+extends: ../openapi/_original/pipeshub-openapi.yml
+actions:
+- target: $.info
+  description: Point agents at the provider's docs index, MCP surface and published agent skill.
+  update:
+    x-llms-txt: https://docs.pipeshub.com/llms.txt
+    x-agent-skill: https://docs.pipeshub.com/skill.md
+    x-mcp-server:
+      endpoint: https://app.pipeshub.com/mcp
+      endpoint_template: '{PIPESHUB_INSTANCE_URL}/mcp'
+      transport: streamable-http
+      local_package: '@pipeshub-ai/mcp'
+      protected_resource_metadata: https://app.pipeshub.com/.well-known/oauth-protected-resource/mcp
+- target: $.paths['/search'].post
+  update:
+    x-mcp-tool: pipeshub_search
+- target: $.paths['/connectors/record/{recordId}/content'].get
+  update:
+    x-mcp-tool: pipeshub_get_record_content
+    x-mcp-tool-mode: content
+- target: $.paths['/connectors/navigate'].get
+  update:
+    x-mcp-tool: pipeshub_get_record_content
+    x-mcp-tool-mode: navigate
+- target: $.paths['/connectors/record/lookup'].get
+  update:
+    x-mcp-tool: pipeshub_get_record_content
+    x-mcp-tool-mode: lookup
+- target: $.paths['/knowledgeBase/stream/record/{recordId}'].get
+  update:
+    x-mcp-tool: pipeshub_download_record
+- target: $.paths['/agents'].get
+  update:
+    x-mcp-tool: pipeshub_agents
+- target: $.paths['/conversations/create'].post
+  update:
+    x-mcp-tool: pipeshub_chat
+- target: $.paths['/conversations/{conversationId}/messages/stream'].post
+  update:
+    x-mcp-tool: pipeshub_chat
+- target: $.paths['/agents/{agentKey}/conversations/stream'].post
+  update:
+    x-mcp-tool: pipeshub_chat
+    x-mcp-tool-note: chat with agentId
+- target: $.paths['/users'].get
+  update:
+    x-mcp-tool: pipeshub_directory
+    x-mcp-tool-mode: list_users
+- target: $.paths['/users/{id}'].get
+  update:
+    x-mcp-tool: pipeshub_directory
+    x-mcp-tool-mode: get_user
+- target: $.paths['/userGroups'].get
+  update:
+    x-mcp-tool: pipeshub_directory
+    x-mcp-tool-mode: list_groups
+- target: $.paths['/teams/user/teams'].get
+  update:
+    x-mcp-tool: pipeshub_directory
+    x-mcp-tool-mode: list_my_teams

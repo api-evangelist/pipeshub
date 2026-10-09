@@ -1,0 +1,355 @@
+generated: '2026-10-09'
+method: searched
+source: https://docs.pipeshub.com/developer/oauth2
+schemes:
+- name: oauth2
+  source: openapi/pipeshub-openapi.yml
+  flows:
+  - flow: authorizationCode
+    authorizationUrl: /api/v1/oauth2/authorize
+    tokenUrl: /api/v1/oauth2/token
+  - flow: clientCredentials
+    tokenUrl: /api/v1/oauth2/token
+  description: 'OAuth 2.0 authentication with fine-grained scopes.
+
+    Supports authorization_code (with PKCE) and client_credentials flows.
+
+    OAuth tokens are Bearer JWTs — use the same Authorization header as regular tokens.
+
+    For **client_credentials**, machine JWTs may use `userId === client_id`; the Node
+    gateway resolves the OAuth app creator — see **OAuth Provider** tag.'
+scopes:
+- scope: agent:execute
+  description: Execute agents and trigger agent workflows.
+  flows:
+  - authorizationCode
+  - clientCredentials
+  sources:
+  - openapi/pipeshub-openapi.yml
+  - https://docs.pipeshub.com/developer/oauth2
+- scope: agent:read
+  description: View agent configurations and details.
+  flows:
+  - authorizationCode
+  - clientCredentials
+  sources:
+  - openapi/pipeshub-openapi.yml
+  - https://docs.pipeshub.com/developer/oauth2
+- scope: agent:write
+  description: Create and modify agent configurations.
+  flows:
+  - authorizationCode
+  - clientCredentials
+  sources:
+  - openapi/pipeshub-openapi.yml
+  - https://docs.pipeshub.com/developer/oauth2
+- scope: config:read
+  description: View system configuration settings.
+  flows:
+  - authorizationCode
+  - clientCredentials
+  sources:
+  - openapi/pipeshub-openapi.yml
+  - https://docs.pipeshub.com/developer/oauth2
+- scope: config:write
+  description: Modify system configuration settings.
+  flows:
+  - authorizationCode
+  - clientCredentials
+  sources:
+  - openapi/pipeshub-openapi.yml
+  - https://docs.pipeshub.com/developer/oauth2
+- scope: connector:delete
+  description: Remove connector instances.
+  flows:
+  - authorizationCode
+  - clientCredentials
+  sources:
+  - openapi/pipeshub-openapi.yml
+  - https://docs.pipeshub.com/developer/oauth2
+- scope: connector:read
+  description: View connector configurations and status.
+  flows:
+  - authorizationCode
+  - clientCredentials
+  sources:
+  - openapi/pipeshub-openapi.yml
+  - https://docs.pipeshub.com/developer/oauth2
+- scope: connector:sync
+  description: Trigger data synchronization for connectors.
+  flows:
+  - authorizationCode
+  - clientCredentials
+  sources:
+  - openapi/pipeshub-openapi.yml
+  - https://docs.pipeshub.com/developer/oauth2
+- scope: connector:write
+  description: Create and modify connector configurations.
+  flows:
+  - authorizationCode
+  - clientCredentials
+  sources:
+  - openapi/pipeshub-openapi.yml
+  - https://docs.pipeshub.com/developer/oauth2
+- scope: conversation:chat
+  description: Send messages and interact in real-time conversations.
+  flows:
+  - authorizationCode
+  - clientCredentials
+  sources:
+  - openapi/pipeshub-openapi.yml
+  - https://docs.pipeshub.com/developer/oauth2
+- scope: conversation:read
+  description: View conversations and chat history.
+  flows:
+  - authorizationCode
+  - clientCredentials
+  sources:
+  - openapi/pipeshub-openapi.yml
+  - https://docs.pipeshub.com/developer/oauth2
+- scope: conversation:write
+  description: Create and modify conversations.
+  flows:
+  - authorizationCode
+  - clientCredentials
+  sources:
+  - openapi/pipeshub-openapi.yml
+  - https://docs.pipeshub.com/developer/oauth2
+- scope: crawl:delete
+  description: Delete crawling jobs.
+  flows:
+  - authorizationCode
+  sources:
+  - openapi/pipeshub-openapi.yml
+  - https://docs.pipeshub.com/developer/oauth2
+- scope: crawl:read
+  description: View crawling jobs and their status.
+  flows:
+  - authorizationCode
+  - clientCredentials
+  sources:
+  - openapi/pipeshub-openapi.yml
+  - https://docs.pipeshub.com/developer/oauth2
+- scope: crawl:write
+  description: Create and modify crawling jobs.
+  flows:
+  - authorizationCode
+  - clientCredentials
+  sources:
+  - openapi/pipeshub-openapi.yml
+  - https://docs.pipeshub.com/developer/oauth2
+- scope: email
+  description: Access to the user's email address.
+  flows:
+  - authorizationCode
+  - clientCredentials
+  sources:
+  - openapi/pipeshub-openapi.yml
+  - https://docs.pipeshub.com/developer/oauth2
+- scope: kb:delete
+  description: Delete knowledge base records.
+  flows:
+  - authorizationCode
+  - clientCredentials
+  sources:
+  - openapi/pipeshub-openapi.yml
+  - https://docs.pipeshub.com/developer/oauth2
+- scope: kb:read
+  description: View knowledge base content and records.
+  flows:
+  - authorizationCode
+  - clientCredentials
+  sources:
+  - openapi/pipeshub-openapi.yml
+  - https://docs.pipeshub.com/developer/oauth2
+- scope: kb:upload
+  description: Upload files and documents to the knowledge base.
+  flows:
+  - authorizationCode
+  - clientCredentials
+  sources:
+  - openapi/pipeshub-openapi.yml
+  - https://docs.pipeshub.com/developer/oauth2
+- scope: kb:write
+  description: Create and modify knowledge base content.
+  flows:
+  - authorizationCode
+  - clientCredentials
+  sources:
+  - openapi/pipeshub-openapi.yml
+  - https://docs.pipeshub.com/developer/oauth2
+- scope: offline_access
+  description: Enables refresh tokens for long-lived sessions without repeated user
+    consent.
+  flows:
+  - authorizationCode
+  - clientCredentials
+  sources:
+  - openapi/pipeshub-openapi.yml
+  - https://docs.pipeshub.com/developer/oauth2
+- scope: openid
+  description: Required for OpenID Connect. Returns a unique user identifier.
+  flows:
+  - authorizationCode
+  - clientCredentials
+  sources:
+  - openapi/pipeshub-openapi.yml
+  - https://docs.pipeshub.com/developer/oauth2
+- scope: org:admin
+  description: Full administrative access to organization management.
+  flows:
+  - authorizationCode
+  - clientCredentials
+  sources:
+  - openapi/pipeshub-openapi.yml
+  - https://docs.pipeshub.com/developer/oauth2
+- scope: org:read
+  description: View organization details and settings.
+  flows:
+  - authorizationCode
+  - clientCredentials
+  sources:
+  - openapi/pipeshub-openapi.yml
+  - https://docs.pipeshub.com/developer/oauth2
+- scope: org:write
+  description: Modify organization settings and configuration.
+  flows:
+  - authorizationCode
+  - clientCredentials
+  sources:
+  - openapi/pipeshub-openapi.yml
+  - https://docs.pipeshub.com/developer/oauth2
+- scope: profile
+  description: Access to the user's basic profile information.
+  flows:
+  - authorizationCode
+  - clientCredentials
+  sources:
+  - openapi/pipeshub-openapi.yml
+  - https://docs.pipeshub.com/developer/oauth2
+- scope: project:delete
+  description: Delete projects
+  flows:
+  - authorizationCode
+  - clientCredentials
+  sources:
+  - openapi/pipeshub-openapi.yml
+- scope: project:read
+  description: Read projects and their conversations
+  flows:
+  - authorizationCode
+  - clientCredentials
+  sources:
+  - openapi/pipeshub-openapi.yml
+- scope: project:write
+  description: Create and manage projects
+  flows:
+  - authorizationCode
+  - clientCredentials
+  sources:
+  - openapi/pipeshub-openapi.yml
+- scope: semantic:delete
+  description: Delete search indexes or entries.
+  flows:
+  - authorizationCode
+  - clientCredentials
+  sources:
+  - openapi/pipeshub-openapi.yml
+  - https://docs.pipeshub.com/developer/oauth2
+- scope: semantic:read
+  description: Perform semantic search queries.
+  flows:
+  - authorizationCode
+  - clientCredentials
+  sources:
+  - openapi/pipeshub-openapi.yml
+  - https://docs.pipeshub.com/developer/oauth2
+- scope: semantic:write
+  description: Create and modify search indexes.
+  flows:
+  - authorizationCode
+  - clientCredentials
+  sources:
+  - openapi/pipeshub-openapi.yml
+  - https://docs.pipeshub.com/developer/oauth2
+- scope: team:read
+  description: View team information.
+  flows:
+  - authorizationCode
+  - clientCredentials
+  sources:
+  - openapi/pipeshub-openapi.yml
+  - https://docs.pipeshub.com/developer/oauth2
+- scope: team:write
+  description: Create, modify, or delete teams.
+  flows:
+  - authorizationCode
+  - clientCredentials
+  sources:
+  - openapi/pipeshub-openapi.yml
+  - https://docs.pipeshub.com/developer/oauth2
+- scope: user:delete
+  description: Remove users from the organization.
+  flows:
+  - authorizationCode
+  - clientCredentials
+  sources:
+  - openapi/pipeshub-openapi.yml
+  - https://docs.pipeshub.com/developer/oauth2
+- scope: user:invite
+  description: Invite new users to the organization.
+  flows:
+  - authorizationCode
+  - clientCredentials
+  sources:
+  - openapi/pipeshub-openapi.yml
+  - https://docs.pipeshub.com/developer/oauth2
+- scope: user:read
+  description: View user profiles and details.
+  flows:
+  - authorizationCode
+  - clientCredentials
+  sources:
+  - openapi/pipeshub-openapi.yml
+  - https://docs.pipeshub.com/developer/oauth2
+- scope: user:write
+  description: Modify user information and settings.
+  flows:
+  - authorizationCode
+  - clientCredentials
+  sources:
+  - openapi/pipeshub-openapi.yml
+  - https://docs.pipeshub.com/developer/oauth2
+- scope: usergroup:read
+  description: View user groups and their members.
+  flows:
+  - authorizationCode
+  - clientCredentials
+  sources:
+  - openapi/pipeshub-openapi.yml
+  - https://docs.pipeshub.com/developer/oauth2
+- scope: usergroup:write
+  description: Create, modify, or delete user groups.
+  flows:
+  - authorizationCode
+  - clientCredentials
+  sources:
+  - openapi/pipeshub-openapi.yml
+  - https://docs.pipeshub.com/developer/oauth2
+- scope: document:read
+  description: Read files and documents from storage.
+  sources:
+  - https://docs.pipeshub.com/developer/oauth2
+- scope: document:write
+  description: Upload and modify files in storage.
+  sources:
+  - https://docs.pipeshub.com/developer/oauth2
+- scope: document:delete
+  description: Delete files from storage.
+  sources:
+  - https://docs.pipeshub.com/developer/oauth2
+docs: https://docs.pipeshub.com/developer/oauth2
+derived_from: openapi/pipeshub-openapi.yml
+note: Docs scope table merged over the contract-derived list. Personal access tokens
+  default to the instance MCP_SCOPES set; GET /api/v1/personal-access-tokens/scopes
+  lists grantable scopes.

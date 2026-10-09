@@ -1,0 +1,444 @@
+generated: '2026-10-09'
+method: derived
+generator: derive-vocabulary.py
+source: openapi/pipeshub-openapi.yml
+vocabulary:
+  name: PipesHub Domain Vocabulary
+  description: 'Terms declared by PipesHub''s own API contract: its resource groups, objects and enumerations, with the contract''s definitions.
+    Derived, not authored.'
+  version: '2026-10-09'
+  terms:
+  - term: User Account
+    definition: User authentication including multi-step MFA, password reset, OTP login, and token management
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: Organization Auth Config
+    definition: Admin configuration of authentication methods including MFA steps and allowed providers
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: SAML
+    definition: SAML 2.0 Single Sign-On integration with enterprise Identity Providers
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: OAuth
+    definition: OAuth 2.0 token exchange for third-party authentication providers
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: OAuth Provider
+    definition: PipesHub OAuth 2.0 Authorization Server implementing RFC 6749, RFC 7636 (PKCE), and OpenID Connect. **Supported Grant Types:**
+      - `authorization_code` - Standard OAuth flow with PKCE support - `client_credentials` - Machine-to-machine authentication - `refresh_token`
+      - Token refresh for long-lived access **Security Features:** - PKCE (Proof Key for Code Exchange) for public clients - State paramete
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: OAuth Apps
+    definition: Manage OAuth 2.0 client applications registered with PipesHub. OAuth apps allow third-party applications to access PipesHub APIs
+      on behalf of users or organizations. Each app receives a client ID and secret for authentication. **Who can see which apps** - **Everyone
+      (including org admins)** sees and manages only OAuth apps **they created** (`createdBy`). Other members' apps are hidden (not listed;
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: Personal Access Tokens
+    definition: Self-service, long-lived, scoped, revocable credentials that act as their creator — unlike an OAuth app's `client_credentials`
+      flow, which acts as the app. **Who can create one** - **Any authenticated org member** — unlike OAuth apps, this is deliberately not admin-gated.
+      **Session only** - Every `/personal-access-tokens/*` route requires the user's interactive session JWT. OAuth access tokens and
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: OpenID Connect
+    definition: OpenID Connect 1.0 endpoints for identity federation and discovery. **Discovery:** - `/.well-known/openid-configuration` - Authorization
+      server metadata - `/.well-known/oauth-authorization-server` - Authorization server metadata (RFC 8414) - `/.well-known/oauth-protected-resource/mcp`
+      - Protected resource metadata (RFC 9728) - `/.well-known/jwks.json` - Public keys for token verification **UserInf
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: Users
+    definition: User management operations
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: Service Accounts
+    definition: 'Machine identities that automation authenticates as, so a script reads with its own permissions rather than borrowing a person''s.
+      A service account is an ordinary user record with `kind: "service"`. It appears in the permission graph the same way people do, so "what
+      can this account see" is answered by the same code that answers it for a colleague. It can never sign in, and it is always a member, '
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: Service Tokens
+    definition: 'The credential a service account authenticates with. A service token is an OAuth access token, so signing, hashing, revocation
+      and the `/mcp` path are the same machinery personal access tokens use. What differs is the policy around it: an administrator mints it *for*
+      a service account rather than for themselves, scopes must be chosen explicitly, `agent:execute` is refused so version one is read-on'
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: Teams
+    definition: Team management operations
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: Organizations
+    definition: Organization management operations
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: User Groups
+    definition: User group management operations
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: Notifications
+    definition: In-app notifications for the signed-in user (connector errors, warnings, and related alerts)
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: Internal Storage
+    definition: Service-to-service storage endpoints, authenticated with the storage scoped token rather than a signed-in user's session, so these
+      are **not** callable by API clients or the browser. Storage checks only the org, not record permissions; read and write files through the
+      Knowledge Base routes (for example `GET /knowledgeBase/stream/record/{recordId}`).
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: Knowledge Base
+    definition: Knowledge base management operations
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: Knowledge Hub
+    definition: Unified browse API for root and child nodes (apps, record groups, folders, records) with filtering and search
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: Folders
+    definition: Folder organization and management
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: Records
+    definition: Record management and operations
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: Permissions
+    definition: Permission management for knowledge bases
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: Upload
+    definition: File upload operations
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: Connector
+    definition: Connector-related operations
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: Conversations
+    definition: AI-powered conversational chat management with citations and follow-up questions
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: Projects
+    definition: 'Workspaces that group related assistant and agent conversations under a shared name, custom instructions, a knowledge scope,
+      and reference files. Projects can be shared with teammates; project membership only grants read access to conversations explicitly marked
+      `projectVisibility: project` — a member never gets access to another member''s private chats. See `Conversations` for the two fields (`pro'
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: Semantic Search
+    definition: Enterprise semantic search across all indexed knowledge with relevance scoring
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: Agents
+    definition: Custom AI agents with specialized capabilities and tool integrations
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: Agent Templates
+    definition: Reusable templates for creating AI agents with predefined configurations
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: Agent Conversations
+    definition: Conversations with custom AI agents including streaming and feedback
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: Skills
+    definition: 'Beta: Skills (SKILL.md packages) that agents load on demand — CRUD, versioning, resources, import (npm/URL/upload), and learning-loop
+      candidate review. Gated by the ENABLE_SKILLS platform feature flag; disabled orgs get 403 on every route.'
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: Conversational Speech
+    definition: Server-backed Speech-to-Text (STT) and Text-to-Speech (TTS) for the chat UI. These endpoints are used by the chat frontend when
+      an admin has configured a TTS/STT provider under the AI Models configuration. When no provider is configured the client falls back to the
+      browser's native Web Speech API, so callers should treat a `409` response as "unconfigured, use browser APIs" rather than as a fatal e
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: Connector Registry
+    definition: Browse available connector types and their configuration schemas
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: Connector Instances
+    definition: Create, manage, and delete connector instances for your organization
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: Connector Configuration
+    definition: Configure authentication, sync settings, and filters for connectors
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: Connector Control
+    definition: Enable/disable connectors for sync or agent functionality
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: Connector OAuth
+    definition: OAuth 2.0 authorization flow for connectors requiring user consent
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: Connector Filters
+    definition: Dynamic filter options for selecting which data to sync
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: OAuth Configuration
+    definition: Admin management of OAuth credentials for connector types
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: Toolset Registry
+    definition: Browse available toolsets and their configuration schemas for agent integrations
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: Toolset Instances
+    definition: Create, manage, and configure toolset instances for your organization
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: Toolset Configuration
+    definition: Configure authentication and settings for toolset instances
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: Toolset OAuth
+    definition: OAuth 2.0 authorization flow for toolsets requiring user consent
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: Storage Configuration
+    definition: Configure storage backend for file uploads and documents. Supports AWS S3, Azure Blob Storage, or local filesystem.
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: SMTP Configuration
+    definition: Configure SMTP email server for sending notifications and invitations.
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: Authentication Configuration
+    definition: Configure authentication providers including Azure AD, Microsoft, Google OAuth, SAML SSO, and custom OAuth 2.0.
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: Platform Settings
+    definition: Platform-wide settings including file upload limits, feature flags, and custom system prompts.
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: AI Models Providers
+    definition: Manage individual AI model providers - add, update, delete, and set defaults.
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: Configuration Manager
+    definition: Manage organization-level configuration including Slack bot integration, AI models, and metrics collection.
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: Public URLs
+    definition: Configure public URLs for frontend application and connector callbacks.
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: Web Search
+    definition: Manage web search providers (DuckDuckGo, Serper, Tavily, Exa) and settings for internet search.
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: Metrics Collection
+    definition: Configure telemetry and metrics collection for application monitoring and analytics. PipesHub collects anonymized usage metrics
+      to help improve the product. Metrics are pushed to a configurable remote server at regular intervals. **Collected Metrics:** - API request
+      counts and response times - User activity patterns (anonymized) - Feature usage statistics - Error rates and types **Configuration Op
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: MCP
+    definition: Model Context Protocol (MCP) endpoints for AI tool integration. PipesHub exposes a Streamable HTTP MCP server that allows MCP-compatible
+      clients (such as Claude Desktop, Cursor, or custom agents) to interact with PipesHub tools including search, conversations, knowledge base
+      management, and connector operations. **Transport:** Streamable HTTP (JSON-RPC over HTTP) **Base Path:** `/mcp` (not under `
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: Crawling Jobs
+    definition: 'Endpoints for scheduling, managing, and monitoring data crawling jobs for enterprise connectors. The Crawling Manager uses BullMQ
+      (Redis-based queue) to schedule and execute crawling jobs that sync data from external connectors (Google Drive, OneDrive, Slack, Jira,
+      etc.) into PipesHub''s search index. **Key Features:** - Schedule recurring crawls (hourly, daily, weekly, monthly) or one-time crawls '
+    tags:
+    - Resource Group
+    source: openapi/pipeshub-openapi.yml
+  - term: AuthMethod
+    definition: Authentication method configuration
+    tags:
+    - Object
+    source: openapi/pipeshub-openapi.yml#/components/schemas/AuthMethod
+  - term: AuthStep
+    definition: A single step in multi-factor authentication flow
+    tags:
+    - Object
+    source: openapi/pipeshub-openapi.yml#/components/schemas/AuthStep
+  - term: AuthConfig
+    definition: Organization authentication configuration. Supports 1-3 authentication steps for multi-factor authentication. **Validation Rules:**
+      - Minimum 1 step, maximum 3 steps - Each step must have unique order - No duplicate methods within the same step - No method can appear
+      in multiple steps
+    tags:
+    - Object
+    source: openapi/pipeshub-openapi.yml#/components/schemas/AuthConfig
+  - term: UpdateAuthMethodResponse
+    definition: Response after updating organization authentication methods
+    tags:
+    - Object
+    source: openapi/pipeshub-openapi.yml#/components/schemas/UpdateAuthMethodResponse
+  - term: OrgAuthConfigSetupResponse
+    definition: Response from setting up organization auth configuration
+    tags:
+    - Object
+    source: openapi/pipeshub-openapi.yml#/components/schemas/OrgAuthConfigSetupResponse
+  - term: InitAuthRequest
+    definition: 'Optional JSON body for `/userAccount/initAuth`. Valid shapes include: omitting the body entirely, sending `{}` (empty object),
+      or `{ "email": "" }`. Neither the body nor `email` is required. When `email` is omitted or empty, the session is still created and `allowedMethods`
+      / `authProviders` are returned as usual; clients typically supply `email` later on `/userAccount/authenticate`. The `email` p'
+    tags:
+    - Object
+    source: openapi/pipeshub-openapi.yml#/components/schemas/InitAuthRequest
+  - term: InitAuthResponse
+    definition: Response containing available authentication methods and session info
+    tags:
+    - Object
+    source: openapi/pipeshub-openapi.yml#/components/schemas/InitAuthResponse
+  - term: AuthProviderGooglePublicConfig
+    definition: Public Google OAuth settings returned to clients
+    tags:
+    - Object
+    source: openapi/pipeshub-openapi.yml#/components/schemas/AuthProviderGooglePublicConfig
+  - term: AuthProviderMicrosoftPublicConfig
+    definition: Public Microsoft OAuth settings returned to clients
+    tags:
+    - Object
+    source: openapi/pipeshub-openapi.yml#/components/schemas/AuthProviderMicrosoftPublicConfig
+  - term: AuthProviderAzureAdPublicConfig
+    definition: Public Azure AD OAuth settings returned to clients
+    tags:
+    - Object
+    source: openapi/pipeshub-openapi.yml#/components/schemas/AuthProviderAzureAdPublicConfig
+  - term: AuthProviderOAuthPublicConfig
+    definition: Public generic OAuth provider settings returned to clients
+    tags:
+    - Object
+    source: openapi/pipeshub-openapi.yml#/components/schemas/AuthProviderOAuthPublicConfig
+  - term: AuthProviders
+    definition: Configuration for external authentication providers (returned when those methods are allowed)
+    tags:
+    - Object
+    source: openapi/pipeshub-openapi.yml#/components/schemas/AuthProviders
+  - term: AuthenticateRequest
+    definition: 'Request to authenticate using specified method. **Credential format varies by method:** - `password`: `{ password: "string" }`
+      - `otp`: `{ otp: "123456" }` (6-digit code) - `google`: `"google-id-token-string"` - `microsoft`: `{ accessToken: "...", idToken: "..."
+      }` - `azureAd`: `{ accessToken: "...", idToken: "..." }` - `oauth`: `{ accessToken: "...", idToken: "..." }` - `samlSso`: not accepted by'
+    tags:
+    - Object
+    source: openapi/pipeshub-openapi.yml#/components/schemas/AuthenticateRequest
+  - term: PasswordCredentials
+    definition: Credentials for password authentication
+    tags:
+    - Object
+    source: openapi/pipeshub-openapi.yml#/components/schemas/PasswordCredentials
+  - term: OtpCredentials
+    definition: Credentials for OTP authentication
+    tags:
+    - Object
+    source: openapi/pipeshub-openapi.yml#/components/schemas/OtpCredentials
+  - term: OAuthCredentials
+    definition: Credentials for OAuth authentication (Microsoft, Azure AD, generic OAuth)
+    tags:
+    - Object
+    source: openapi/pipeshub-openapi.yml#/components/schemas/OAuthCredentials
+  - term: AuthenticateMultiStepResponse
+    definition: Current authentication step succeeded; additional MFA steps remain
+    tags:
+    - Object
+    source: openapi/pipeshub-openapi.yml#/components/schemas/AuthenticateMultiStepResponse
+  - term: AuthenticateFinalResponse
+    definition: All authentication steps complete; JWT tokens returned
+    tags:
+    - Object
+    source: openapi/pipeshub-openapi.yml#/components/schemas/AuthenticateFinalResponse
+  - term: AuthenticateResponse
+    definition: Either the next step in a multi-factor flow (`status`, `nextStep`, `allowedMethods`, `authProviders`) or final tokens (`message`,
+      `accessToken`, `refreshToken`).
+    tags:
+    - Object
+    source: openapi/pipeshub-openapi.yml#/components/schemas/AuthenticateResponse
+  - term: OtpGenerateRequest
+    definition: Request for a sign-in code (OTP); a code is sent only if that email can sign in with one
+    tags:
+    - Object
+    source: openapi/pipeshub-openapi.yml#/components/schemas/OtpGenerateRequest
+  - term: LoginOtpGenerateResponse
+    definition: 'Plain-text response body, identical whether or not the email has an account, and worded so it doesn''t claim a code was delivered:
+      ``If that email can sign in with a code, one is being sent. It works for 10 minutes. If nothing arrives, check your spam folder or try again
+      later.``'
+    tags:
+    - Object
+    source: openapi/pipeshub-openapi.yml#/components/schemas/LoginOtpGenerateResponse
+  - term: PasswordResetRequest
+    definition: Request to reset password for authenticated user
+    tags:
+    - Object
+    source: openapi/pipeshub-openapi.yml#/components/schemas/PasswordResetRequest
+  - term: DataStringResponse
+    definition: Generic success payload with a single string field (e.g. password reset email, token reset)
+    tags:
+    - Object
+    source: openapi/pipeshub-openapi.yml#/components/schemas/DataStringResponse
+  - term: AuthenticatedPasswordResetResponse
+    definition: Response after authenticated user changes password (new access token issued)
+    tags:
+    - Object
+    source: openapi/pipeshub-openapi.yml#/components/schemas/AuthenticatedPasswordResetResponse
+  - term: ForgotPasswordRequest
+    definition: Request to send password reset email
+    tags:
+    - Object
+    source: openapi/pipeshub-openapi.yml#/components/schemas/ForgotPasswordRequest
+  - term: TokenPasswordResetRequest
+    definition: Request to reset password using email token
+    tags:
+    - Object
+    source: openapi/pipeshub-openapi.yml#/components/schemas/TokenPasswordResetRequest
+  - term: RefreshTokenResponse
+    definition: Response with new access token
+    tags:
+    - Object
+    source: openapi/pipeshub-openapi.yml#/components/schemas/RefreshTokenResponse

@@ -1,0 +1,24 @@
+generated: '2026-10-09'
+method: searched
+source: https://docs.pipeshub.com/developer/api-reference
+versioning:
+  scheme: URI path (/api/v1); product releases are semver tags on GitHub (current 0.9.1)
+  base: '{instance_url}/api/v1'
+  releases: https://github.com/pipeshub-ai/pipeshub-ai/releases
+deprecation:
+  policy: none published
+  sunset_headers: none documented
+  deprecated_operations:
+  - operationId: getKnowledgeHubRootNodes
+    path: GET /knowledgeBase/knowledge-hub/nodes
+  - operationId: getKnowledgeHubChildNodes
+    path: GET /knowledgeBase/knowledge-hub/nodes/{parentType}/{parentId}
+  - operationId: getTokenFromCode
+    path: POST /connectors/getTokenFromCode
+    replacement: generic OAuth flow via /connectors/{connectorId}/oauth/authorize
+  - operationId: saveToolsetConfig
+    path: POST /toolsets/{toolsetId}/config
+    replacement: PUT
+status_page: null
+sla: 'Enterprise Edition lists "Enterprise SLA" (https://pipeshub.com/pricing); no SLA terms published.'
+note: Deprecated operations derived from openapi/pipeshub-openapi.yml. No status page found.

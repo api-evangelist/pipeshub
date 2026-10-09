@@ -1,0 +1,865 @@
+openapi: 3.2.0
+info:
+  title: Pipeshub Permissions API
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@pipeshub.com
+  description: 'Operations tagged Permissions across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: '{instance_url}/api/v1'
+  description: Base API URL
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL (without /api/v1)
+- url: '{instance_url}'
+  description: Root URL (used for MCP endpoints mounted at /mcp)
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL
+security:
+- bearerAuth: []
+- oauth2: []
+tags:
+- name: Permissions
+  description: Permission management for knowledge bases
+paths:
+  /knowledgeBase/{kbId}/permissions:
+    post:
+      tags:
+      - Permissions
+      summary: Grant permissions
+      description: 'Grant access permissions to users or teams for a knowledge base.
+
+
+        **Required Permission:** OWNER
+
+
+        **Permission Roles (highest to lowest):**
+
+
+        1. **OWNER:** Full control, can delete KB, manage all permissions
+
+        2. **WRITER:** Can upload, edit, delete records, create/delete folders
+
+        3. **READER:** View-only access
+
+
+        **Grant to Multiple:**
+
+
+        Provide arrays of userIds and/or teamIds to grant the same role to multiple entities.'
+      operationId: createKBPermission
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: kbId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        description: Request payload
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userIds:
+                  type: array
+                  items:
+                    type: string
+                  description: User IDs to grant permission
+                teamIds:
+                  type: array
+                  items:
+                    type: string
+                  description: Team IDs to grant permission
+                role:
+                  type: string
+                  enum:
+                  - OWNER
+                  - WRITER
+                  - READER
+                  description: Permission role to grant. Required when userIds is provided; omit for team-only grants.
+      responses:
+        '201':
+          description: Permissions granted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeBasePermissionCreate'
+        '400':
+          description: 'Invalid request. Possible reasons:
+
+
+            - Missing userIds and teamIds
+
+            - Role required when adding users
+
+            - Invalid role value
+
+            - Invalid kbId (must be UUID)
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Valid bearer token required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 'Forbidden. Possible reasons:
+
+
+            - OAuth token lacks the `kb:write` scope
+
+            - Caller is not KB OWNER (only owners can grant permissions)
+
+            - Caller has no access to the knowledge base
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 'Not found. Possible reasons:
+
+
+            - Knowledge base does not exist
+
+            - Authenticated user not found in graph database
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error - Permission creation failed in connector or database
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Service unavailable - Connector service is unreachable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      tags:
+      - Permissions
+      summary: List permissions
+      description: 'Retrieve all permissions granted on a knowledge base.
+
+
+        **Required access:** Caller must hold any role on the knowledge base (OWNER, WRITER, or READER) and the `kb:read` OAuth scope when using an OAuth token.
+
+
+        Returns every user and team permission on the KB. Team entries have `type: TEAM` and `role: null` (teams are not assigned roles).'
+      operationId: listKBPermissions
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - kb:read
+      parameters:
+      - name: kbId
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+        description: Knowledge base ID
+      responses:
+        '200':
+          description: Permissions list retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeBasePermissionList'
+        '400':
+          description: 'Invalid request. Possible reasons:
+
+
+            - Empty `kbId` path parameter (Zod `getPermissionsSchema` requires `params.kbId` min length 1)
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized — valid bearer token required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 'Forbidden. Possible reasons:
+
+
+            - OAuth token lacks the `kb:read` scope
+
+            - Caller has no access to the knowledge base
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 'Not found. Possible reasons:
+
+
+            - Knowledge base does not exist
+
+            - Authenticated user not found in graph database
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error — permission listing failed in connector or database
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Service unavailable — connector service is unreachable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+      - Permissions
+      summary: Update permissions
+      description: 'Update permission roles for users on a knowledge base.
+
+
+        **Required access:** Caller must be KB **OWNER** and hold the `kb:write` OAuth scope when using an OAuth token.
+
+
+        **User IDs:** Provide graph user document IDs (the `id` field from list permissions / user `graphId` after graph sync), not Mongo user `_id` values.
+
+
+        **Teams:** `teamIds` must be empty or omitted. Teams do not have roles; only user permissions can be updated.
+
+
+        Users without an existing permission on the KB are skipped. If none of the supplied users have a permission to update, the request returns **404**.'
+      operationId: updateKBPermissions
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - kb:write
+      parameters:
+      - name: kbId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: Knowledge base ID (must be a valid UUID)
+      requestBody:
+        required: true
+        description: User permission role update payload
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                role:
+                  type: string
+                  enum:
+                  - OWNER
+                  - WRITER
+                  - READER
+                  description: New permission role to assign (required)
+                userIds:
+                  type: array
+                  items:
+                    type: string
+                  description: Graph user document IDs to update (at least one of `userIds` or `teamIds` must be non-empty)
+                teamIds:
+                  type: array
+                  items:
+                    type: string
+                  description: Must be empty or omitted — non-empty values are rejected (teams cannot have roles updated)
+              required:
+              - role
+      responses:
+        '200':
+          description: Permissions updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgebaseUpdatePermissionResponse'
+        '400':
+          description: 'Invalid request. Possible reasons:
+
+
+            - Missing or invalid `role` (must be OWNER, WRITER, or READER)
+
+            - Missing `userIds` and `teamIds`, or both empty
+
+            - Non-empty `teamIds` (teams cannot have roles updated)
+
+            - Invalid `kbId` (must be UUID)
+
+            - Bulk update involving OWNER permissions (owners must be updated one at a time)
+
+            - Attempt to remove the last OWNER from the knowledge base
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized — valid bearer token required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 'Forbidden. Possible reasons:
+
+
+            - OAuth token lacks the `kb:write` scope
+
+            - Caller is not KB OWNER (only owners can update permissions)
+
+            - Caller has no access to the knowledge base
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 'Not found. Possible reasons:
+
+
+            - Knowledge base does not exist
+
+            - Authenticated user not found in graph database
+
+            - None of the supplied users have an existing permission to update
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error — permission update failed in connector or database
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Service unavailable — connector service is unreachable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+      - Permissions
+      summary: Remove permissions
+      description: 'Remove access permissions from users or teams on a knowledge base.
+
+
+        **Required access:** Caller must be KB **OWNER** and hold the `kb:delete` OAuth scope when using an OAuth token.
+
+
+        **User IDs:** Provide graph user document IDs (the `id` field from list permissions / user `graphId` after graph sync), not Mongo user `_id` values.
+
+
+        **Request body:** Send both `userIds` and `teamIds` arrays (use `[]` when not removing that entity type). Omitting either field can cause a server error because the controller reads `.length` on both arrays.
+
+
+        Users or teams without an existing permission on the KB are skipped. If none of the supplied entities have a permission to remove, the request returns **404**.
+
+
+        **Owner restriction:** Cannot remove the last OWNER from the knowledge base — at least one owner must remain.'
+      operationId: deleteKBPermissions
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - kb:delete
+      parameters:
+      - name: kbId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: Knowledge base ID (must be a valid UUID)
+      requestBody:
+        required: true
+        description: User and/or team permission removal payload
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userIds:
+                  type: array
+                  items:
+                    type: string
+                  description: Graph user document IDs to remove (at least one of `userIds` or `teamIds` must be non-empty)
+                teamIds:
+                  type: array
+                  items:
+                    type: string
+                  description: Graph team document IDs to remove
+      responses:
+        '200':
+          description: Permissions removed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeBaseDeleteResponseSchema'
+        '400':
+          description: 'Invalid request. Possible reasons:
+
+
+            - Missing `userIds` and `teamIds`, or both empty arrays
+
+            - Invalid `kbId` (must be UUID)
+
+            - Attempt to remove the last OWNER from the knowledge base
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized — valid bearer token required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 'Forbidden. Possible reasons:
+
+
+            - OAuth token lacks the `kb:delete` scope
+
+            - Caller is not KB OWNER (only owners can remove permissions)
+
+            - Caller has no access to the knowledge base
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 'Not found. Possible reasons:
+
+
+            - Knowledge base does not exist
+
+            - Authenticated user not found in graph database
+
+            - None of the supplied users or teams have an existing permission to remove
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error — permission removal failed in connector or database
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '503':
+          description: Service unavailable — connector service is unreachable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+components:
+  schemas:
+    KnowledgeBaseDeleteResponseSchema:
+      type: object
+      additionalProperties: false
+      description: Response returned when user or team permissions are removed from a knowledge base
+      properties:
+        kbId:
+          type: string
+          description: Knowledge base ID
+        userIds:
+          type: array
+          items:
+            type: string
+          description: Graph user document IDs whose permissions were removed (Arango `users/{id}` key, not Mongo user `_id`)
+        teamIds:
+          type: array
+          items:
+            type: string
+          description: Graph team document IDs whose permissions were removed
+      required:
+      - kbId
+      - userIds
+      - teamIds
+    KnowledgeBasePermissionList:
+      type: object
+      additionalProperties: false
+      description: Response returned when listing permissions on a knowledge base
+      properties:
+        kbId:
+          type: string
+          description: Knowledge base ID
+        permissions:
+          type: array
+          description: All user and team permissions granted on the knowledge base
+          items:
+            type: object
+            additionalProperties: false
+            description: A single user or team permission entry
+            properties:
+              id:
+                type: string
+                description: Permission entry ID (user or team document key)
+              userId:
+                type:
+                - string
+                - 'null'
+                description: User ID (null for team permissions)
+              email:
+                type:
+                - string
+                - 'null'
+                description: User email (null for team permissions)
+              name:
+                type:
+                - string
+                - 'null'
+                description: Display name (user full name or team name)
+              role:
+                type:
+                - string
+                - 'null'
+                enum:
+                - OWNER
+                - WRITER
+                - READER
+                description: Permission role (null for team permissions; teams are not assigned roles)
+              type:
+                type: string
+                enum:
+                - USER
+                - TEAM
+                description: Whether permission is for a user or team
+              createdAtTimestamp:
+                type: integer
+                format: int64
+                description: Permission creation timestamp (epoch milliseconds)
+              updatedAtTimestamp:
+                type: integer
+                format: int64
+                description: Permission last update timestamp (epoch milliseconds)
+            required:
+            - id
+            - type
+            - createdAtTimestamp
+            - updatedAtTimestamp
+        totalCount:
+          type: integer
+          description: Total number of permissions in the list
+      required:
+      - kbId
+      - permissions
+      - totalCount
+    KnowledgeBasePermissionCreate:
+      type: object
+      additionalProperties: false
+      description: Response returned when permissions are granted on a knowledge base
+      properties:
+        kbId:
+          type: string
+          description: Knowledge base ID
+        permissionResult:
+          type: object
+          additionalProperties: false
+          description: Connector result from permission creation
+          properties:
+            success:
+              type: boolean
+              description: Success status
+            grantedCount:
+              type: integer
+              description: Number of new permissions granted (users and teams)
+            grantedUsers:
+              type: array
+              items:
+                type: string
+              description: User IDs that received new permissions
+            grantedTeams:
+              type: array
+              items:
+                type: string
+              description: Team IDs that received new permissions
+            role:
+              type: string
+              enum:
+              - OWNER
+              - WRITER
+              - READER
+              description: Granted role (defaults to READER for team-only grants)
+            kbId:
+              type: string
+              description: Knowledge base ID
+            details:
+              type: object
+              additionalProperties: false
+              description: Additional details of the permissions created (currently always empty)
+          required:
+          - success
+          - grantedCount
+          - grantedUsers
+          - grantedTeams
+          - role
+          - kbId
+          - details
+      required:
+      - kbId
+      - permissionResult
+    KnowledgebaseUpdatePermissionResponse:
+      type: object
+      additionalProperties: false
+      description: Response returned when user permission roles are updated on a knowledge base
+      properties:
+        kbId:
+          type: string
+          description: Knowledge base ID
+        userIds:
+          type: array
+          items:
+            type: string
+          description: Graph user document IDs whose roles were updated (Arango `users/{id}` key, not Mongo user `_id`)
+        teamIds:
+          type: array
+          items:
+            type: string
+          description: Graph team document IDs updated (always empty — teams cannot have roles updated)
+        newRole:
+          type: string
+          enum:
+          - OWNER
+          - WRITER
+          - READER
+          description: New role assigned to the updated users
+      required:
+      - kbId
+      - userIds
+      - teamIds
+      - newRole
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      description: 'Standard error envelope returned by all errors routed through `ErrorMiddleware`.
+
+        Applies to all `BaseError` subclasses including `HttpError`, `ValidationError`, and others.
+
+        The `code` field is a machine-readable string identifying the error type (e.g.
+
+        `HTTP_UNAUTHORIZED`, `HTTP_NOT_FOUND`, `VALIDATION_ERROR`, `INTERNAL_ERROR`).
+
+        '
+      properties:
+        error:
+          type: object
+          additionalProperties: false
+          required:
+          - code
+          - message
+          properties:
+            requestId:
+              type: string
+              description: 'Identifier for this request, echoed so a bug report can quote it.
+
+                Absent when the request never reached the middleware that assigns one.
+
+                '
+            code:
+              type: string
+              description: 'Machine-readable error code. For application errors it takes the form `HTTP_<VARIANT>`
+
+                For unhandled runtime errors (e.g. database unavailable) it is `INTERNAL_ERROR`.
+
+                '
+              example: HTTP_BAD_REQUEST
+            message:
+              type: string
+              description: Human-readable description of the error
+              example: Admin access required
+            metadata:
+              type: object
+              description: Additional context (only present in development environments)
+              additionalProperties: true
+      required:
+      - error
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'JWT Bearer token for authenticated requests.
+
+
+        A personal access token (see the **Personal Access Tokens** tag) is a
+
+        `phpat_`-prefixed variant of this same JWT — e.g. `phpat_eyJhbGci...`.
+
+        The prefix is display-only, added for secret-scanner detectability; the
+
+        gateway strips it before verifying the token, so send it exactly as
+
+        issued, prefix included.
+
+        '
+    scopedToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Scoped JWT token for service-to-service authentication.
+
+        Format: "Bearer {scoped_token}"
+
+        Required scopes vary by endpoint.
+
+        '
+    oauth2:
+      type: oauth2
+      description: 'OAuth 2.0 authentication with fine-grained scopes.
+
+        Supports authorization_code (with PKCE) and client_credentials flows.
+
+        OAuth tokens are Bearer JWTs — use the same Authorization header as regular tokens.
+
+        For **client_credentials**, machine JWTs may use `userId === client_id`; the Node gateway resolves the OAuth app creator — see **OAuth Provider** tag.
+
+        '
+      flows:
+        authorizationCode:
+          authorizationUrl: /api/v1/oauth2/authorize
+          tokenUrl: /api/v1/oauth2/token
+          refreshUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:read: Read semantic search results and history
+            semantic:write: Execute semantic search
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+            crawl:delete: Delete crawling jobs
+        clientCredentials:
+          tokenUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:write: Execute semantic search
+            semantic:read: Read semantic search results and history
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+x-refined-from:
+- pipeshub-openapi.yaml
+- pipeshub-openapi.yml

@@ -1,0 +1,62 @@
+generated: '2026-10-09'
+method: derived
+generator: derive-webhooks.py
+source:
+- openapi/pipeshub-openapi.yml
+description: 'Event surface derived from the provider''s own OpenAPI: enum event. No AsyncAPI document is published by the provider; this catalog
+  lists the events the contract names.'
+management_operations:
+- listInAppNotifications
+- getNotificationStats
+- markAllInAppNotificationsRead
+- markInAppNotificationRead
+- markInAppNotificationUnread
+- archiveInAppNotification
+- unarchiveInAppNotification
+- dismissInAppNotification
+- samlSignInCallback
+- handleOAuthCallback
+- handleToolsetOAuthCallback
+events:
+- event: RUN_STARTED
+  declared_in: components/schemas/AgentRegenerateSSEEvent/properties/event
+- event: RUN_FINISHED
+  declared_in: components/schemas/AgentRegenerateSSEEvent/properties/event
+- event: RUN_ERROR
+  declared_in: components/schemas/AgentRegenerateSSEEvent/properties/event
+- event: STEP_STARTED
+  declared_in: components/schemas/AgentRegenerateSSEEvent/properties/event
+- event: STEP_FINISHED
+  declared_in: components/schemas/AgentRegenerateSSEEvent/properties/event
+- event: TEXT_MESSAGE_START
+  declared_in: components/schemas/AgentRegenerateSSEEvent/properties/event
+- event: TEXT_MESSAGE_CONTENT
+  declared_in: components/schemas/AgentRegenerateSSEEvent/properties/event
+- event: TEXT_MESSAGE_END
+  declared_in: components/schemas/AgentRegenerateSSEEvent/properties/event
+- event: REASONING_START
+  declared_in: components/schemas/AgentRegenerateSSEEvent/properties/event
+- event: REASONING_MESSAGE_START
+  declared_in: components/schemas/AgentRegenerateSSEEvent/properties/event
+- event: REASONING_MESSAGE_CONTENT
+  declared_in: components/schemas/AgentRegenerateSSEEvent/properties/event
+- event: REASONING_MESSAGE_END
+  declared_in: components/schemas/AgentRegenerateSSEEvent/properties/event
+- event: REASONING_END
+  declared_in: components/schemas/AgentRegenerateSSEEvent/properties/event
+- event: TOOL_CALL_START
+  declared_in: components/schemas/AgentRegenerateSSEEvent/properties/event
+- event: TOOL_CALL_ARGS
+  declared_in: components/schemas/AgentRegenerateSSEEvent/properties/event
+- event: TOOL_CALL_END
+  declared_in: components/schemas/AgentRegenerateSSEEvent/properties/event
+- event: TOOL_CALL_RESULT
+  declared_in: components/schemas/AgentRegenerateSSEEvent/properties/event
+- event: STATE_DELTA
+  declared_in: components/schemas/AgentRegenerateSSEEvent/properties/event
+- event: STATE_SNAPSHOT
+  declared_in: components/schemas/AgentRegenerateSSEEvent/properties/event
+- event: CUSTOM
+  declared_in: components/schemas/AgentRegenerateSSEEvent/properties/event
+- event: HEARTBEAT
+  declared_in: components/schemas/AgentRegenerateSSEEvent/properties/event

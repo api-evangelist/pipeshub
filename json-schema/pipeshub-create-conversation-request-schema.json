@@ -1,0 +1,234 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/pipeshub/main/json-schema/pipeshub-create-conversation-request-schema.json",
+  "title": "CreateConversationRequest",
+  "description": "Request body for creating a new AI conversation.\n\n**Query Processing:**\n\nThe query is processed through PipesHub's AI pipeline which:\n\n- Performs semantic search across indexed knowledge bases\n- Retrieves relevant context from matching documents\n- Generates a response with citations to source materials\n- Suggests follow-up questions based on the conversation\n",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/pipeshub-openapi.yml#/components/schemas/CreateConversationRequest",
+  "type": "object",
+  "required": [
+    "query"
+  ],
+  "properties": {
+    "query": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100000,
+      "description": "The user's question or prompt to start the conversation.\nSupports natural language queries of any complexity.\n"
+    },
+    "recordIds": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "format": "objectId"
+      },
+      "description": "Limit the AI's knowledge scope to specific records/documents.\nWhen provided, only these records will be searched for context.\n"
+    },
+    "filters": {
+      "$ref": "#/$defs/Filters"
+    },
+    "appliedFilters": {
+      "$ref": "#/$defs/AppliedFilters"
+    },
+    "attachments": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ChatAttachmentRef"
+      },
+      "description": "Uploaded chat attachments to associate with this conversation turn (see\n`POST /conversations/attachments/upload`).\n"
+    },
+    "projectId": {
+      "type": "string",
+      "format": "objectId",
+      "description": "Link the new conversation to a project the caller has at least\nviewer access to. When the project's instructions, knowledge\nscope, or files are set and this request didn't supply its own\n`filters`/`attachments`, they are merged in as a fallback (the\nrequest always wins). Ignored on follow-up turns — only\nmeaningful when creating a conversation.\n"
+    },
+    "projectVisibility": {
+      "type": "string",
+      "enum": [
+        "private",
+        "project"
+      ],
+      "description": "Only meaningful together with `projectId`. Overrides the\nproject's default sharing behavior for this one conversation:\n`private` keeps it visible to the owner only; `project` exposes\nit to every project member. Defaults from the project's\n`chatSharing` setting when omitted.\n"
+    },
+    "modelKey": {
+      "type": "string",
+      "description": "Identifier for the AI model configuration to use.\nAvailable models depend on organization settings.\n"
+    },
+    "modelName": {
+      "type": "string",
+      "description": "Display name of the AI model"
+    },
+    "modelFriendlyName": {
+      "type": "string",
+      "description": "Friendly display name of the selected model"
+    },
+    "chatMode": {
+      "type": "string",
+      "enum": [
+        "agent",
+        "internal_search",
+        "web_search"
+      ],
+      "description": "Optional execution mode for non-stream consumers of this shared\nrequest schema.\n`agent` uses the universal agent loop, while `internal_search`\nand `web_search` use their corresponding assistant search paths.\n"
+    },
+    "timezone": {
+      "type": "string",
+      "minLength": 1,
+      "description": "IANA timezone identifier from the client (top-level field).\nUsed to provide time-aware context to the AI.\n"
+    },
+    "currentTime": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 / RFC 3339 datetime from the client (top-level field; UTC `Z` or numeric offset).\n"
+    },
+    "tools": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Optional list of tool identifiers (fully-qualified action names such as\n\"jira.create_issue\") that the AI agent is permitted to invoke for this\nrequest. When omitted the agent may use any configured tool. Applicable\nonly when `chatMode` is `agent`.\n"
+    },
+    "protocol": {
+      "type": "string",
+      "enum": [
+        "agui"
+      ],
+      "description": "AG-UI is the only supported wire protocol. When present must be\n`\"agui\"`. Omitting the field is equivalent — the server always\nuses the AG-UI vocabulary (`RUN_STARTED`, `TEXT_MESSAGE_CONTENT`,\netc.). Kept in the schema for backward compatibility with callers\nthat already send it.\n"
+    },
+    "agentCapabilities": {
+      "$ref": "#/$defs/AgentCapabilities"
+    },
+    "runId": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Client-generated identifier for this run. Send it here to enable\n`POST /conversations/{conversationId}/cancel {runId}` while the\nstream is still generating. Optional — a caller that never sends\none just can't cooperatively cancel the run.\n"
+    }
+  },
+  "$defs": {
+    "AgentCapabilities": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Per-request agent capability toggles. Only meaningful when `chatMode`\nselects an agent mode; ignored otherwise. Each field falls back to its\nown `default` below when omitted — a missing flag is not uniformly\n`true`. Omitting the whole object applies every default.\n",
+      "properties": {
+        "internalSearch": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether the agent may search internal knowledge bases for this turn."
+        },
+        "webSearch": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether the agent may perform web search for this turn."
+        },
+        "deepSearch": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether the agent may use deeper, higher-latency retrieval for this turn."
+        }
+      }
+    },
+    "AppliedFilterNode": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "A single filter node selected by the user (used for display/persistence of active filters)",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier of the filter node"
+        },
+        "name": {
+          "type": "string",
+          "description": "Display name of the filter node"
+        },
+        "nodeType": {
+          "type": "string",
+          "description": "Type of the node (e.g. app, recordGroup, folder, record)"
+        },
+        "connector": {
+          "type": "string",
+          "description": "Connector identifier associated with this node"
+        }
+      }
+    },
+    "AppliedFilters": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Rich filter state selected by the user, used for display and persistence only.\nThis mirrors the active selection shown in the UI and is distinct from the\nmachine-readable `filters` field used for retrieval scoping.\n",
+      "properties": {
+        "apps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AppliedFilterNode"
+          },
+          "description": "Applied app/connector filter nodes"
+        },
+        "kb": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AppliedFilterNode"
+          },
+          "description": "Applied knowledge-base filter nodes"
+        }
+      }
+    },
+    "ChatAttachmentRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Reference to an attachment produced by `POST /conversations/attachments/upload`\n(or the equivalent agent route). Include in create/stream/message bodies\nso the turn is sent with uploaded files.\n",
+      "required": [
+        "recordId"
+      ],
+      "properties": {
+        "recordId": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Attachment record id returned from the upload endpoint."
+        },
+        "recordName": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Original display name of the file when known."
+        },
+        "mimeType": {
+          "type": "string",
+          "minLength": 1,
+          "description": "MIME type of the uploaded file."
+        },
+        "extension": {
+          "type": "string",
+          "minLength": 1,
+          "description": "File extension (e.g. `pdf`)."
+        },
+        "virtualRecordId": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Optional synthetic record id used by the graph layer."
+        }
+      }
+    },
+    "Filters": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "App connector instance ids and knowledge-base / record-group ids that narrow retrieval\nfor a turn. For **org assistant** chat streams, send explicit `apps` / `kb` lists.\nFor **agent** chat streams, send explicit id lists, or **omit** `filters` (and `tools`)\nto let the service use the agent’s stored knowledge and tool configuration. Sending\n`{ \"apps\": [], \"kb\": [] }` on an agent stream means **no** knowledge sources for that\nturn (it is not “full org default”).\n",
+      "properties": {
+        "apps": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Connector instance ids to scope retrieval for this turn. Each element\nmust be a valid UUID (connector app id, KB app id, record-group id, etc.).\nGateway validation matches Zod `appOrKbIdSchema`.\n"
+        },
+        "kb": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Knowledge-base app ids to scope retrieval for this turn.\nEach element must be a valid UUID.\n"
+        }
+      }
+    }
+  }
+}

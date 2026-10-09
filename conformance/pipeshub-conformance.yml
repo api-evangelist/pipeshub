@@ -1,0 +1,27 @@
+generated: '2026-10-09'
+method: searched
+source: https://docs.pipeshub.com/developer/oauth2
+standards:
+- id: oauth2
+  conforms: true
+  evidence: docs.pipeshub.com/developer/oauth2 — Authorization Code (with PKCE), Client Credentials and Refresh Token grants; /api/v1/oauth2/authorize,
+    /token, /revoke, /introspect endpoints.
+- id: oidc
+  conforms: true
+  evidence: '"PipesHub supports OpenID Connect Discovery" — /.well-known/openid-configuration, /.well-known/oauth-authorization-server, /.well-known/jwks.json;
+    /api/v1/oauth2/userinfo requires openid scope.'
+- id: scim
+  conforms: claimed
+  evidence: Pricing page lists "SSO + SCIM" for Enterprise Edition (https://pipeshub.com/pricing); no SCIM endpoints in the published contract.
+- id: openapi-3.0
+  conforms: true
+  evidence: the document declares 3.0.0
+- id: rfc9457
+  conforms: false
+  evidence: no response declares application/problem+json
+- id: idempotency
+  conforms: false
+  evidence: no idempotency key parameter on mutating operations
+- id: pagination
+  conforms: true
+  evidence: list operations take cursor, limit, page

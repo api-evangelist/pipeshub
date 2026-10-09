@@ -1,0 +1,951 @@
+openapi: 3.2.0
+info:
+  title: Pipeshub Configuration Manager API
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@pipeshub.com
+  description: 'Operations tagged Configuration Manager across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: '{instance_url}/api/v1'
+  description: Base API URL
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL (without /api/v1)
+- url: '{instance_url}'
+  description: Root URL (used for MCP endpoints mounted at /mcp)
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL
+security:
+- bearerAuth: []
+- oauth2: []
+tags:
+- name: Configuration Manager
+  description: Manage organization-level configuration including Slack bot integration, AI models, and metrics collection.
+paths:
+  /configurationManager/slack-bot:
+    get:
+      tags:
+      - Configuration Manager
+      summary: Get Slack bot configurations
+      description: Retrieve all Slack bot configurations for the organization.
+      operationId: getSlackBotConfigs
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Slack bot configs retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  configs:
+                    type: array
+                    items:
+                      type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - Admin access required
+    post:
+      tags:
+      - Configuration Manager
+      summary: Create Slack bot configuration
+      description: Create a new Slack bot configuration for the organization.
+      operationId: createSlackBotConfig
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        description: Request payload
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Slack bot config created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - Admin access required
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /configurationManager/slack-bot/{configId}:
+    put:
+      tags:
+      - Configuration Manager
+      summary: Update Slack bot configuration
+      description: Update an existing Slack bot configuration.
+      operationId: updateSlackBotConfig
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: configId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        description: Request payload
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Slack bot config updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - Admin access required
+        '404':
+          description: Config not found
+    delete:
+      tags:
+      - Configuration Manager
+      summary: Delete Slack bot configuration
+      description: Delete a Slack bot configuration.
+      operationId: deleteSlackBotConfig
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: configId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Slack bot config deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - Admin access required
+        '404':
+          description: Config not found
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /configurationManager/metricsCollection/pushInterval:
+    patch:
+      tags:
+      - Configuration Manager
+      summary: Set metrics push interval
+      description: Configure the interval for pushing metrics to the collection server.
+      operationId: setMetricsCollectionPushInterval
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        description: Request payload
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                pushInterval:
+                  type: integer
+                  description: Push interval in seconds
+      responses:
+        '200':
+          description: Push interval updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - Admin access required
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /configurationManager/metricsCollection/serverUrl:
+    patch:
+      tags:
+      - Configuration Manager
+      summary: Set metrics remote server URL
+      description: Configure the remote server URL for metrics collection.
+      operationId: setMetricsCollectionRemoteServer
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        description: Request payload
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                serverUrl:
+                  type: string
+                  format: uri
+      responses:
+        '200':
+          description: Server URL updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - Admin access required
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /configurationManager/aiModelsConfig:
+    get:
+      tags:
+      - Configuration Manager
+      summary: Get AI models configuration
+      description: 'Retrieve the AI models configuration for the organization. Each entry''s
+
+        `configuration` includes only `model`, `modelFriendlyName`, and
+
+        `dimensions` when stored.'
+      operationId: getAIModelsConfig
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: AI models config retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - Admin access required
+    post:
+      tags:
+      - Configuration Manager
+      summary: Create AI models configuration
+      description: Create or initialize AI models configuration for the organization.
+      operationId: createAIModelsConfig
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        description: Request payload
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: AI models config created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - Admin access required
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /configurationManager/ai-models:
+    get:
+      tags:
+      - Configuration Manager
+      summary: Get AI model providers
+      description: 'Retrieve all configured AI model provider entries grouped by model type
+
+        (admin-only). Returns the stored KV shape under `models`, not the flattened
+
+        list from getAvailableModelsByType. Each entry''s `configuration` includes
+
+        only `model`, `modelFriendlyName`, and `dimensions` when stored.'
+      operationId: getAIModelsProviders
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: AI model providers retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAIModelsProvidersResponse'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - Admin access required
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /configurationManager/ai-models/roles:
+    get:
+      tags:
+      - Configuration Manager
+      summary: Get model role assignments
+      description: 'Returns the current role-to-model assignments for the organisation.
+
+
+        Each key in `modelRoles` is a named role (e.g. `indexing`); the value
+
+        identifies which configured model handles that role via its `modelType`
+
+        bucket and `modelKey` UUID.
+
+
+        Returns an empty `modelRoles` object when no roles have been configured.'
+      operationId: getModelRoles
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Role assignments retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetModelRolesResponse'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden — admin access required
+    put:
+      tags:
+      - Configuration Manager
+      summary: Update model role assignments
+      description: 'Replaces the entire role-to-model assignment map with the supplied
+
+        `roles` object. Roles absent from the request body are deleted — this
+
+        is how the caller unsets a role (e.g. the frontend omits a key to
+
+        remove a previously assigned indexing model).
+
+
+        **Validation rules:**
+
+        - `modelType` must be one of: `llm`, `slm`, `embedding`, `ocr`,
+
+        `reasoning`, `multiModal`, `imageGeneration`, `tts`, `stt`.
+
+        - `modelKey` must refer to an existing provider entry within that
+
+        `modelType` bucket. A 400 is returned if the model cannot be found.
+
+        - Both `modelType` and `modelKey` are required for every role entry.'
+      operationId: updateModelRoles
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateModelRolesRequest'
+            examples:
+              assignIndexingModel:
+                summary: Assign a small model for the indexing role
+                value:
+                  roles:
+                    indexing:
+                      modelType: slm
+                      modelKey: 3f2a1c8e-0000-0000-0000-000000000001
+      responses:
+        '200':
+          description: Role assignments updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateModelRolesResponse'
+        '400':
+          description: 'Bad request. Possible causes:
+
+            - `roles` field missing or not an object
+
+            - A role entry is missing `modelType` or `modelKey`
+
+            - `modelType` is not a recognised bucket
+
+            - `modelKey` does not exist within the specified `modelType` bucket
+
+            '
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum:
+                    - error
+                  message:
+                    type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden — admin access required
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+components:
+  schemas:
+    AIModelsConfig:
+      type: object
+      additionalProperties: false
+      required:
+      - ocr
+      - embedding
+      - slm
+      - llm
+      - reasoning
+      - multiModal
+      - imageGeneration
+      - tts
+      - stt
+      properties:
+        ocr:
+          type: array
+          items:
+            $ref: '#/components/schemas/AIModelProviderConfig'
+        embedding:
+          type: array
+          items:
+            $ref: '#/components/schemas/AIModelProviderConfig'
+        slm:
+          type: array
+          items:
+            $ref: '#/components/schemas/AIModelProviderConfig'
+        llm:
+          type: array
+          items:
+            $ref: '#/components/schemas/AIModelProviderConfig'
+        reasoning:
+          type: array
+          items:
+            $ref: '#/components/schemas/AIModelProviderConfig'
+        multiModal:
+          type: array
+          items:
+            $ref: '#/components/schemas/AIModelProviderConfig'
+        imageGeneration:
+          type: array
+          items:
+            $ref: '#/components/schemas/AIModelProviderConfig'
+        tts:
+          type: array
+          description: Text-to-Speech providers used to generate chat audio.
+          items:
+            $ref: '#/components/schemas/AIModelProviderConfig'
+        stt:
+          type: array
+          description: Speech-to-Text providers used to transcribe chat audio.
+          items:
+            $ref: '#/components/schemas/AIModelProviderConfig'
+        modelRoles:
+          type: object
+          description: Optional map of named role → model assignment. Each key is a role name (e.g. `indexing`) and the value identifies which configured model handles that role. When a role is absent the corresponding service skips LLM-based processing for that role.
+          additionalProperties:
+            $ref: '#/components/schemas/ModelRoleAssignment'
+      description: Must have at least one model type configured
+    UpdateModelRolesResponse:
+      type: object
+      description: Updated model role assignments after the write.
+      required:
+      - status
+      - message
+      - modelRoles
+      properties:
+        status:
+          type: string
+          enum:
+          - success
+        message:
+          type: string
+          example: Model roles updated successfully
+        modelRoles:
+          type: object
+          description: The full role map after the update.
+          additionalProperties:
+            $ref: '#/components/schemas/ModelRoleAssignment'
+    AIModelProviderConfig:
+      type: object
+      additionalProperties: false
+      required:
+      - provider
+      - configuration
+      properties:
+        provider:
+          type: string
+          description: AI provider name
+        configuration:
+          $ref: '#/components/schemas/AIModelProviderConfiguration'
+        modelFriendlyName:
+          type: string
+          description: 'Display name for this model entry. May duplicate configuration.modelFriendlyName
+
+            when set on the stored provider record.
+
+            '
+        isMultimodal:
+          type: boolean
+          default: false
+          description: Whether the model supports multimodal input
+        isReasoning:
+          type: boolean
+          default: false
+          description: Whether the model supports reasoning
+        isDefault:
+          type: boolean
+          default: false
+          description: Whether this should be the default model
+        contextLength:
+          type:
+          - integer
+          - 'null'
+          description: Context length for the model
+        modelKey:
+          type: string
+          description: Unique identifier for this model configuration
+          readOnly: true
+    GetModelRolesResponse:
+      type: object
+      description: Current model role assignments for the organisation.
+      required:
+      - status
+      - modelRoles
+      properties:
+        status:
+          type: string
+          enum:
+          - success
+        modelRoles:
+          type: object
+          description: Map of role name → assignment. Empty object when no roles are configured.
+          additionalProperties:
+            $ref: '#/components/schemas/ModelRoleAssignment'
+    ModelRoleAssignment:
+      type: object
+      description: Identifies which configured model is assigned to a named role.
+      required:
+      - modelType
+      - modelKey
+      properties:
+        modelType:
+          type: string
+          description: The model-type bucket the assigned model lives in (e.g. `llm`, `slm`, `multiModal`).
+          example: slm
+        modelKey:
+          type: string
+          description: UUID of the model entry within the bucket.
+          example: 3f2a1c8e-0000-0000-0000-000000000001
+    AIModelProviderConfiguration:
+      type: object
+      description: 'Provider-specific configuration stored on each AI model entry.
+
+
+        **Read shape:** user-facing GET responses return only `model`,
+
+        `modelFriendlyName`, and `dimensions` (when stored). Values are copied as-is;
+
+        other keys including credentials are omitted.
+
+
+        **Write shape:** create and update still accept the full provider payload
+
+        (Zod `configurationSchema` with `.passthrough()`). An omitted key retains
+
+        the stored value; send an empty string to clear one.
+
+
+        Properties below are the documented union of the Zod base shape and registry-defined
+
+        configuration keys (all optional unless required by a given provider at runtime).
+
+        '
+      additionalProperties: false
+      properties:
+        model:
+          type: string
+          description: 'Model name/identifier. May be comma-separated for multiple models
+
+            (e.g. `gpt-5.6-luna, gpt-5.6-terra`).
+
+            '
+          example: gpt-5.6-luna
+        modelFriendlyName:
+          type: string
+          description: 'Display name for the model. Only allowed when `model` is a single name
+
+            (not comma-separated).
+
+            '
+        apiKey:
+          type: string
+          description: API key for the provider
+        endpoint:
+          type: string
+          description: Custom endpoint URL (Azure OpenAI, self-hosted, Wispr override)
+        organizationId:
+          type: string
+          description: Organization ID (OpenAI)
+        deploymentName:
+          type: string
+          description: Deployment name (Azure OpenAI)
+        provider:
+          type: string
+          description: Bedrock model vendor (e.g. anthropic, cohere) or provider name override
+        customProvider:
+          type: string
+          description: Custom Bedrock vendor name when `provider` is `other`
+        awsAccessKeyId:
+          type: string
+          description: AWS access key (Bedrock). Optional - omit to use IAM role credentials.
+        awsAccessSecretKey:
+          type: string
+          description: AWS secret key (Bedrock). Optional - omit to use IAM role credentials.
+        region:
+          type: string
+          description: AWS region (Bedrock)
+        project:
+          type: string
+          description: GCP project ID (Vertex AI)
+        location:
+          type: string
+          description: Vertex AI region (e.g. us-central1)
+        serviceAccountJson:
+          type: string
+          description: 'Google Cloud service account JSON key (Vertex AI). Uploaded as a string;
+
+            treated as a secret at runtime.
+
+            '
+        dimensions:
+          description: 'Embedding output dimensions override (when supported by the model).
+
+            Stored configs may use an empty string when unset (registry default).
+
+            '
+          anyOf:
+          - type: integer
+          - type: string
+            enum:
+            - ''
+        voice:
+          type: string
+          description: Default TTS voice (OpenAI / Gemini audio)
+        responseFormat:
+          type: string
+          description: TTS audio format (e.g. mp3, wav)
+        device:
+          type: string
+          description: Whisper runtime device (auto, cpu, cuda)
+        computeType:
+          type: string
+          description: Whisper numeric precision (e.g. int8, float16)
+        modelDir:
+          type: string
+          description: Whisper model weights cache directory
+        language:
+          type: string
+          description: Wispr Flow default language (ISO 639-1) or empty for auto-detect
+        appType:
+          type: string
+          description: Wispr Flow output formatting (e.g. ai, email)
+        model_kwargs:
+          type: object
+          description: 'Optional keyword arguments forwarded to LangChain embedding/LLM clients
+
+            (mirrors Zod `z.record(z.any())`). Used by HuggingFace (`device`, `api_key`)
+
+            and Bedrock (`max_tokens`) paths in Python; values are typically string,
+
+            number, or boolean. Omitted when not configured.
+
+            '
+          additionalProperties: {}
+        encode_kwargs:
+          type: object
+          description: 'Optional encoding kwargs for embedding models (mirrors Zod
+
+            `z.record(z.any())`). Commonly `normalize_embeddings` (boolean) for
+
+            HuggingFace and SentenceTransformer providers. Omitted when not configured.
+
+            '
+          additionalProperties: {}
+        cache_folder:
+          type: string
+          description: Cache folder for models
+    GetAIModelsProvidersResponse:
+      type: object
+      additionalProperties: false
+      description: 'Success response from getAIModelsProviders. Returns the stored models
+
+        bucket map. Each entry''s `configuration` includes only `model`,
+
+        `modelFriendlyName`, and `dimensions` when those keys were stored.
+
+        '
+      required:
+      - status
+      - models
+      - message
+      properties:
+        status:
+          type: string
+          enum:
+          - success
+        message:
+          type: string
+          description: Human-readable summary (e.g. "AI models retrieved successfully" or "No AI models found").
+        models:
+          $ref: '#/components/schemas/AIModelsConfig'
+    UpdateModelRolesRequest:
+      type: object
+      description: Replaces the entire model role assignment map. Roles absent from this object are deleted — send an empty `roles` object to clear all role assignments.
+      required:
+      - roles
+      properties:
+        roles:
+          type: object
+          description: The complete desired role map. Replaces the stored map in full; omit a key to delete that role assignment.
+          additionalProperties:
+            $ref: '#/components/schemas/ModelRoleAssignment'
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'JWT Bearer token for authenticated requests.
+
+
+        A personal access token (see the **Personal Access Tokens** tag) is a
+
+        `phpat_`-prefixed variant of this same JWT — e.g. `phpat_eyJhbGci...`.
+
+        The prefix is display-only, added for secret-scanner detectability; the
+
+        gateway strips it before verifying the token, so send it exactly as
+
+        issued, prefix included.
+
+        '
+    scopedToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Scoped JWT token for service-to-service authentication.
+
+        Format: "Bearer {scoped_token}"
+
+        Required scopes vary by endpoint.
+
+        '
+    oauth2:
+      type: oauth2
+      description: 'OAuth 2.0 authentication with fine-grained scopes.
+
+        Supports authorization_code (with PKCE) and client_credentials flows.
+
+        OAuth tokens are Bearer JWTs — use the same Authorization header as regular tokens.
+
+        For **client_credentials**, machine JWTs may use `userId === client_id`; the Node gateway resolves the OAuth app creator — see **OAuth Provider** tag.
+
+        '
+      flows:
+        authorizationCode:
+          authorizationUrl: /api/v1/oauth2/authorize
+          tokenUrl: /api/v1/oauth2/token
+          refreshUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:read: Read semantic search results and history
+            semantic:write: Execute semantic search
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+            crawl:delete: Delete crawling jobs
+        clientCredentials:
+          tokenUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:write: Execute semantic search
+            semantic:read: Read semantic search results and history
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+x-refined-from:
+- pipeshub-openapi.yaml
+- pipeshub-openapi.yml

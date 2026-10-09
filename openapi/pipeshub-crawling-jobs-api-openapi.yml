@@ -1,0 +1,1297 @@
+openapi: 3.2.0
+info:
+  title: Pipeshub Crawling Jobs API
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@pipeshub.com
+  description: 'Operations tagged Crawling Jobs across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: '{instance_url}/api/v1'
+  description: Base API URL
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL (without /api/v1)
+- url: '{instance_url}'
+  description: Root URL (used for MCP endpoints mounted at /mcp)
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL
+security:
+- bearerAuth: []
+- oauth2: []
+tags:
+- name: Crawling Jobs
+  description: Endpoints for scheduling, managing, and monitoring data crawling jobs for enterprise connectors.
+paths:
+  /crawlingManager/{connector}/{connectorId}/schedule:
+    post:
+      tags:
+      - Crawling Jobs
+      summary: Schedule a crawling job
+      description: 'Schedule a new crawling job for a specific connector instance.
+
+
+        Overview:
+
+
+        Creates a scheduled crawling job that will sync data from the specified connector into
+
+        PipesHub''s search index. The job is added to a BullMQ queue and will execute according
+
+        to the specified schedule configuration.
+
+
+        Schedule Types:
+
+
+        hourly: Run every X hours at specified minute (e.g., every 2 hours at :30)
+
+
+        daily: Run once per day at specified time (e.g., 2:00 AM daily)
+
+
+        weekly: Run on specific days of the week (e.g., Mon/Wed/Fri at 3:00 AM)
+
+
+        monthly: Run on specific day of month (e.g., 1st of each month at 4:00 AM)
+
+
+        custom: Use cron expression for complex schedules
+
+
+        once: Run once at a specific future datetime
+
+
+        Access Control:
+
+
+        Team-scoped connectors: Requires admin privileges
+
+
+        Personal-scoped connectors: Only the creator can schedule jobs
+
+
+        Job Behavior:
+
+
+        If a job already exists for this connector, it will be replaced
+
+
+        Disabled schedules (isEnabled: false) will throw an error
+
+
+        Jobs use exponential backoff for retries (5s, 10s, 20s, etc.)
+
+
+        Only last 10 completed/failed jobs are retained per connector
+
+
+        Related Endpoints:
+
+
+        GET /crawlingManager/{connector}/{connectorId}/schedule - Get job status
+
+
+        POST /crawlingManager/{connector}/{connectorId}/pause - Pause job
+
+
+        DELETE /crawlingManager/{connector}/{connectorId}/remove - Remove job'
+      operationId: scheduleCrawlingJob
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - crawl:write
+      parameters:
+      - name: connector
+        in: path
+        required: true
+        description: Connector type identifier (e.g., "drive", "onedrive", "slack", "jira")
+        schema:
+          type: string
+        example: drive
+      - name: connectorId
+        in: path
+        required: true
+        description: Unique identifier of the connector instance (MongoDB ObjectId)
+        schema:
+          type: string
+        example: 507f1f77bcf86cd799439011
+      requestBody:
+        required: true
+        description: Request payload
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                scheduleConfig:
+                  $ref: '#/components/schemas/ScheduleConfig'
+                priority:
+                  type: integer
+                  minimum: 1
+                  maximum: 10
+                  default: 5
+                  description: Job priority (1=highest, 10=lowest). Higher priority jobs are processed first.
+                maxRetries:
+                  type: integer
+                  minimum: 0
+                  maximum: 10
+                  default: 3
+                  description: Maximum number of retry attempts on failure
+                timeout:
+                  type: integer
+                  minimum: 1000
+                  maximum: 600000
+                  default: 300000
+                  description: Job timeout in milliseconds (default 5 minutes)
+              required:
+              - scheduleConfig
+            examples:
+              dailySync:
+                summary: Daily sync at 2 AM
+                description: Schedule daily crawling at 2:00 AM UTC
+                value:
+                  scheduleConfig:
+                    scheduleType: daily
+                    isEnabled: true
+                    timezone: UTC
+                    hour: 2
+                    minute: 0
+                  priority: 5
+                  maxRetries: 3
+              hourlySync:
+                summary: Hourly sync every 4 hours
+                description: Schedule crawling every 4 hours at minute 30
+                value:
+                  scheduleConfig:
+                    scheduleType: hourly
+                    isEnabled: true
+                    timezone: America/New_York
+                    minute: 30
+                    interval: 4
+                  priority: 3
+                  maxRetries: 5
+              weeklySync:
+                summary: Weekly sync on weekdays
+                description: Schedule crawling on Monday, Wednesday, Friday at 3 AM
+                value:
+                  scheduleConfig:
+                    scheduleType: weekly
+                    isEnabled: true
+                    timezone: Europe/London
+                    daysOfWeek:
+                    - 1
+                    - 3
+                    - 5
+                    hour: 3
+                    minute: 0
+                  priority: 5
+              customCron:
+                summary: Custom cron schedule
+                description: Schedule using a custom cron expression
+                value:
+                  scheduleConfig:
+                    scheduleType: custom
+                    isEnabled: true
+                    timezone: UTC
+                    cronExpression: 0 */6 * * *
+                    description: Every 6 hours
+                  priority: 5
+              oneTimeSync:
+                summary: One-time immediate sync
+                description: Schedule a one-time crawling job
+                value:
+                  scheduleConfig:
+                    scheduleType: once
+                    isEnabled: true
+                    scheduledTime: '2024-12-25T10:00:00Z'
+                  priority: 1
+      responses:
+        '201':
+          description: Crawling job scheduled successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Crawling job scheduled successfully
+                  data:
+                    type: object
+                    properties:
+                      jobId:
+                        type: string
+                        description: Unique job ID assigned by BullMQ
+                        example: crawl-drive-507f1f77bcf86cd799439011-507f1f77bcf86cd799439012
+                      connector:
+                        type: string
+                        example: drive
+                      connectorId:
+                        type: string
+                        example: 507f1f77bcf86cd799439011
+                      scheduleConfig:
+                        $ref: '#/components/schemas/ScheduleConfig'
+                      scheduledAt:
+                        type: string
+                        format: date-time
+                        example: '2024-01-15T10:30:00Z'
+        '400':
+          description: 'Bad request. Possible reasons:<br>
+
+            <ul>
+
+            <li>Missing or invalid <code>scheduleConfig</code></li>
+
+            <li>Schedule is disabled (<code>isEnabled: false</code>)</li>
+
+            <li>Invalid cron expression for custom schedule</li>
+
+            <li>Scheduled time is in the past for one-time jobs</li>
+
+            <li>Missing connector ID</li>
+
+            </ul>
+
+            '
+        '401':
+          description: Unauthorized - Valid JWT token required
+        '403':
+          description: 'Forbidden. Possible reasons:<br>
+
+            <ul>
+
+            <li>Team-scoped connector requires admin privileges</li>
+
+            <li>Personal-scoped connector can only be managed by creator</li>
+
+            </ul>
+
+            '
+        '404':
+          description: Connector instance not found
+    get:
+      tags:
+      - Crawling Jobs
+      summary: Get crawling job status
+      description: 'Retrieve the current status of a scheduled crawling job for a specific connector.
+
+
+        Overview:
+
+
+        Returns detailed information about the most recent crawling job for the specified connector,
+
+        including its current state, progress, timing information, and any error details.
+
+
+        Job States:
+
+
+        waiting: Job is queued and waiting to be processed
+
+
+        active: Job is currently being processed by a worker
+
+
+        completed: Job finished successfully
+
+
+        failed: Job failed after exhausting retry attempts
+
+
+        delayed: Job is scheduled for future execution
+
+
+        paused: Job has been manually paused
+
+
+        Access Control:
+
+
+        Same as scheduling - team connectors require admin, personal connectors require creator.'
+      operationId: getCrawlingJobStatus
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - crawl:read
+      parameters:
+      - name: connector
+        in: path
+        required: true
+        description: Connector type identifier
+        schema:
+          type: string
+        example: drive
+      - name: connectorId
+        in: path
+        required: true
+        description: Unique identifier of the connector instance
+        schema:
+          type: string
+        example: 507f1f77bcf86cd799439011
+      responses:
+        '200':
+          description: Job status retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Job status retrieved successfully
+                  data:
+                    $ref: '#/components/schemas/JobStatus'
+        '401':
+          description: Unauthorized - Valid JWT token required
+        '403':
+          description: Forbidden - Insufficient permissions for this connector
+        '404':
+          description: No scheduled job found for this connector
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /crawlingManager/{connector}/{connectorId}/remove:
+    delete:
+      tags:
+      - Crawling Jobs
+      summary: Remove a crawling job
+      description: 'Permanently remove a scheduled crawling job for a specific connector.
+
+
+        Overview:
+
+
+        Removes the crawling job and all associated data from the queue. This includes
+
+        removing repeatable job configurations and cleaning up job history.
+
+
+        What Gets Removed:
+
+
+        Active or waiting job instances
+
+
+        Repeatable job configuration (for recurring schedules)
+
+
+        Paused job information
+
+
+        Job mappings and metadata
+
+
+        Note: Completed and failed job records may be retained for audit purposes.
+
+
+        Related Endpoints:
+
+
+        DELETE /crawlingManager/schedule/all - Remove all jobs for organization'
+      operationId: removeCrawlingJob
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - crawl:delete
+      parameters:
+      - name: connector
+        in: path
+        required: true
+        description: Connector type identifier
+        schema:
+          type: string
+        example: drive
+      - name: connectorId
+        in: path
+        required: true
+        description: Unique identifier of the connector instance
+        schema:
+          type: string
+        example: 507f1f77bcf86cd799439011
+      responses:
+        '200':
+          description: Crawling job removed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Crawling job removed successfully
+        '401':
+          description: Unauthorized - Valid JWT token required
+        '403':
+          description: Forbidden - Insufficient permissions for this connector
+        '404':
+          description: Job not found for this connector
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /crawlingManager/schedule/all:
+    get:
+      tags:
+      - Crawling Jobs
+      summary: Get all crawling job statuses
+      description: Retrieve the status of all scheduled crawling jobs across the organization.
+      operationId: getAllCrawlingJobStatus
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - crawl:read
+      responses:
+        '200':
+          description: All job statuses retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/JobStatus'
+        '401':
+          description: Unauthorized - Valid JWT token required
+    delete:
+      tags:
+      - Crawling Jobs
+      summary: Remove all crawling jobs
+      description: 'Remove all scheduled crawling jobs for the organization, including
+
+        org-wide connectors and other members'' personal connectors.
+
+        Only an organization admin may call this; a member is refused with 400.'
+      operationId: removeAllCrawlingJob
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - crawl:delete
+      responses:
+        '200':
+          description: All crawling jobs removed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '400':
+          description: Admin access required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Token lacks the required scope
+        '500':
+          description: A schedule or queued run could not be removed, so it may still run
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /crawlingManager/{connector}/{connectorId}/pause:
+    post:
+      tags:
+      - Crawling Jobs
+      summary: Pause a crawling job
+      description: Pause a running or scheduled crawling job for a specific connector.
+      operationId: pauseCrawlingJob
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - crawl:write
+      parameters:
+      - name: connector
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: connectorId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Crawling job paused
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '401':
+          description: Unauthorized
+        '404':
+          description: Job not found
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /crawlingManager/{connector}/{connectorId}/resume:
+    post:
+      tags:
+      - Crawling Jobs
+      summary: Resume a crawling job
+      description: Resume a previously paused crawling job for a specific connector.
+      operationId: resumeCrawlingJob
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - crawl:write
+      parameters:
+      - name: connector
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: connectorId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Crawling job resumed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '401':
+          description: Unauthorized
+        '404':
+          description: Job not found
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /crawlingManager/stats:
+    get:
+      tags:
+      - Crawling Jobs
+      summary: Get queue statistics
+      description: Retrieve statistics for the crawling job queue including active, waiting, and completed job counts.
+      operationId: getQueueStats
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - crawl:read
+      responses:
+        '200':
+          description: Queue statistics retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Unauthorized
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+components:
+  schemas:
+    CrawlingScheduleType:
+      type: string
+      enum:
+      - hourly
+      - daily
+      - weekly
+      - monthly
+      - custom
+      - once
+      - interval
+      description: 'Type of crawling schedule that determines how often the connector data is synced.<br>
+
+        <ul>
+
+        <li><b>hourly</b>: Run at specified minute every X hours</li>
+
+        <li><b>daily</b>: Run once per day at specified hour and minute</li>
+
+        <li><b>weekly</b>: Run on specified days of the week at specified time</li>
+
+        <li><b>monthly</b>: Run on specified day of month at specified time</li>
+
+        <li><b>custom</b>: Use cron expression for complex schedules</li>
+
+        <li><b>once</b>: Run once at a specific future datetime</li>
+
+        <li><b>interval</b>: Repeat every N minutes regardless of clock time (BullMQ <code>every</code>-based)</li>
+
+        </ul>
+
+        '
+    BaseScheduleConfig:
+      type: object
+      description: Base configuration fields common to all schedule types
+      properties:
+        scheduleType:
+          $ref: '#/components/schemas/CrawlingScheduleType'
+        isEnabled:
+          type: boolean
+          default: true
+          description: Whether the schedule is active. Disabled schedules won't create new jobs.
+        timezone:
+          type: string
+          default: UTC
+          description: IANA timezone identifier (e.g., "America/New_York", "Europe/London", "Asia/Tokyo")
+          example: UTC
+      required:
+      - scheduleType
+    JobStatus:
+      type: object
+      description: Complete status information for a crawling job
+      properties:
+        id:
+          type:
+          - string
+          - 'null'
+          description: Unique job ID assigned by BullMQ
+          example: crawl-drive-507f1f77bcf86cd799439011-507f1f77bcf86cd799439012
+        name:
+          type: string
+          description: Job name (format crawl-{connector}-{connectorId})
+          example: crawl-drive-507f1f77bcf86cd799439011
+        data:
+          $ref: '#/components/schemas/CrawlingJobData'
+        progress:
+          description: Job progress information (can be number 0-100 or object with percentage/current/total)
+          oneOf:
+          - type: number
+            minimum: 0
+            maximum: 100
+            description: Progress percentage (0-100)
+          - type: object
+            description: Detailed progress object
+            properties:
+              percentage:
+                type: number
+                minimum: 0
+                maximum: 100
+              current:
+                type: integer
+                description: Current items processed
+              total:
+                type: integer
+                description: Total items to process
+        delay:
+          type:
+          - integer
+          - 'null'
+          description: Delay in milliseconds before job starts (for delayed/scheduled jobs)
+          example: 3600000
+        timestamp:
+          type: integer
+          description: Unix timestamp when job was created (milliseconds)
+          example: 1703520000000
+        attemptsMade:
+          type: integer
+          description: Number of execution attempts made (increments on retry)
+          example: 0
+        finishedOn:
+          type:
+          - integer
+          - 'null'
+          description: Unix timestamp when job completed (null if not finished)
+        processedOn:
+          type:
+          - integer
+          - 'null'
+          description: Unix timestamp when job started processing (null if not started)
+        failedReason:
+          type:
+          - string
+          - 'null'
+          description: Error message if job failed
+          example: null
+        state:
+          type: string
+          enum:
+          - waiting
+          - active
+          - completed
+          - failed
+          - delayed
+          - paused
+          - stuck
+          description: 'Current state of the job in the queue:<br>
+
+            <ul>
+
+            <li><b>waiting</b>: Queued and waiting to be processed</li>
+
+            <li><b>active</b>: Currently being processed by a worker</li>
+
+            <li><b>completed</b>: Successfully finished</li>
+
+            <li><b>failed</b>: Failed after all retry attempts</li>
+
+            <li><b>delayed</b>: Scheduled to run at a future time</li>
+
+            <li><b>paused</b>: Manually paused by user</li>
+
+            <li><b>stuck</b>: Job is stuck (worker crashed mid-processing)</li>
+
+            </ul>
+
+            '
+          example: waiting
+      required:
+      - name
+      - data
+      - timestamp
+      - attemptsMade
+      - state
+    MonthlyScheduleConfig:
+      allOf:
+      - $ref: '#/components/schemas/BaseScheduleConfig'
+      - type: object
+        description: Run crawling job on a specified day of each month
+        properties:
+          scheduleType:
+            type: string
+            enum:
+            - monthly
+          dayOfMonth:
+            type: integer
+            minimum: 1
+            maximum: 31
+            description: Day of the month to run (1-31). If day doesn't exist in month, job runs on last day.
+            example: 1
+          hour:
+            type: integer
+            minimum: 0
+            maximum: 23
+            description: Hour of the day to run (0-23)
+            example: 4
+          minute:
+            type: integer
+            minimum: 0
+            maximum: 59
+            description: Minute of the hour to run (0-59)
+            example: 0
+        required:
+        - dayOfMonth
+        - hour
+        - minute
+    ScheduleConfig:
+      description: 'Schedule configuration for crawling jobs. The structure varies based on <code>scheduleType</code>.<br><br>
+
+        <b>Schedule Type Configurations:</b><br>
+
+        <ul>
+
+        <li><b>hourly:</b> <code>minute</code>, <code>interval</code> (optional)</li>
+
+        <li><b>daily:</b> <code>hour</code>, <code>minute</code></li>
+
+        <li><b>weekly:</b> <code>daysOfWeek</code>, <code>hour</code>, <code>minute</code></li>
+
+        <li><b>monthly:</b> <code>dayOfMonth</code>, <code>hour</code>, <code>minute</code></li>
+
+        <li><b>custom:</b> <code>cronExpression</code>, <code>description</code> (optional)</li>
+
+        <li><b>once:</b> <code>scheduledTime</code></li>
+
+        <li><b>interval:</b> <code>intervalMinutes</code> — repeats every N minutes (BullMQ <code>every</code>-based)</li>
+
+        </ul>
+
+        '
+      oneOf:
+      - $ref: '#/components/schemas/HourlyScheduleConfig'
+      - $ref: '#/components/schemas/DailyScheduleConfig'
+      - $ref: '#/components/schemas/WeeklyScheduleConfig'
+      - $ref: '#/components/schemas/MonthlyScheduleConfig'
+      - $ref: '#/components/schemas/CustomScheduleConfig'
+      - $ref: '#/components/schemas/OnceScheduleConfig'
+      - $ref: '#/components/schemas/IntervalScheduleConfig'
+      discriminator:
+        propertyName: scheduleType
+        mapping:
+          hourly: '#/components/schemas/HourlyScheduleConfig'
+          daily: '#/components/schemas/DailyScheduleConfig'
+          weekly: '#/components/schemas/WeeklyScheduleConfig'
+          monthly: '#/components/schemas/MonthlyScheduleConfig'
+          custom: '#/components/schemas/CustomScheduleConfig'
+          once: '#/components/schemas/OnceScheduleConfig'
+          interval: '#/components/schemas/IntervalScheduleConfig'
+    CustomScheduleConfig:
+      allOf:
+      - $ref: '#/components/schemas/BaseScheduleConfig'
+      - type: object
+        description: Run crawling job using a custom cron expression for complex schedules
+        properties:
+          scheduleType:
+            type: string
+            enum:
+            - custom
+          cronExpression:
+            type: string
+            pattern: ^(\S+\s+){4}\S+$
+            description: 'Standard 5-field cron expression: minute hour day-of-month month day-of-week.<br>
+
+              Examples:<br>
+
+              <ul>
+
+              <li><code>0 2 * * *</code> - Every day at 2:00 AM</li>
+
+              <li><code>30 */4 * * *</code> - Every 4 hours at minute 30</li>
+
+              <li><code>0 9 * * 1-5</code> - Weekdays at 9:00 AM</li>
+
+              <li><code>0 0 1,15 * *</code> - 1st and 15th of each month at midnight</li>
+
+              </ul>
+
+              '
+            example: 0 2 * * *
+          description:
+            type: string
+            description: Human-readable description of the cron schedule
+            example: Run daily at 2:00 AM
+        required:
+        - cronExpression
+    HourlyScheduleConfig:
+      allOf:
+      - $ref: '#/components/schemas/BaseScheduleConfig'
+      - type: object
+        description: Run crawling job every X hours at a specified minute
+        properties:
+          scheduleType:
+            type: string
+            enum:
+            - hourly
+          minute:
+            type: integer
+            minimum: 0
+            maximum: 59
+            description: Minute of the hour to run (0-59)
+            example: 30
+          interval:
+            type: integer
+            minimum: 1
+            maximum: 24
+            default: 1
+            description: Run every X hours (1 = every hour, 2 = every 2 hours, etc.)
+            example: 1
+        required:
+        - minute
+    OnceScheduleConfig:
+      allOf:
+      - $ref: '#/components/schemas/BaseScheduleConfig'
+      - type: object
+        description: Run crawling job once at a specific future datetime
+        properties:
+          scheduleType:
+            type: string
+            enum:
+            - once
+          scheduledTime:
+            type: string
+            format: date-time
+            description: ISO 8601 datetime when the job should run. Must be in the future.
+            example: '2024-12-25T10:00:00Z'
+        required:
+        - scheduledTime
+    CrawlingJobData:
+      type: object
+      description: Data payload stored with each crawling job in the queue
+      properties:
+        connector:
+          type: string
+          description: Connector type identifier (e.g., "drive", "onedrive", "slack")
+          example: drive
+        connectorId:
+          type: string
+          description: Unique identifier of the connector instance
+          example: 507f1f77bcf86cd799439011
+        scheduleConfig:
+          $ref: '#/components/schemas/ScheduleConfig'
+        orgId:
+          type: string
+          description: Organization ID that owns this crawling job
+          example: 507f1f77bcf86cd799439012
+        userId:
+          type: string
+          description: User ID who created/scheduled this job
+          example: 507f1f77bcf86cd799439013
+        timestamp:
+          type: string
+          format: date-time
+          description: When the job was created/scheduled
+        metadata:
+          type: object
+          additionalProperties: true
+          description: Optional additional metadata for the job
+      required:
+      - connector
+      - connectorId
+      - scheduleConfig
+      - orgId
+      - userId
+      - timestamp
+    WeeklyScheduleConfig:
+      allOf:
+      - $ref: '#/components/schemas/BaseScheduleConfig'
+      - type: object
+        description: Run crawling job on specified days of the week
+        properties:
+          scheduleType:
+            type: string
+            enum:
+            - weekly
+          daysOfWeek:
+            type: array
+            items:
+              type: integer
+              minimum: 0
+              maximum: 6
+            minItems: 1
+            description: 'Days of the week to run (0=Sunday, 1=Monday, ..., 6=Saturday).<br>
+
+              Example: [1, 3, 5] runs on Monday, Wednesday, Friday
+
+              '
+            example:
+            - 1
+            - 3
+            - 5
+          hour:
+            type: integer
+            minimum: 0
+            maximum: 23
+            description: Hour of the day to run (0-23)
+            example: 3
+          minute:
+            type: integer
+            minimum: 0
+            maximum: 59
+            description: Minute of the hour to run (0-59)
+            example: 0
+        required:
+        - daysOfWeek
+        - hour
+        - minute
+    DailyScheduleConfig:
+      allOf:
+      - $ref: '#/components/schemas/BaseScheduleConfig'
+      - type: object
+        description: Run crawling job once per day at a specified time
+        properties:
+          scheduleType:
+            type: string
+            enum:
+            - daily
+          hour:
+            type: integer
+            minimum: 0
+            maximum: 23
+            description: Hour of the day to run (0-23, 24-hour format)
+            example: 2
+          minute:
+            type: integer
+            minimum: 0
+            maximum: 59
+            description: Minute of the hour to run (0-59)
+            example: 0
+        required:
+        - hour
+        - minute
+    IntervalScheduleConfig:
+      allOf:
+      - $ref: '#/components/schemas/BaseScheduleConfig'
+      - type: object
+        description: 'Repeat every N minutes using BullMQ''s millisecond-based <code>every</code> repeat option.
+
+          Unlike cron-based schedules this fires relative to the previous run, not at a fixed
+
+          wall-clock time. Used by the connector sync scheduler when
+
+          <code>selectedStrategy = SCHEDULED</code> with an <code>intervalMinutes</code> config.
+
+          '
+        properties:
+          scheduleType:
+            type: string
+            enum:
+            - interval
+          intervalMinutes:
+            type: integer
+            minimum: 1
+            maximum: 525600
+            description: 'How often to repeat, in minutes. Maximum is 525 600 (one year).
+
+              BullMQ stores this as <code>every: intervalMinutes * 60 * 1000</code> ms;
+
+              the <code>pattern</code> field will be <code>null</code> on repeatable-job
+
+              listings for this schedule type.
+
+              '
+            example: 5
+        required:
+        - intervalMinutes
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      description: 'Standard error envelope returned by all errors routed through `ErrorMiddleware`.
+
+        Applies to all `BaseError` subclasses including `HttpError`, `ValidationError`, and others.
+
+        The `code` field is a machine-readable string identifying the error type (e.g.
+
+        `HTTP_UNAUTHORIZED`, `HTTP_NOT_FOUND`, `VALIDATION_ERROR`, `INTERNAL_ERROR`).
+
+        '
+      properties:
+        error:
+          type: object
+          additionalProperties: false
+          required:
+          - code
+          - message
+          properties:
+            requestId:
+              type: string
+              description: 'Identifier for this request, echoed so a bug report can quote it.
+
+                Absent when the request never reached the middleware that assigns one.
+
+                '
+            code:
+              type: string
+              description: 'Machine-readable error code. For application errors it takes the form `HTTP_<VARIANT>`
+
+                For unhandled runtime errors (e.g. database unavailable) it is `INTERNAL_ERROR`.
+
+                '
+              example: HTTP_BAD_REQUEST
+            message:
+              type: string
+              description: Human-readable description of the error
+              example: Admin access required
+            metadata:
+              type: object
+              description: Additional context (only present in development environments)
+              additionalProperties: true
+      required:
+      - error
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'JWT Bearer token for authenticated requests.
+
+
+        A personal access token (see the **Personal Access Tokens** tag) is a
+
+        `phpat_`-prefixed variant of this same JWT — e.g. `phpat_eyJhbGci...`.
+
+        The prefix is display-only, added for secret-scanner detectability; the
+
+        gateway strips it before verifying the token, so send it exactly as
+
+        issued, prefix included.
+
+        '
+    scopedToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Scoped JWT token for service-to-service authentication.
+
+        Format: "Bearer {scoped_token}"
+
+        Required scopes vary by endpoint.
+
+        '
+    oauth2:
+      type: oauth2
+      description: 'OAuth 2.0 authentication with fine-grained scopes.
+
+        Supports authorization_code (with PKCE) and client_credentials flows.
+
+        OAuth tokens are Bearer JWTs — use the same Authorization header as regular tokens.
+
+        For **client_credentials**, machine JWTs may use `userId === client_id`; the Node gateway resolves the OAuth app creator — see **OAuth Provider** tag.
+
+        '
+      flows:
+        authorizationCode:
+          authorizationUrl: /api/v1/oauth2/authorize
+          tokenUrl: /api/v1/oauth2/token
+          refreshUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:read: Read semantic search results and history
+            semantic:write: Execute semantic search
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+            crawl:delete: Delete crawling jobs
+        clientCredentials:
+          tokenUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:write: Execute semantic search
+            semantic:read: Read semantic search results and history
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+x-refined-from:
+- pipeshub-openapi.yaml
+- pipeshub-openapi.yml

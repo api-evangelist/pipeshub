@@ -1,0 +1,30 @@
+generated: '2026-10-09'
+method: generated
+source: >-
+  Packaged Agent Skills generated from openapi/pipeshub-openapi.yml and the provider's MCP Tools
+  Reference. Provider-published skills were found and saved verbatim under skills/_original/:
+  https://docs.pipeshub.com/skill.md (listed by https://docs.pipeshub.com/.well-known/skills/index.json)
+  and https://github.com/pipeshub-ai/mcp-server/blob/main/skills/pipeshub/SKILL.md.
+published:
+  - file: _original/pipeshub-docs-SKILL.md
+    url: https://docs.pipeshub.com/skill.md
+    index: https://docs.pipeshub.com/.well-known/skills/index.json
+  - file: _original/pipeshub-mcp-server-SKILL.md
+    url: https://raw.githubusercontent.com/pipeshub-ai/mcp-server/main/skills/pipeshub/SKILL.md
+skills:
+  - file: pipeshub-find-and-read-a-document.md
+    name: find-and-read-a-document
+    api: openapi/pipeshub-openapi.yml
+    operations: [search, lookupRecordByIdentifier, getRecordContent, streamRecordBuffer]
+  - file: pipeshub-browse-the-knowledge-graph.md
+    name: browse-the-knowledge-graph
+    api: openapi/pipeshub-openapi.yml
+    operations: [listKnowledgeBases, listActiveConnectors, navigateKnowledgeGraph, getRecordContent]
+  - file: pipeshub-ask-a-cited-question.md
+    name: ask-a-cited-question
+    api: openapi/pipeshub-openapi.yml
+    operations: [getAIModelsProviders, createConversation, streamChat, addMessageStream, getConversationById]
+  - file: pipeshub-chat-with-an-agent.md
+    name: chat-with-an-agent
+    api: openapi/pipeshub-openapi.yml
+    operations: [listAgents, getAgent, streamAgentConversation, streamAgentConversationMessage]

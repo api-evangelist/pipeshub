@@ -1,0 +1,459 @@
+openapi: 3.2.0
+info:
+  title: Pipeshub Toolset API
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@pipeshub.com
+  description: 'Operations tagged Toolset across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: '{instance_url}/api/v1'
+  description: Base API URL
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL (without /api/v1)
+- url: '{instance_url}'
+  description: Root URL (used for MCP endpoints mounted at /mcp)
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL
+security:
+- bearerAuth: []
+- oauth2: []
+tags:
+- name: Toolset
+paths:
+  /toolsets/my-toolsets:
+    get:
+      tags:
+      - Toolset
+      summary: List my toolsets with auth status
+      description: Returns organization toolset instances merged with current user's authentication status.
+      operationId: getMyToolsets
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: page
+        in: query
+        required: false
+        description: Page number (1-based).
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+      - name: limit
+        in: query
+        required: false
+        description: Page size (max 200).
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 200
+          default: 20
+      - name: includeRegistry
+        in: query
+        required: false
+        description: When true, include toolsets from the registry that are not yet configured as synthetic, non-configured entries.
+        schema:
+          type: boolean
+      - name: toolsetType
+        in: query
+        required: false
+        description: When set, only instances for this toolset type (case-insensitive). Registry merge is limited to this type when includeRegistry is true.
+        schema:
+          type: string
+      - name: authStatus
+        in: query
+        required: false
+        description: Filter by user auth state — authenticated or not-authenticated. Omit for all. filterCounts reflect counts before this filter.
+        schema:
+          type: string
+          enum:
+          - authenticated
+          - not-authenticated
+      - name: search
+        in: query
+        required: false
+        description: Optional search filter applied to instance name, toolset type, and registry display name/description.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Toolsets retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  pagination:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      limit:
+                        type: integer
+                      total:
+                        type: integer
+                      totalPages:
+                        type: integer
+                      hasNext:
+                        type: boolean
+                      hasPrev:
+                        type: boolean
+                  filterCounts:
+                    type: object
+                    properties:
+                      all:
+                        type: integer
+                      authenticated:
+                        type: integer
+                      notAuthenticated:
+                        type: integer
+                  toolsets:
+                    type: array
+                    items:
+                      type: object
+                      additionalProperties: false
+                      properties:
+                        instanceId:
+                          type: string
+                          description: Empty string for registry-only (synthetic) entries.
+                        instanceName:
+                          type: string
+                        toolsetType:
+                          type: string
+                        authType:
+                          type: string
+                          enum:
+                          - OAUTH
+                          - API_TOKEN
+                          - BASIC_AUTH
+                          - BEARER_TOKEN
+                          - USERNAME_PASSWORD
+                          - NONE
+                        oauthConfigId:
+                          type:
+                          - string
+                          - 'null'
+                        displayName:
+                          type: string
+                        description:
+                          type: string
+                        iconPath:
+                          type: string
+                        category:
+                          type: string
+                          description: Toolset category from the backend ToolsetCategory enum.
+                          enum:
+                          - app
+                          - file
+                          - file_storage
+                          - web_search
+                          - search
+                          - research
+                          - utility
+                          - communication
+                          - productivity
+                          - database
+                          - calendar
+                          - project_management
+                          - documentation
+                          - code_execution
+                          example: app
+                        supportedAuthTypes:
+                          type: array
+                          items:
+                            type: string
+                        documentationLinks:
+                          type: array
+                          items:
+                            type: object
+                            additionalProperties: false
+                            properties:
+                              title:
+                                type: string
+                              url:
+                                type: string
+                              type:
+                                type: string
+                                description: Link category, e.g. setup or pipeshub.
+                        toolCount:
+                          type: integer
+                        tools:
+                          type: array
+                          items:
+                            type: object
+                            additionalProperties: false
+                            properties:
+                              name:
+                                type: string
+                              fullName:
+                                type: string
+                              description:
+                                type: string
+                        isConfigured:
+                          type: boolean
+                        isAuthenticated:
+                          type: boolean
+                        isFromRegistry:
+                          type: boolean
+                          description: true for registry-only (synthetic) entries.
+                        createdBy:
+                          type: string
+                          description: User ID that created the instance. Absent on registry-only entries.
+                        createdAtTimestamp:
+                          type: integer
+                          format: int64
+                          description: Epoch millis. Absent on registry-only entries.
+                        updatedAtTimestamp:
+                          type: integer
+                          format: int64
+                          description: Epoch millis. Absent on registry-only entries.
+                        auth:
+                          type:
+                          - object
+                          - 'null'
+                          description: User/agent auth payload for the instance; null when not authenticated. Absent on registry-only entries.
+                          additionalProperties: true
+        '400':
+          description: Invalid query parameters (e.g. page/limit out of range, unknown authStatus value).
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        description: VALIDATION_ERROR for query-schema failures; HTTP_BAD_REQUEST when forwarded from the connector backend.
+                        example: VALIDATION_ERROR
+                      message:
+                        type: string
+        '401':
+          description: Missing or invalid authentication token, or no user on the request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        example: HTTP_UNAUTHORIZED
+                      message:
+                        type: string
+        '403':
+          description: Authenticated user is not permitted to access these toolsets.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        example: HTTP_FORBIDDEN
+                      message:
+                        type: string
+        '404':
+          description: Connector backend returned no data for the request.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        example: HTTP_NOT_FOUND
+                      message:
+                        type: string
+        '500':
+          description: Unexpected error, or an unmapped error forwarded from the connector backend.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        example: HTTP_INTERNAL_SERVER_ERROR
+                      message:
+                        type: string
+        '503':
+          description: Connector service is unreachable (connection refused or fetch failed).
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        example: HTTP_SERVICE_UNAVAILABLE
+                      message:
+                        type: string
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'JWT Bearer token for authenticated requests.
+
+
+        A personal access token (see the **Personal Access Tokens** tag) is a
+
+        `phpat_`-prefixed variant of this same JWT — e.g. `phpat_eyJhbGci...`.
+
+        The prefix is display-only, added for secret-scanner detectability; the
+
+        gateway strips it before verifying the token, so send it exactly as
+
+        issued, prefix included.
+
+        '
+    scopedToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Scoped JWT token for service-to-service authentication.
+
+        Format: "Bearer {scoped_token}"
+
+        Required scopes vary by endpoint.
+
+        '
+    oauth2:
+      type: oauth2
+      description: 'OAuth 2.0 authentication with fine-grained scopes.
+
+        Supports authorization_code (with PKCE) and client_credentials flows.
+
+        OAuth tokens are Bearer JWTs — use the same Authorization header as regular tokens.
+
+        For **client_credentials**, machine JWTs may use `userId === client_id`; the Node gateway resolves the OAuth app creator — see **OAuth Provider** tag.
+
+        '
+      flows:
+        authorizationCode:
+          authorizationUrl: /api/v1/oauth2/authorize
+          tokenUrl: /api/v1/oauth2/token
+          refreshUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:read: Read semantic search results and history
+            semantic:write: Execute semantic search
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+            crawl:delete: Delete crawling jobs
+        clientCredentials:
+          tokenUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:write: Execute semantic search
+            semantic:read: Read semantic search results and history
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+x-refined-from:
+- pipeshub-openapi.yaml
+- pipeshub-openapi.yml

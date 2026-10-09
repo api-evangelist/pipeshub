@@ -1,0 +1,2149 @@
+openapi: 3.2.0
+info:
+  title: Pipeshub AI Models Providers API
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@pipeshub.com
+  description: 'Operations tagged AI Models Providers across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: '{instance_url}/api/v1'
+  description: Base API URL
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL (without /api/v1)
+- url: '{instance_url}'
+  description: Root URL (used for MCP endpoints mounted at /mcp)
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL
+security:
+- bearerAuth: []
+- oauth2: []
+tags:
+- name: AI Models Providers
+  description: Manage individual AI model providers - add, update, delete, and set defaults.
+paths:
+  /configurationManager/ai-models/{modelType}:
+    get:
+      tags:
+      - AI Models Providers
+      summary: Get models by type
+      description: 'Get all configured models of a specific type. Each entry''s `configuration`
+
+        includes only `model`, `modelFriendlyName`, and `dimensions` when stored.'
+      operationId: getModelsByType
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - config:read
+      parameters:
+      - name: modelType
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/ModelType'
+        description: Type of AI model
+      responses:
+        '200':
+          description: Models retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetModelsByTypeResponse'
+        '401':
+          description: Unauthorized
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /configurationManager/ai-models/available/{modelType}:
+    get:
+      tags:
+      - AI Models Providers
+      summary: Get available models by type
+      description: 'Returns a **flattened list** of individual AI models of the requested type,
+
+        suitable for use in selection dropdowns and model-picker UIs.
+
+
+        Each provider configuration entry may specify multiple comma-separated model
+
+        names; this endpoint expands those into one object per model name so callers
+
+        receive a flat, enumerable collection.
+
+
+        **Flattening rules:**
+
+        - Only the **first** model in a multi-model provider entry is marked
+
+        `isDefault: true`; all subsequent models from the same entry get `false`.
+
+        - `modelFriendlyName` is included **only** when the provider entry contains
+
+        exactly one model name (not a comma-separated list).
+
+        - When no providers of the requested type are configured the endpoint still
+
+        returns HTTP **200** with an empty `models` array — this is **not** an error.
+
+
+        **Access control:** requires a valid bearer token. For OAuth tokens the
+
+        `config:read` scope must be present; regular JWT bearer tokens pass through
+
+        without scope enforcement.'
+      operationId: getAvailableModelsByType
+      x-pipeshub-sdk: true
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - config:read
+      parameters:
+      - name: modelType
+        in: path
+        required: true
+        description: 'Category of AI model to retrieve.
+
+
+          Must be one of: `llm`, `embedding`, `ocr`, `slm`, `reasoning`, `multiModal`, `imageGeneration`, `tts`, `stt`.
+
+          '
+        schema:
+          $ref: '#/components/schemas/ModelType'
+      responses:
+        '200':
+          description: 'Available models retrieved successfully.
+
+
+            An empty `models` array (with HTTP 200) is returned when no providers of
+
+            the requested type have been configured — treat this as a valid, empty
+
+            state, not an error.
+
+            '
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - status
+                - models
+                - message
+                properties:
+                  status:
+                    type: string
+                    enum:
+                    - success
+                    example: success
+                  message:
+                    type: string
+                    description: "Human-readable summary. Two formats are possible:\n- `\"Found {n} {modelType} models\"` — the `modelType` key\n  exists in the stored config (returned even when `n` is 0,\n  e.g. `\"Found 0 ocr models\"`).\n\n- `\"No {modelType} models found\"` — no AI config has been\n  stored yet, or the `modelType` key is absent from the\n  stored config entirely."
+                    example: Found 2 llm models
+                  models:
+                    type: array
+                    description: Flat list of individual model entries. Each entry represents one model name from one provider configuration.
+                    items:
+                      type: object
+                      required:
+                      - modelType
+                      - provider
+                      - modelName
+                      - modelKey
+                      - isMultimodal
+                      - isReasoning
+                      - isDefault
+                      properties:
+                        modelType:
+                          allOf:
+                          - $ref: '#/components/schemas/ModelType'
+                          description: Model category — always matches the `{modelType}` path parameter.
+                        provider:
+                          type: string
+                          description: Provider identifier as stored in configuration (e.g. `openAI`, `azureOpenAI`, `anthropic`, `gemini`, `ollama`).
+                          example: azureOpenAI
+                        modelName:
+                          type: string
+                          description: Specific model name/identifier forwarded to the provider API when making inference calls.
+                          example: gpt-5.6-luna
+                        modelKey:
+                          type: string
+                          format: uuid
+                          description: UUID that uniquely identifies the provider configuration entry this model was expanded from. Use this key when calling update/delete endpoints.
+                          example: f3a4b5b6-5b6c-4e85-9097-3202cfe696fc
+                        isMultimodal:
+                          type: boolean
+                          description: '`true` when this model accepts multi-modal inputs (text + images). Always present; defaults to `false` when not explicitly set.'
+                          example: true
+                        isReasoning:
+                          type: boolean
+                          description: '`true` when this is a reasoning / chain-of-thought model. Always present; defaults to `false` when not explicitly set.'
+                          example: true
+                        isDefault:
+                          type: boolean
+                          description: '`true` for the first model in the provider entry that was marked as default. At most one entry per `modelType` will have this set to `true`.'
+                          example: true
+                        modelFriendlyName:
+                          type: string
+                          description: Optional human-readable display name. Only present when the provider configuration entry contains exactly one model name (not a comma-separated list) **and** a friendly name was added during configuration.
+                          example: Reasoning model
+              examples:
+                two_llm_models:
+                  summary: Two LLM models from an Azure OpenAI provider
+                  value:
+                    status: success
+                    message: Found 2 llm models
+                    models:
+                    - modelType: llm
+                      provider: azureOpenAI
+                      modelName: gpt-5.6-luna
+                      modelKey: f3a4b5b6-5b6c-4e85-9097-3202cfe696fc
+                      isMultimodal: true
+                      isReasoning: true
+                      isDefault: true
+                    - modelType: llm
+                      provider: azureOpenAI
+                      modelName: gpt-5.6-terra
+                      modelKey: 7af8d3a7-ad2e-43a1-8716-ae95e4fbc888
+                      isMultimodal: true
+                      isReasoning: true
+                      isDefault: false
+                      modelFriendlyName: Reasoning model
+                no_models_configured:
+                  summary: modelType key present in config but zero models after expansion
+                  value:
+                    status: success
+                    message: Found 0 ocr models
+                    models: []
+        '400':
+          description: 'Invalid `modelType` path parameter.
+
+
+            The `modelType` value was not one of the supported enum categories.
+
+            This response is produced by the Zod validation middleware **before**
+
+            the handler runs. The `error.metadata.errors` array contains
+
+            per-field detail about exactly which constraint failed.
+
+            '
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                properties:
+                  error:
+                    type: object
+                    required:
+                    - code
+                    - message
+                    - metadata
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                        - VALIDATION_ERROR
+                        example: VALIDATION_ERROR
+                      message:
+                        type: string
+                        example: Validation failed
+                      metadata:
+                        type: object
+                        required:
+                        - errors
+                        description: Per-field validation detail from Zod.
+                        properties:
+                          errors:
+                            type: array
+                            items:
+                              type: object
+                              required:
+                              - field
+                              - message
+                              - code
+                              - value
+                              properties:
+                                field:
+                                  type: string
+                                  description: Dot-separated path to the failing field within the request (params, body, query).
+                                  example: params.modelType
+                                message:
+                                  type: string
+                                  description: Human-readable Zod validation message.
+                                  example: Invalid enum value. Expected 'ocr' | 'embedding' | 'llm' | 'slm' | 'reasoning' | 'multiModal' | 'imageGeneration' | 'tts' | 'stt', received 'llmr'
+                                code:
+                                  type: string
+                                  description: Machine-readable error code mapped from the Zod issue code.
+                                  enum:
+                                  - INVALID_TYPE
+                                  - INVALID_LITERAL
+                                  - INVALID_ENUM
+                                  - INVALID_UNION
+                                  - INVALID_DISCRIMINATOR
+                                  - INVALID_ARGUMENTS
+                                  - TOO_SMALL
+                                  - TOO_BIG
+                                  example: INVALID_ENUM
+                                value:
+                                  type: string
+                                  description: The rejected value stringified. May be an empty string when the value is not easily serialisable.
+                                  example: ''
+              example:
+                error:
+                  code: VALIDATION_ERROR
+                  message: Validation failed
+                  metadata:
+                    errors:
+                    - field: params.modelType
+                      message: Invalid enum value. Expected 'ocr' | 'embedding' | 'llm' | 'slm' | 'reasoning' | 'multiModal' | 'imageGeneration' | 'tts' | 'stt', received 'llmr'
+                      code: INVALID_ENUM
+                      value: ''
+        '401':
+          description: 'Missing or invalid authentication token.
+
+
+            The bearer token was absent, expired, malformed, or could not be
+
+            verified by the auth middleware.
+
+            '
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                properties:
+                  error:
+                    type: object
+                    required:
+                    - code
+                    - message
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                        - HTTP_UNAUTHORIZED
+                        example: HTTP_UNAUTHORIZED
+                      message:
+                        type: string
+                        example: Invalid token
+              example:
+                error:
+                  code: HTTP_UNAUTHORIZED
+                  message: Invalid token
+        '403':
+          description: 'Insufficient OAuth scope.
+
+
+            Only applies to OAuth tokens. The token did not carry the `config:read`
+
+            scope required by this endpoint. Regular (non-OAuth) JWT bearer tokens
+
+            are not subject to scope enforcement and will not receive this error.
+
+            '
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                properties:
+                  error:
+                    type: object
+                    required:
+                    - code
+                    - message
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                        - HTTP_FORBIDDEN
+                        example: HTTP_FORBIDDEN
+                      message:
+                        type: string
+                        example: 'Insufficient scope. Required: config:read'
+              example:
+                error:
+                  code: HTTP_FORBIDDEN
+                  message: 'Insufficient scope. Required: config:read'
+        '500':
+          description: An unexpected error occurred on the server.
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - error
+                properties:
+                  error:
+                    type: object
+                    required:
+                    - code
+                    - message
+                    properties:
+                      code:
+                        type: string
+                        enum:
+                        - HTTP_INTERNAL_SERVER_ERROR
+                        example: HTTP_INTERNAL_SERVER_ERROR
+                      message:
+                        type: string
+                        example: An unexpected error occurred
+              example:
+                error:
+                  code: HTTP_INTERNAL_SERVER_ERROR
+                  message: An unexpected error occurred
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /configurationManager/ai-models/providers:
+    post:
+      tags:
+      - AI Models Providers
+      summary: Add new AI model provider
+      description: 'Add a new AI model provider configuration. Performs a health check before saving to verify connectivity. Supported providers: openai, anthropic, azure-openai, aws-bedrock, google-vertex, ollama, huggingface.'
+      operationId: addAIModelProvider
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - config:write
+      requestBody:
+        required: true
+        description: Request body for Add new AI model provider
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddAIModelProviderRequest'
+      responses:
+        '200':
+          description: AI model provider added successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AIModelProviderResponse'
+        '400':
+          description: 'Invalid request body (Zod validation), controller validation, or
+
+            health-check failure (invalid credentials or provider config).
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddAIModelProviderErrorResponse'
+        '401':
+          description: Unauthorized — missing or invalid bearer token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Admin access required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /configurationManager/ai-models/providers/{modelType}/{modelKey}:
+    put:
+      tags:
+      - AI Models Providers
+      summary: Update AI model provider
+      description: 'Update an existing AI model provider configuration.
+
+
+        Credential keys omitted from `configuration` retain their stored value,
+
+        which is how a client that never received them can save other edits. The
+
+        health check runs against the merged configuration. Send an empty string
+
+        to clear a credential.'
+      operationId: updateAIModelProvider
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - config:write
+      parameters:
+      - name: modelType
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/ModelType'
+      - name: modelKey
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+        description: Unique model key (UUID)
+      requestBody:
+        required: true
+        description: Updated provider configuration (validated by `updateProviderRequestSchema`)
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAIModelProviderRequest'
+      responses:
+        '200':
+          description: AI model provider updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateAIModelProviderResponse'
+        '400':
+          description: 'Invalid request body (Zod validation), controller validation (e.g. model type
+
+            mismatch, missing fields), health-check failure, or admin access required.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateAIModelProviderErrorResponse'
+        '401':
+          description: Unauthorized — missing or invalid bearer token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 'No AI models configuration in KV store, or no provider with the given modelKey.
+
+            KV lookup and type-mismatch checks run before the health-check.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AIModelProviderSimpleError'
+        '500':
+          description: 'Internal server error. The current implementation can return 500 for
+
+            unknown modelKey updates when the persisted aiModels blob contains
+
+            non-array top-level keys (for example modelRoles or custom system
+
+            prompt fields), causing lookup to fail before the not-found path.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+      - AI Models Providers
+      summary: Delete AI model provider
+      description: 'Remove an AI model provider configuration. Fails with 409 when agents still
+
+        reference the model. If the deleted entry was default, the first remaining
+
+        entry for that type is promoted to default.'
+      operationId: deleteAIModelProvider
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: modelType
+        in: path
+        required: true
+        description: Model category (ocr, embedding, llm, slm, reasoning, multiModal, imageGeneration, tts, stt)
+        schema:
+          $ref: '#/components/schemas/ModelType'
+      - name: modelKey
+        in: path
+        required: true
+        description: Unique model key (UUID)
+        schema:
+          type: string
+          minLength: 1
+      responses:
+        '200':
+          description: AI model provider deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteAIModelProviderResponse'
+              example:
+                status: success
+                message: LLM provider deleted successfully
+                details:
+                  modelKey: f3a4b5b6-5b6c-4e85-9097-3202cfe696fc
+                  modelType: llm
+                  provider: openAI
+                  model: gpt-5.6-luna
+                  wasDefault: false
+                  contextLength: 128000
+        '400':
+          description: 'Model type mismatch — the `modelKey` exists under a different `modelType`
+
+            than the path parameter.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AIModelProviderSimpleError'
+              example:
+                status: error
+                message: Model key 'f3a4b5b6-5b6c-4e85-9097-3202cfe696fc' belongs to type 'llm', not 'embedding'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Admin access required
+        '404':
+          description: 'Model provider not found, or no AI models configuration exists.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AIModelProviderSimpleError'
+              examples:
+                modelNotFound:
+                  summary: Unknown modelKey
+                  value:
+                    status: error
+                    message: Model with key 'f3a4b5b6-5b6c-4e85-9097-3202cfe696fc' not found
+                noConfig:
+                  summary: No AI models configuration in KV store
+                  value:
+                    status: error
+                    message: No AI models configuration found
+        '409':
+          description: 'Model is in use by one or more agents. Remove the model from those agents
+
+            before deleting. Response body is the standard error envelope (`error.code`,
+
+            `error.message`).
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error:
+                  code: HTTP_CONFLICT
+                  message: 'Cannot delete model ''gpt-4o-mini'': currently in use by agent ''Research Assistant''. Remove it from the agent first.'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /configurationManager/ai-models/default/{modelType}/{modelKey}:
+    put:
+      tags:
+      - AI Models Providers
+      summary: Set default AI model
+      description: Set a model as the default for its type.
+      operationId: setDefaultAIModel
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - config:write
+      parameters:
+      - name: modelType
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/ModelType'
+      - name: modelKey
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Default model updated
+        '401':
+          description: Unauthorized
+        '403':
+          description: Admin access required
+        '404':
+          description: Model not found
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /configurationManager/ai-models/prepare-model:
+    post:
+      tags:
+      - AI Models Providers
+      summary: Prepare (download) a local embedding model
+      description: 'Kicks off a non-blocking load/download of a local (SentenceTransformer
+
+        / HuggingFace) embedding model on the embedding server and returns
+
+        immediately with the current status snapshot — it does not wait for
+
+        the download to finish. Poll
+
+        `GET /configurationManager/ai-models/download-progress` (SSE) with the
+
+        same `model` to observe progress until `status` reaches `ready` or
+
+        `failed`.
+
+
+        This decouples model preparation from health checks: previously, a
+
+        multi-GB first-time download running synchronously inside a health
+
+        check could exceed both the frontend''s request timeout and the health
+
+        check''s own timeout. Calling this endpoint first, and only proceeding
+
+        once the SSE stream reports `ready`, avoids both.
+
+
+        Requires org admin privileges in addition to the OAuth scope below.'
+      operationId: prepareEmbeddingModel
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - config:write
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PrepareEmbeddingModelRequest'
+      responses:
+        '202':
+          description: 'Model load/download accepted (or already `ready`/in-progress).
+
+            Returns the current status snapshot; continue polling
+
+            `GET .../download-progress` until `status` is `ready` or `failed`.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmbeddingDownloadProgressPayload'
+              example:
+                model: BAAI/bge-m3
+                status: downloading
+                progress: 0
+                downloaded_bytes: 0
+                total_bytes: 2270000000
+                error: null
+                started_at: 1751900000.123
+                updated_at: 1751900000.123
+        '400':
+          description: 'Either `model` is missing or fails the
+
+            `^[\w.-]+(\/[\w.-]+)?$` repo-id pattern check performed by
+
+            Node.js before proxying to the embedding server, or (via the
+
+            shared `userAdminCheck` middleware) the caller is not an org
+
+            admin.
+
+            '
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: object
+                  required:
+                  - status
+                  - message
+                  additionalProperties: false
+                  properties:
+                    status:
+                      type: string
+                      enum:
+                      - error
+                    message:
+                      type: string
+                      example: A valid model name is required
+                - $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized — missing or invalid bearer token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 'Either the caller''s OAuth token lacks the `config:write` scope,
+
+            or the embedding server rejected the request under its own
+
+            policy: `model` is not in `EMBEDDING_SERVER_ALLOWED_MODELS`, or
+
+            `trustRemoteCode: true` was requested while
+
+            `EMBEDDING_SERVER_ALLOW_REMOTE_CODE` is disabled on the server.
+
+            The embedding-server rejection is proxied verbatim using
+
+            FastAPI''s `{"detail": ...}` envelope, not the Node.js
+
+            `ErrorResponse` shape used for the scope failure.
+
+            '
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - type: object
+                  required:
+                  - detail
+                  properties:
+                    detail:
+                      type: string
+                      example: trust_remote_code is disabled on this server. Set environment variable EMBEDDING_SERVER_ALLOW_REMOTE_CODE=true to enable it.
+        '500':
+          description: 'The embedding server could not be reached, or returned an error
+
+            with no response body (network failure).
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /configurationManager/ai-models/download-progress:
+    get:
+      tags:
+      - AI Models Providers
+      summary: Stream embedding model download progress (SSE)
+      description: 'Server-Sent Events stream that polls the embedding server''s download
+
+        status internally (every ~2s) and forwards each snapshot to the
+
+        client as a `progress` event, until `status` reaches `ready` or
+
+        `failed`, at which point the stream closes.
+
+
+        Pair this with `POST .../prepare-model`: call that first to kick off
+
+        the load/download, then open this stream with the same `model` to
+
+        observe progress.
+
+
+        If the embedding server becomes unreachable mid-stream, one final
+
+        `progress` event with `status: "failed"` and
+
+        `error: "Lost connection to embedding server"` is emitted before the
+
+        stream closes. If the client disconnects, polling stops and no
+
+        further events are written to the response.'
+      operationId: streamEmbeddingDownloadProgress
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - config:read
+      parameters:
+      - name: model
+        in: query
+        required: true
+        description: 'HuggingFace repo id to track, matching `^[\w.-]+(\/[\w.-]+)?$`.
+
+          Should match the `model` passed to `POST .../prepare-model`.
+
+          '
+        schema:
+          type: string
+        example: BAAI/bge-m3
+      responses:
+        '200':
+          description: 'SSE stream (`text/event-stream`). Every frame uses the
+
+            `progress` event name; `data` is a JSON-encoded
+
+            `EmbeddingDownloadProgressPayload` plus a `timestamp` field.
+
+            '
+          content:
+            text/event-stream:
+              schema:
+                $ref: '#/components/schemas/EmbeddingDownloadProgressSSEEvent'
+        '400':
+          description: '`model` query parameter missing or not a valid HuggingFace repo
+
+            id, or (via the shared `userAdminCheck` middleware) the caller is
+
+            not an org admin.
+
+            '
+          content:
+            application/json:
+              schema:
+                oneOf:
+                - type: object
+                  required:
+                  - status
+                  - message
+                  additionalProperties: false
+                  properties:
+                    status:
+                      type: string
+                      enum:
+                      - error
+                    message:
+                      type: string
+                      example: A valid model query parameter is required
+                - $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized — missing or invalid bearer token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Insufficient OAuth scope — token lacks `config:read`
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /configurationManager/ai-models/registry:
+    get:
+      tags:
+      - AI Models Providers
+      summary: List registered AI model providers
+      description: 'Returns all registered AI model providers from the Python backend registry.
+
+        Supports optional search and capability filtering.'
+      operationId: getAIModelRegistry
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - config:read
+      parameters:
+      - name: search
+        in: query
+        required: false
+        schema:
+          type: string
+        description: Search providers by name or description
+      - name: capability
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - text_generation
+          - embedding
+          - image_generation
+          - tts
+          - stt
+          - video
+          - ocr
+          - reasoning
+        description: Filter providers by capability
+      responses:
+        '200':
+          description: Providers retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  providers:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AIModelRegistryProvider'
+                  total:
+                    type: integer
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - Admin access required
+        '503':
+          description: AI model registry service is unavailable
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /configurationManager/ai-models/registry/capabilities:
+    get:
+      tags:
+      - AI Models Providers
+      summary: List available model capabilities
+      description: Returns the list of all model capabilities understood by the registry.
+      operationId: getAIModelRegistryCapabilities
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - config:read
+      responses:
+        '200':
+          description: Capabilities retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  capabilities:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          description: Machine-readable capability identifier
+                          example: text_generation
+                        name:
+                          type: string
+                          description: Human-readable capability name
+                          example: Text Generation
+                        modelType:
+                          type: string
+                          description: Corresponding model type key used in CRUD APIs
+                          example: llm
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - Admin access required
+        '503':
+          description: AI model registry service is unavailable
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /configurationManager/ai-models/registry/{providerId}/schema:
+    get:
+      tags:
+      - AI Models Providers
+      summary: Get provider field schema
+      description: 'Returns the configuration field schema for a specific provider.
+
+        Optionally filtered by capability (e.g. only embedding fields).'
+      operationId: getAIModelProviderSchema
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - config:read
+      parameters:
+      - name: providerId
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Provider identifier (e.g. openAI, anthropic, gemini)
+      - name: capability
+        in: query
+        required: false
+        schema:
+          type: string
+        description: Filter fields by capability
+      responses:
+        '200':
+          description: Provider schema retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  provider:
+                    type: object
+                    properties:
+                      providerId:
+                        type: string
+                      name:
+                        type: string
+                  schema:
+                    type: object
+                    description: Map of capability to array of field descriptors
+                    additionalProperties:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/AIModelFieldSchema'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - Admin access required
+        '404':
+          description: Provider not found
+        '503':
+          description: AI model registry service is unavailable
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+components:
+  schemas:
+    AIModelFieldSchema:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Field key used in configuration payloads
+        displayName:
+          type: string
+          description: Human-readable label
+        fieldType:
+          type: string
+          description: Input type hint (TEXT, SECRET, URL, NUMBER, SELECT, TOGGLE)
+        required:
+          type: boolean
+        defaultValue:
+          type:
+          - string
+          - 'null'
+        placeholder:
+          type: string
+        description:
+          type: string
+        isSecret:
+          type: boolean
+        options:
+          type: array
+          description: Available options when fieldType is SELECT
+          items:
+            type: object
+            properties:
+              label:
+                type: string
+              value:
+                type: string
+        validation:
+          type: object
+          description: Validation constraints (e.g. min, max, pattern)
+          additionalProperties: true
+    ModelType:
+      type: string
+      enum:
+      - llm
+      - embedding
+      - ocr
+      - slm
+      - reasoning
+      - multiModal
+      - imageGeneration
+      - tts
+      - stt
+      description: Type of AI model
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      description: 'Standard error envelope returned by all errors routed through `ErrorMiddleware`.
+
+        Applies to all `BaseError` subclasses including `HttpError`, `ValidationError`, and others.
+
+        The `code` field is a machine-readable string identifying the error type (e.g.
+
+        `HTTP_UNAUTHORIZED`, `HTTP_NOT_FOUND`, `VALIDATION_ERROR`, `INTERNAL_ERROR`).
+
+        '
+      properties:
+        error:
+          type: object
+          additionalProperties: false
+          required:
+          - code
+          - message
+          properties:
+            requestId:
+              type: string
+              description: 'Identifier for this request, echoed so a bug report can quote it.
+
+                Absent when the request never reached the middleware that assigns one.
+
+                '
+            code:
+              type: string
+              description: 'Machine-readable error code. For application errors it takes the form `HTTP_<VARIANT>`
+
+                For unhandled runtime errors (e.g. database unavailable) it is `INTERNAL_ERROR`.
+
+                '
+              example: HTTP_BAD_REQUEST
+            message:
+              type: string
+              description: Human-readable description of the error
+              example: Admin access required
+            metadata:
+              type: object
+              description: Additional context (only present in development environments)
+              additionalProperties: true
+      required:
+      - error
+    GetModelsByTypeResponse:
+      type: object
+      additionalProperties: false
+      description: 'Success response from getModelsByType. Returns stored provider entries
+
+        for a single model type bucket (not the flattened available-models shape).
+
+        Each entry''s `configuration` includes only `model`, `modelFriendlyName`,
+
+        and `dimensions` when stored.
+
+        '
+      required:
+      - status
+      - models
+      - message
+      properties:
+        status:
+          type: string
+          enum:
+          - success
+        message:
+          type: string
+          description: Human-readable summary (e.g. "Found 2 llm models", "No llm models found").
+        models:
+          type: array
+          items:
+            $ref: '#/components/schemas/AIModelProviderConfig'
+    AIModelProviderHealthCheckBackendDetails:
+      type: object
+      additionalProperties: false
+      description: 'Nested diagnostics from the Python query service health-check response
+
+        (`content.details`). Present on credential, timeout, and embedding-policy failures.
+
+        '
+      properties:
+        provider:
+          type: string
+          description: Provider registry ID (e.g. openai, azure-openai)
+        model:
+          type: string
+          description: Model name from the configuration under test
+        error:
+          type: string
+          description: Underlying provider or multimodal probe error text
+        error_type:
+          type: string
+          description: Python exception class name (e.g. AuthenticationError)
+        timeout_seconds:
+          type: integer
+          description: Health-check invoke timeout in seconds
+        existing_vector_size:
+          type: integer
+          description: Vector dimension of the existing Qdrant collection
+        new_embedding_size:
+          type: integer
+          description: Dimension produced by the candidate embedding model
+        points_count:
+          type: integer
+          description: Number of points in the existing collection
+        current_model:
+          type: string
+          description: Embedding model name already stored for the org collection
+        new_model:
+          type: string
+          description: Candidate embedding model name
+        new_provider:
+          type: string
+          description: Candidate embedding provider ID
+        embedding_model:
+          type: string
+          description: Embedding subsystem status (HTTPException detail payloads)
+        vector_store:
+          type: string
+          description: Vector store subsystem status (HTTPException detail payloads)
+        llm:
+          type: string
+          description: LLM subsystem status (HTTPException detail payloads)
+    AIModelProviderHealthCheckBackendPayload:
+      type: object
+      additionalProperties: false
+      description: 'Raw JSON body from `POST /api/v1/health-check/{modelType}` on the Python query
+
+        service, forwarded unchanged as `error.details` by addAIModelProvider and
+
+        updateAIModelProvider when the health check fails.
+
+        '
+      properties:
+        status:
+          type: string
+          description: Health outcome from Python (e.g. error, not healthy)
+          example: error
+        message:
+          type: string
+          description: Primary human-readable failure reason from Python
+          example: 'LLM health check failed: Incorrect API key provided'
+        error:
+          type: string
+          description: Alternate top-level error field (legacy envelopes and HTTPException detail)
+          example: 'Health check failed: Connection refused'
+        timestamp:
+          type: integer
+          format: int64
+          description: Epoch milliseconds when the check completed
+        details:
+          $ref: '#/components/schemas/AIModelProviderHealthCheckBackendDetails'
+      example:
+        status: error
+        message: 'LLM health check failed: Incorrect API key provided'
+        details:
+          provider: openai
+          model: gpt-5.6-luna
+          error_type: AuthenticationError
+    AIModelProviderResponse:
+      type: object
+      additionalProperties: false
+      description: Success response from addAIModelProvider
+      required:
+      - status
+      - message
+      - details
+      properties:
+        status:
+          type: string
+          enum:
+          - success
+        message:
+          type: string
+          example: LLM provider added successfully
+        details:
+          $ref: '#/components/schemas/AIModelProviderAddedDetails'
+    EmbeddingDownloadProgressSSEEvent:
+      type: object
+      description: 'SSE event envelope for
+
+        `GET /configurationManager/ai-models/download-progress`. Every frame
+
+        uses the `progress` event name; `data` is a JSON-encoded
+
+        `EmbeddingDownloadProgressPayload` with one extra `timestamp` field
+
+        (epoch milliseconds) added by the Node.js proxy on each poll.
+
+        '
+      properties:
+        event:
+          type: string
+          enum:
+          - progress
+        data:
+          type: string
+          description: 'JSON-encoded `EmbeddingDownloadProgressPayload` plus a
+
+            `timestamp` (epoch ms) field.
+
+            '
+    EmbeddingDownloadStatus:
+      type: string
+      description: 'Lifecycle state of a model load/download on the embedding server.
+
+        Transitions: `checking` -> `downloading` -> `loading` -> `ready`, or
+
+        -> `failed` from any state. `not_found` is only returned by
+
+        `GET .../download-progress` when no download has ever been tracked
+
+        for the model and it is not currently loaded.
+
+        '
+      enum:
+      - checking
+      - downloading
+      - loading
+      - ready
+      - failed
+      - not_found
+    AIModelProviderConfiguration:
+      type: object
+      description: 'Provider-specific configuration stored on each AI model entry.
+
+
+        **Read shape:** user-facing GET responses return only `model`,
+
+        `modelFriendlyName`, and `dimensions` (when stored). Values are copied as-is;
+
+        other keys including credentials are omitted.
+
+
+        **Write shape:** create and update still accept the full provider payload
+
+        (Zod `configurationSchema` with `.passthrough()`). An omitted key retains
+
+        the stored value; send an empty string to clear one.
+
+
+        Properties below are the documented union of the Zod base shape and registry-defined
+
+        configuration keys (all optional unless required by a given provider at runtime).
+
+        '
+      additionalProperties: false
+      properties:
+        model:
+          type: string
+          description: 'Model name/identifier. May be comma-separated for multiple models
+
+            (e.g. `gpt-5.6-luna, gpt-5.6-terra`).
+
+            '
+          example: gpt-5.6-luna
+        modelFriendlyName:
+          type: string
+          description: 'Display name for the model. Only allowed when `model` is a single name
+
+            (not comma-separated).
+
+            '
+        apiKey:
+          type: string
+          description: API key for the provider
+        endpoint:
+          type: string
+          description: Custom endpoint URL (Azure OpenAI, self-hosted, Wispr override)
+        organizationId:
+          type: string
+          description: Organization ID (OpenAI)
+        deploymentName:
+          type: string
+          description: Deployment name (Azure OpenAI)
+        provider:
+          type: string
+          description: Bedrock model vendor (e.g. anthropic, cohere) or provider name override
+        customProvider:
+          type: string
+          description: Custom Bedrock vendor name when `provider` is `other`
+        awsAccessKeyId:
+          type: string
+          description: AWS access key (Bedrock). Optional - omit to use IAM role credentials.
+        awsAccessSecretKey:
+          type: string
+          description: AWS secret key (Bedrock). Optional - omit to use IAM role credentials.
+        region:
+          type: string
+          description: AWS region (Bedrock)
+        project:
+          type: string
+          description: GCP project ID (Vertex AI)
+        location:
+          type: string
+          description: Vertex AI region (e.g. us-central1)
+        serviceAccountJson:
+          type: string
+          description: 'Google Cloud service account JSON key (Vertex AI). Uploaded as a string;
+
+            treated as a secret at runtime.
+
+            '
+        dimensions:
+          description: 'Embedding output dimensions override (when supported by the model).
+
+            Stored configs may use an empty string when unset (registry default).
+
+            '
+          anyOf:
+          - type: integer
+          - type: string
+            enum:
+            - ''
+        voice:
+          type: string
+          description: Default TTS voice (OpenAI / Gemini audio)
+        responseFormat:
+          type: string
+          description: TTS audio format (e.g. mp3, wav)
+        device:
+          type: string
+          description: Whisper runtime device (auto, cpu, cuda)
+        computeType:
+          type: string
+          description: Whisper numeric precision (e.g. int8, float16)
+        modelDir:
+          type: string
+          description: Whisper model weights cache directory
+        language:
+          type: string
+          description: Wispr Flow default language (ISO 639-1) or empty for auto-detect
+        appType:
+          type: string
+          description: Wispr Flow output formatting (e.g. ai, email)
+        model_kwargs:
+          type: object
+          description: 'Optional keyword arguments forwarded to LangChain embedding/LLM clients
+
+            (mirrors Zod `z.record(z.any())`). Used by HuggingFace (`device`, `api_key`)
+
+            and Bedrock (`max_tokens`) paths in Python; values are typically string,
+
+            number, or boolean. Omitted when not configured.
+
+            '
+          additionalProperties: {}
+        encode_kwargs:
+          type: object
+          description: 'Optional encoding kwargs for embedding models (mirrors Zod
+
+            `z.record(z.any())`). Commonly `normalize_embeddings` (boolean) for
+
+            HuggingFace and SentenceTransformer providers. Omitted when not configured.
+
+            '
+          additionalProperties: {}
+        cache_folder:
+          type: string
+          description: Cache folder for models
+    AIModelRegistryProvider:
+      type: object
+      properties:
+        providerId:
+          type: string
+          description: Unique identifier (e.g. openAI, anthropic)
+        name:
+          type: string
+          description: Human-readable provider name
+        description:
+          type: string
+        capabilities:
+          type: array
+          items:
+            type: string
+        icon:
+          type: string
+          description: Path to the provider icon asset
+        color:
+          type: string
+          description: Brand hex colour
+        isPopular:
+          type: boolean
+    AIModelProviderHealthCheckErrorEnvelope:
+      type: object
+      additionalProperties: false
+      description: Health-check failure from the Python AI backend
+      required:
+      - error
+      properties:
+        error:
+          type: object
+          additionalProperties: false
+          required:
+          - status
+          - message
+          properties:
+            status:
+              type: string
+              enum:
+              - error
+            message:
+              type: string
+              description: 'User-facing reason from the Node controller, derived from the Python
+
+                body (`message`, or `error` / `error.message` when present).
+
+                '
+            details:
+              $ref: '#/components/schemas/AIModelProviderHealthCheckBackendPayload'
+    EmbeddingDownloadProgressPayload:
+      type: object
+      additionalProperties: false
+      description: 'Status snapshot for a single model''s load/download, proxied from the
+
+        embedding server''s `DownloadStatus.to_dict()`.
+
+        '
+      required:
+      - model
+      - status
+      - progress
+      - downloaded_bytes
+      - total_bytes
+      - error
+      properties:
+        model:
+          type: string
+          description: Model repo id this snapshot refers to.
+        status:
+          $ref: '#/components/schemas/EmbeddingDownloadStatus'
+        progress:
+          type: number
+          format: float
+          description: 'Percent complete (0-100), rounded to 1 decimal place. Capped at
+
+            99 while downloading — 100 is only reported once the load is
+
+            fully `ready`. Stays 0 when the Hub size lookup failed and no
+
+            bytes have been measured on disk yet.
+
+            '
+        downloaded_bytes:
+          type: integer
+          description: 'Bytes currently on disk for this repo''s HuggingFace cache blobs,
+
+            including in-progress `.incomplete` files.
+
+            '
+        total_bytes:
+          type: integer
+          description: 'Best-effort expected total size in bytes from the Hub metadata
+
+            API. `0` when the lookup failed (offline, private/gated repo) or
+
+            no download has been tracked for this model.
+
+            '
+        error:
+          type:
+          - string
+          - 'null'
+          description: Failure detail when `status` is `failed`; `null` otherwise.
+        started_at:
+          type: number
+          format: float
+          description: 'Unix timestamp (seconds) when this load/download attempt
+
+            started. Omitted from the synthesized `ready`/`not_found`
+
+            snapshot that `GET .../download-progress` returns when no
+
+            `DownloadStatus` has ever been tracked for the model.
+
+            '
+        updated_at:
+          type: number
+          format: float
+          description: 'Unix timestamp (seconds) of the last status update. Same
+
+            omission rule as `started_at`.
+
+            '
+    AIModelProviderAddedDetails:
+      type: object
+      additionalProperties: false
+      description: Summary of the provider entry created by addAIModelProvider
+      required:
+      - modelKey
+      - modelType
+      - provider
+      - isDefault
+      properties:
+        modelKey:
+          type: string
+          format: uuid
+          description: Unique identifier assigned to the new provider configuration
+        modelType:
+          $ref: '#/components/schemas/ModelType'
+        provider:
+          type: string
+          description: Provider registry ID
+        model:
+          type: string
+          description: Model name from `configuration.model`
+        isDefault:
+          type: boolean
+          description: Whether this provider was saved as the default for its type
+        contextLength:
+          type:
+          - integer
+          - 'null'
+          description: Context length (tokens), when provided in the request
+    AddAIModelProviderRequest:
+      type: object
+      description: Request to add a new AI model provider
+      additionalProperties: false
+      required:
+      - modelType
+      - provider
+      - configuration
+      properties:
+        modelType:
+          $ref: '#/components/schemas/ModelType'
+        provider:
+          type: string
+          minLength: 1
+          description: Provider registry ID (e.g. openAI, gemini, azureOpenAI, groq)
+          example: openAI
+        configuration:
+          $ref: '#/components/schemas/AIModelProviderConfiguration'
+        isMultimodal:
+          type: boolean
+          description: Whether the model supports multimodal inputs
+          default: false
+        isReasoning:
+          type: boolean
+          description: Whether this is a reasoning model
+          default: false
+        isDefault:
+          type: boolean
+          description: Set as default model for this type
+          default: false
+        contextLength:
+          type:
+          - integer
+          - 'null'
+          description: Maximum context length (tokens)
+    AIModelProviderSimpleError:
+      type: object
+      additionalProperties: false
+      description: 'Controller validation error returned before the Python health-check
+
+        (e.g. missing required fields or invalid modelType).
+
+        '
+      required:
+      - status
+      - message
+      properties:
+        status:
+          type: string
+          enum:
+          - error
+        message:
+          type: string
+    DeleteAIModelProviderDetails:
+      type: object
+      additionalProperties: false
+      description: Metadata about the AI model provider entry removed by deleteAIModelProvider
+      required:
+      - modelKey
+      - modelType
+      - provider
+      - wasDefault
+      properties:
+        modelKey:
+          type: string
+          format: uuid
+          description: UUID of the deleted provider configuration
+        modelType:
+          $ref: '#/components/schemas/ModelType'
+        provider:
+          type: string
+          description: Provider registry ID (e.g. openAI, gemini, azureOpenAI)
+        model:
+          type: string
+          description: Model name from `configuration.model` when present
+        wasDefault:
+          type: boolean
+          description: Whether the deleted entry was the default for its model type
+        contextLength:
+          type:
+          - integer
+          - 'null'
+          description: Maximum context length (tokens) when configured
+    DeleteAIModelProviderResponse:
+      type: object
+      additionalProperties: false
+      description: Success response from deleteAIModelProvider
+      required:
+      - status
+      - message
+      - details
+      properties:
+        status:
+          type: string
+          enum:
+          - success
+        message:
+          type: string
+          description: Human-readable confirmation
+          example: LLM provider deleted successfully
+        details:
+          $ref: '#/components/schemas/DeleteAIModelProviderDetails'
+    UpdateAIModelProviderErrorResponse:
+      oneOf:
+      - $ref: '#/components/schemas/ErrorResponse'
+      - $ref: '#/components/schemas/AIModelProviderSimpleError'
+      - $ref: '#/components/schemas/AIModelProviderHealthCheckErrorEnvelope'
+    UpdateAIModelProviderResponse:
+      type: object
+      additionalProperties: false
+      description: Success response from updateAIModelProvider
+      required:
+      - status
+      - message
+      - details
+      properties:
+        status:
+          type: string
+          enum:
+          - success
+        message:
+          type: string
+          example: LLM provider updated successfully
+        details:
+          $ref: '#/components/schemas/UpdateAIModelProviderDetails'
+    UpdateAIModelProviderRequest:
+      type: object
+      description: Request to update an existing AI model provider
+      additionalProperties: false
+      required:
+      - provider
+      - configuration
+      properties:
+        provider:
+          type: string
+          minLength: 1
+          description: Provider registry ID (e.g. openAI, gemini, azureOpenAI, groq)
+        configuration:
+          $ref: '#/components/schemas/AIModelProviderConfiguration'
+        isMultimodal:
+          type: boolean
+          description: Whether the model supports multimodal inputs
+          default: false
+        isReasoning:
+          type: boolean
+          description: Whether this is a reasoning model
+          default: false
+        isDefault:
+          type: boolean
+          description: Set as default model for this type
+          default: false
+        contextLength:
+          type:
+          - integer
+          - 'null'
+          description: Maximum context length (tokens)
+    AIModelProviderConfig:
+      type: object
+      additionalProperties: false
+      required:
+      - provider
+      - configuration
+      properties:
+        provider:
+          type: string
+          description: AI provider name
+        configuration:
+          $ref: '#/components/schemas/AIModelProviderConfiguration'
+        modelFriendlyName:
+          type: string
+          description: 'Display name for this model entry. May duplicate configuration.modelFriendlyName
+
+            when set on the stored provider record.
+
+            '
+        isMultimodal:
+          type: boolean
+          default: false
+          description: Whether the model supports multimodal input
+        isReasoning:
+          type: boolean
+          default: false
+          description: Whether the model supports reasoning
+        isDefault:
+          type: boolean
+          default: false
+          description: Whether this should be the default model
+        contextLength:
+          type:
+          - integer
+          - 'null'
+          description: Context length for the model
+        modelKey:
+          type: string
+          description: Unique identifier for this model configuration
+          readOnly: true
+    UpdateAIModelProviderDetails:
+      type: object
+      additionalProperties: false
+      description: Summary of the provider entry returned by updateAIModelProvider
+      required:
+      - modelKey
+      - modelType
+      - provider
+      - isMultimodal
+      - isReasoning
+      properties:
+        modelKey:
+          type: string
+          format: uuid
+          description: Unique identifier for this model configuration
+        modelType:
+          $ref: '#/components/schemas/ModelType'
+        provider:
+          type: string
+          description: Provider registry ID
+        model:
+          type: string
+          description: Model name from `configuration.model`
+        contextLength:
+          type:
+          - integer
+          - 'null'
+          description: Context length (tokens)
+        isMultimodal:
+          type: boolean
+          description: Whether the model supports multimodal inputs
+        isReasoning:
+          type: boolean
+          description: Whether this is a reasoning model
+    PrepareEmbeddingModelRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - model
+      properties:
+        model:
+          type: string
+          description: 'HuggingFace repo id of the local embedding model to prepare, in
+
+            `owner/name` or bare-model-id form. Must match
+
+            `^[\w.-]+(\/[\w.-]+)?$`.
+
+            '
+          example: BAAI/bge-m3
+        trustRemoteCode:
+          type: boolean
+          default: false
+          description: 'Forwarded to the embedding server as `trust_remote_code`.
+
+            Rejected with 403 unless the server has
+
+            `EMBEDDING_SERVER_ALLOW_REMOTE_CODE=true` set.
+
+            '
+    AddAIModelProviderErrorResponse:
+      oneOf:
+      - $ref: '#/components/schemas/ErrorResponse'
+      - $ref: '#/components/schemas/AIModelProviderSimpleError'
+      - $ref: '#/components/schemas/AIModelProviderHealthCheckErrorEnvelope'
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'JWT Bearer token for authenticated requests.
+
+
+        A personal access token (see the **Personal Access Tokens** tag) is a
+
+        `phpat_`-prefixed variant of this same JWT — e.g. `phpat_eyJhbGci...`.
+
+        The prefix is display-only, added for secret-scanner detectability; the
+
+        gateway strips it before verifying the token, so send it exactly as
+
+        issued, prefix included.
+
+        '
+    scopedToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Scoped JWT token for service-to-service authentication.
+
+        Format: "Bearer {scoped_token}"
+
+        Required scopes vary by endpoint.
+
+        '
+    oauth2:
+      type: oauth2
+      description: 'OAuth 2.0 authentication with fine-grained scopes.
+
+        Supports authorization_code (with PKCE) and client_credentials flows.
+
+        OAuth tokens are Bearer JWTs — use the same Authorization header as regular tokens.
+
+        For **client_credentials**, machine JWTs may use `userId === client_id`; the Node gateway resolves the OAuth app creator — see **OAuth Provider** tag.
+
+        '
+      flows:
+        authorizationCode:
+          authorizationUrl: /api/v1/oauth2/authorize
+          tokenUrl: /api/v1/oauth2/token
+          refreshUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:read: Read semantic search results and history
+            semantic:write: Execute semantic search
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+            crawl:delete: Delete crawling jobs
+        clientCredentials:
+          tokenUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:write: Execute semantic search
+            semantic:read: Read semantic search results and history
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+x-refined-from:
+- pipeshub-openapi.yaml
+- pipeshub-openapi.yml

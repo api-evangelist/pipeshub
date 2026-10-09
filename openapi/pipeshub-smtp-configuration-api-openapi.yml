@@ -1,0 +1,343 @@
+openapi: 3.2.0
+info:
+  title: Pipeshub SMTP Configuration API
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@pipeshub.com
+  description: 'Operations tagged SMTP Configuration across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: '{instance_url}/api/v1'
+  description: Base API URL
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL (without /api/v1)
+- url: '{instance_url}'
+  description: Root URL (used for MCP endpoints mounted at /mcp)
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL
+security:
+- bearerAuth: []
+- oauth2: []
+tags:
+- name: SMTP Configuration
+  description: Configure SMTP email server for sending notifications and invitations.
+paths:
+  /configurationManager/smtpConfig:
+    post:
+      tags:
+      - SMTP Configuration
+      summary: Create or update SMTP configuration
+      description: 'Configure SMTP email server for sending system emails including user invitations, notifications, and password resets.
+
+
+        Common SMTP providers and their settings:
+
+        - Gmail: host=smtp.gmail.com, port=587 (requires App Password)
+
+        - SendGrid: host=smtp.sendgrid.net, port=587
+
+        - Amazon SES: host=email-smtp.{region}.amazonaws.com, port=587
+
+        - Microsoft 365: host=smtp.office365.com, port=587
+
+
+        Configuration is encrypted before storage.'
+      operationId: createSMTPConfig
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - config:write
+      requestBody:
+        required: true
+        description: Request body for Create or update SMTP configuration
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SMTPConfig'
+            examples:
+              gmail:
+                summary: Gmail SMTP
+                value:
+                  host: smtp.gmail.com
+                  port: 587
+                  username: notifications@yourcompany.com
+                  password: your-app-password
+                  fromEmail: noreply@yourcompany.com
+              sendgrid:
+                summary: SendGrid SMTP
+                value:
+                  host: smtp.sendgrid.net
+                  port: 587
+                  username: apikey
+                  password: SG.your-sendgrid-api-key
+                  fromEmail: noreply@yourcompany.com
+              amazonSes:
+                summary: Amazon SES SMTP
+                value:
+                  host: email-smtp.us-east-1.amazonaws.com
+                  port: 587
+                  username: REDACTED_AWS_ACCESS_KEY_ID
+                  password: your-ses-smtp-password
+                  fromEmail: noreply@yourcompany.com
+              office365:
+                summary: Microsoft 365 SMTP
+                value:
+                  host: smtp.office365.com
+                  port: 587
+                  username: notifications@yourcompany.onmicrosoft.com
+                  password: your-password
+                  fromEmail: notifications@yourcompany.onmicrosoft.com
+      responses:
+        '200':
+          description: SMTP configuration saved successfully
+        '400':
+          description: Invalid configuration
+        '401':
+          description: Unauthorized
+        '403':
+          description: Admin access required
+    get:
+      tags:
+      - SMTP Configuration
+      summary: Get SMTP configuration
+      description: Retrieve the current SMTP server configuration. Password is included in the response for admin users.
+      operationId: getSMTPConfig
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - config:read
+      responses:
+        '200':
+          description: SMTP configuration retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SMTPConfig'
+        '401':
+          description: Unauthorized
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /configurationManager/smtpConfig/status:
+    get:
+      tags:
+      - SMTP Configuration
+      summary: Get SMTP configuration status
+      description: 'Returns only whether SMTP is configured — no host, credentials, or other
+
+        details. Unlike `GET /configurationManager/smtpConfig`, this is not
+
+        admin-gated: any authenticated org member can call it, since members
+
+        can invite users (`user:invite` scope) and need to know up front
+
+        whether an invite would succeed without being able to read the SMTP
+
+        config itself.'
+      operationId: getSMTPConfigStatus
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: SMTP configuration status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  configured:
+                    type: boolean
+        '401':
+          description: Unauthorized
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+components:
+  schemas:
+    SMTPConfig:
+      type: object
+      description: SMTP email server configuration for sending system emails (invitations, notifications, password resets)
+      required:
+      - host
+      - port
+      - fromEmail
+      properties:
+        host:
+          type: string
+          description: SMTP server hostname or IP address
+          example: smtp.gmail.com
+        port:
+          type: integer
+          minimum: 1
+          maximum: 65535
+          description: SMTP server port. Common ports are 25 (unencrypted), 465 (SSL), 587 (TLS/STARTTLS)
+          example: 587
+        username:
+          type: string
+          description: SMTP authentication username. Usually an email address for services like Gmail, SendGrid, etc.
+          example: notifications@yourcompany.com
+        password:
+          type: string
+          description: SMTP authentication password or app-specific password. For Gmail, use an App Password instead of your account password.
+          example: your-app-password
+        fromEmail:
+          type: string
+          format: email
+          description: Default sender email address that appears in the "From" field of outgoing emails
+          example: noreply@yourcompany.com
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'JWT Bearer token for authenticated requests.
+
+
+        A personal access token (see the **Personal Access Tokens** tag) is a
+
+        `phpat_`-prefixed variant of this same JWT — e.g. `phpat_eyJhbGci...`.
+
+        The prefix is display-only, added for secret-scanner detectability; the
+
+        gateway strips it before verifying the token, so send it exactly as
+
+        issued, prefix included.
+
+        '
+    scopedToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Scoped JWT token for service-to-service authentication.
+
+        Format: "Bearer {scoped_token}"
+
+        Required scopes vary by endpoint.
+
+        '
+    oauth2:
+      type: oauth2
+      description: 'OAuth 2.0 authentication with fine-grained scopes.
+
+        Supports authorization_code (with PKCE) and client_credentials flows.
+
+        OAuth tokens are Bearer JWTs — use the same Authorization header as regular tokens.
+
+        For **client_credentials**, machine JWTs may use `userId === client_id`; the Node gateway resolves the OAuth app creator — see **OAuth Provider** tag.
+
+        '
+      flows:
+        authorizationCode:
+          authorizationUrl: /api/v1/oauth2/authorize
+          tokenUrl: /api/v1/oauth2/token
+          refreshUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:read: Read semantic search results and history
+            semantic:write: Execute semantic search
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+            crawl:delete: Delete crawling jobs
+        clientCredentials:
+          tokenUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:write: Execute semantic search
+            semantic:read: Read semantic search results and history
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+x-refined-from:
+- pipeshub-openapi.yaml
+- pipeshub-openapi.yml

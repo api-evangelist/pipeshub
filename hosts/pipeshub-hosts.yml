@@ -1,0 +1,185 @@
+generated: '2026-10-09'
+method: derived
+source: the pre-flight dossier, apis.yml pointers, spec servers, well-known, vendors -- nothing fetched here
+generator: derive-hosts.py
+summary:
+  hosts: 14
+  own: 5
+  other_domain: 4
+  platform: 5
+  roles:
+  - api
+  - docs
+  - identity
+  - other
+  - portal
+  - sandbox
+  - source
+  - support
+  - website
+hosts:
+- host: api.pipeshub.com
+  found_by:
+  - contract-discovery
+  types: []
+  serves: []
+  registrable_domain: pipeshub.com
+  role: api
+  relation: own
+- host: app.pipeshub.com
+  found_by:
+  - pointer
+  - apis[]
+  - probed
+  - site-links
+  - contract-discovery
+  - well-known
+  types:
+  - Login
+  serves:
+  - api
+  registrable_domain: pipeshub.com
+  role: identity
+  relation: own
+- host: demo.bookstackapp.com
+  found_by:
+  - docs-index
+  types: []
+  serves:
+  - docs
+  registrable_domain: bookstackapp.com
+  role: other
+  relation: other-domain
+- host: developer.box.com
+  found_by:
+  - docs-index
+  types: []
+  serves:
+  - docs
+  registrable_domain: box.com
+  role: portal
+  relation: other-domain
+- host: discord.com
+  found_by:
+  - pointer
+  - vendor-detect
+  types:
+  - Support
+  serves:
+  - community
+  vendor: discord
+  registrable_domain: discord.com
+  role: support
+  relation: platform
+- host: docs.cloud.google.com
+  found_by:
+  - docs-index
+  types: []
+  serves:
+  - docs
+  registrable_domain: google.com
+  role: docs
+  relation: other-domain
+- host: docs.pipeshub.com
+  found_by:
+  - pointer
+  - apis[]
+  - probed
+  - site-links
+  - docs-index
+  - spec-found
+  - contract-discovery
+  - well-known
+  - vendor-detect
+  types:
+  - Documentation
+  - APIReference
+  - GettingStarted
+  - ChangeLog
+  serves:
+  - docs
+  - spec
+  - cdn
+  - hosting
+  vendor: cloudflare
+  registrable_domain: pipeshub.com
+  role: docs
+  relation: own
+- host: github.com
+  found_by:
+  - pointer
+  - docs-index
+  types:
+  - SpectralRules
+  - GitHubOrganization
+  serves:
+  - docs
+  registrable_domain: github.com
+  role: source
+  relation: platform
+- host: pipeshub.com
+  found_by:
+  - pointer
+  - probed
+  - contract-discovery
+  - well-known
+  types:
+  - Website
+  - Blog
+  - Pricing
+  - Security
+  - TermsOfService
+  - PrivacyPolicy
+  serves: []
+  registrable_domain: pipeshub.com
+  role: website
+  relation: own
+- host: platform.openai.com
+  found_by:
+  - docs-index
+  types: []
+  serves:
+  - docs
+  registrable_domain: openai.com
+  role: other
+  relation: other-domain
+- host: sandbox.pipeshub.com
+  found_by:
+  - pointer
+  - probed
+  - site-links
+  - contract-discovery
+  - well-known
+  types:
+  - Sandbox
+  serves: []
+  registrable_domain: pipeshub.com
+  role: sandbox
+  relation: own
+- host: www.linkedin.com
+  found_by:
+  - pointer
+  types:
+  - LinkedIn
+  serves: []
+  registrable_domain: linkedin.com
+  role: other
+  relation: platform
+- host: www.youtube.com
+  found_by:
+  - pointer
+  types:
+  - YouTube
+  serves: []
+  registrable_domain: youtube.com
+  role: other
+  relation: platform
+- host: x.com
+  found_by:
+  - pointer
+  types:
+  - X
+  serves: []
+  registrable_domain: x.com
+  role: other
+  relation: platform

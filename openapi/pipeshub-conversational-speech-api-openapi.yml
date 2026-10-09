@@ -1,0 +1,710 @@
+openapi: 3.2.0
+info:
+  title: Pipeshub Conversational Speech API
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@pipeshub.com
+  description: 'Operations tagged Conversational Speech across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: '{instance_url}/api/v1'
+  description: Base API URL
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL (without /api/v1)
+- url: '{instance_url}'
+  description: Root URL (used for MCP endpoints mounted at /mcp)
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL
+security:
+- bearerAuth: []
+- oauth2: []
+tags:
+- name: Conversational Speech
+  description: 'Server-backed Speech-to-Text (STT) and Text-to-Speech (TTS) for the chat UI.
+
+
+    These endpoints are used by the chat frontend when an admin has configured a
+
+    TTS/STT provider under the AI Models configuration. When no provider is
+
+    configured the client falls back to the browser''s native Web Speech API, so
+
+    callers should treat a `409` response as "unconfigured, use browser APIs"
+
+    rather than as a fatal error.'
+paths:
+  /chat/transcribe:
+    post:
+      tags:
+      - Conversational Speech
+      summary: Transcribe an audio clip (Speech-to-Text)
+      description: 'Upload a short audio recording and receive its transcript from the
+
+        configured Speech-to-Text provider (OpenAI Whisper, `gpt-4o-transcribe`,
+
+        a self-hosted `faster-whisper` model, Wispr Flow, or Gemini multimodal
+
+        models such as `gemini-2.5-flash`).
+
+
+        Overview:
+
+
+        The chat UI captures audio via the browser''s `MediaRecorder` and
+
+        POSTs it here as `multipart/form-data`. If no STT provider is
+
+        configured the endpoint returns 409 and the client falls
+
+        back to the browser''s native Web Speech Recognition.
+
+
+        Limits:
+
+
+        Audio payload is capped at 25 MB (matches OpenAI''s
+
+        audio.transcriptions.create limit).
+
+
+        Supported MIME types include audio/webm,
+
+        audio/ogg, audio/mp4,
+
+        audio/mpeg, audio/wav, and
+
+        audio/flac.'
+      operationId: transcribeChatAudio
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - conversation:chat
+      requestBody:
+        required: true
+        description: Audio clip (multipart/form-data) to transcribe, with an optional language hint.
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: 'Recorded audio clip. Must be ≤ 25 MB. Supported MIME
+
+                    types include `audio/webm`, `audio/ogg`, `audio/mp4`,
+
+                    `audio/m4a`, `audio/mpeg`, `audio/wav`, and
+
+                    `audio/flac`. The browser''s `MediaRecorder` default
+
+                    (`audio/webm;codecs=opus`) is recommended.
+
+                    '
+                language:
+                  type:
+                  - string
+                  - 'null'
+                  description: 'Optional ISO-639-1 language hint forwarded to the
+
+                    provider (e.g. `en`, `fr`). When omitted the provider
+
+                    auto-detects. The `wispr` provider treats this as a
+
+                    property hint; Gemini appends it to the transcription
+
+                    prompt.
+
+                    '
+                  example: en
+      responses:
+        '200':
+          description: Transcription succeeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TranscriptionResponse'
+              examples:
+                openai:
+                  summary: OpenAI `gpt-4o-mini-transcribe`
+                  value:
+                    text: Turn on the office lights.
+                    provider: openAI
+                    model: gpt-4o-mini-transcribe
+                wispr:
+                  summary: Wispr Flow
+                  value:
+                    text: Summarize today's standup notes.
+                    provider: wispr
+                    model: flow
+                gemini:
+                  summary: Gemini multimodal
+                  value:
+                    text: Create a ticket to fix the login bug.
+                    provider: gemini
+                    model: gemini-2.5-flash
+        '400':
+          description: Empty audio payload (`file` read returned 0 bytes).
+        '401':
+          description: Unauthorized — valid bearer token required.
+        '409':
+          description: 'No Speech-to-Text provider is configured. The client should fall
+
+            back to the browser Web Speech API.
+
+            '
+        '413':
+          description: 'Audio payload exceeds the 25 MB limit. This matches OpenAI''s
+
+            `audio.transcriptions.create` ceiling and the soft cap enforced
+
+            by the node proxy (`multer` `fileSize`).
+
+            '
+        '500':
+          description: 'Runtime error — for example the optional `faster-whisper`
+
+            package is not installed for the `whisper` provider, or
+
+            `ffmpeg` is missing on the host for the `wispr` provider
+
+            (required to transcode audio to 16 kHz WAV).
+
+            '
+        '502':
+          description: Upstream provider failure (message is intentionally generic; see server logs for details).
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /chat/speak:
+    post:
+      tags:
+      - Conversational Speech
+      summary: Synthesize audio for a message (Text-to-Speech)
+      description: 'Generate audio for the supplied text using the configured Text-to-Speech
+
+        provider (e.g. OpenAI `tts-1`, `gpt-4o-mini-tts`, or Gemini
+
+        `gemini-3.1-flash-tts-preview` / `gemini-2.5-flash-preview-tts`).
+
+        The response body is
+
+        the raw audio bytes in the requested format.
+
+
+        Overview:
+
+
+        The chat UI calls this when the user clicks "Read aloud" on an
+
+        assistant message. If no TTS provider is configured the endpoint
+
+        returns 409 and the client falls back to the browser''s
+
+        speechSynthesis API.
+
+
+        Limits:
+
+
+        Input text is capped at 4096 characters.
+
+
+        speed is clamped to the range
+
+        [0.25, 4.0].
+
+
+        Unknown format values silently fall back to
+
+        mp3.'
+      operationId: synthesizeChatSpeech
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - conversation:chat
+      requestBody:
+        required: true
+        description: Text to synthesize and optional voice, format, and speed parameters.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SpeakRequest'
+      responses:
+        '200':
+          description: 'Raw audio bytes in the negotiated format. Response headers
+
+            <code>X-TTS-Provider</code> and <code>X-TTS-Model</code> identify
+
+            the provider/model that produced the audio.
+
+            '
+          headers:
+            X-TTS-Provider:
+              schema:
+                type: string
+              description: Provider id that produced the audio.
+            X-TTS-Model:
+              schema:
+                type: string
+              description: Model id that produced the audio.
+            Cache-Control:
+              schema:
+                type: string
+              description: Always <code>no-store</code>.
+          content:
+            audio/mpeg:
+              schema:
+                type: string
+                format: binary
+            audio/ogg:
+              schema:
+                type: string
+                format: binary
+            audio/aac:
+              schema:
+                type: string
+                format: binary
+            audio/flac:
+              schema:
+                type: string
+                format: binary
+            audio/wav:
+              schema:
+                type: string
+                format: binary
+            audio/pcm:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Request body missing or `text` is empty / whitespace.
+        '401':
+          description: Unauthorized — valid bearer token required.
+        '409':
+          description: 'No Text-to-Speech provider is configured. The client should fall
+
+            back to the browser Web Speech API.
+
+            '
+        '413':
+          description: Text exceeds the 4096-character limit.
+        '502':
+          description: Upstream provider failure.
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /chat/speech/capabilities:
+    get:
+      tags:
+      - Conversational Speech
+      summary: Report configured TTS/STT providers
+      description: 'Lightweight probe that tells the chat UI whether to use the server
+
+        speech routes or the browser Web Speech API. Only public provider
+
+        metadata is returned; API keys and organization ids are never
+
+        exposed.'
+      operationId: getChatSpeechCapabilities
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - conversation:chat
+      responses:
+        '200':
+          description: Current TTS/STT capability summary.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpeechCapabilitiesResponse'
+        '401':
+          description: Unauthorized — valid bearer token required.
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+components:
+  schemas:
+    SpeechCapabilitiesResponse:
+      type: object
+      description: 'Reports whether the server has a TTS/STT provider configured. When a
+
+        bucket is `null` the chat UI falls back to the browser''s Web Speech
+
+        API for that capability.
+
+        '
+      properties:
+        tts:
+          allOf:
+          - $ref: '#/components/schemas/SpeechCapabilitySummary'
+        stt:
+          allOf:
+          - $ref: '#/components/schemas/SpeechCapabilitySummary'
+    TranscriptionResponse:
+      type: object
+      description: 'Result of a successful call to `/chat/transcribe`. The server
+
+        always includes the provider and model that handled the request
+
+        so the client can display / log which backend produced the
+
+        transcript.
+
+        '
+      required:
+      - text
+      - provider
+      - model
+      properties:
+        text:
+          type: string
+          description: 'Transcribed text. May be an empty string for silence,
+
+            unintelligible audio, or when the provider returned no
+
+            content.
+
+            '
+          example: Turn on the office lights.
+        provider:
+          type: string
+          description: 'Provider id that handled the transcription. One of
+
+            `openAI`, `whisper` (self-hosted `faster-whisper`),
+
+            `wispr` (Wispr Flow), or `gemini`.
+
+            '
+          enum:
+          - openAI
+          - whisper
+          - wispr
+          - gemini
+          example: openAI
+        model:
+          type: string
+          description: 'Model id that handled the transcription. Examples:
+
+            `whisper-1`, `gpt-4o-transcribe`, `gpt-4o-mini-transcribe`,
+
+            `base`/`small`/`medium`/`large-v3` for self-hosted
+
+            `faster-whisper`, `flow` for Wispr, or `gemini-2.5-flash` /
+
+            `gemini-2.5-pro` for Gemini multimodal.
+
+            '
+          example: gpt-4o-mini-transcribe
+    SpeakRequest:
+      type: object
+      required:
+      - text
+      properties:
+        text:
+          type: string
+          minLength: 1
+          maxLength: 4096
+          description: 'UTF-8 text to synthesize. Capped at 4096 characters to match the
+
+            underlying provider limit (OpenAI TTS) and avoid unbounded cost.
+
+            '
+          example: Hello, this is a PipesHub voice test.
+        voice:
+          type:
+          - string
+          - 'null'
+          description: 'Provider voice override. If omitted, the voice configured by the
+
+            admin for the active TTS provider is used. For OpenAI: one of
+
+            `alloy`, `echo`, `fable`, `onyx`, `nova`, `shimmer`.
+
+            '
+          example: alloy
+        format:
+          type:
+          - string
+          - 'null'
+          enum:
+          - mp3
+          - opus
+          - aac
+          - flac
+          - wav
+          - pcm
+          description: 'Audio response format. Unknown values are silently coerced to
+
+            `mp3` server-side.
+
+            '
+          example: mp3
+        speed:
+          type:
+          - number
+          - 'null'
+          format: float
+          minimum: 0.25
+          maximum: 4.0
+          description: 'Playback speed multiplier. Values outside the documented range
+
+            are clamped server-side.
+
+            '
+          example: 1.0
+    SpeechCapabilitySummary:
+      type: object
+      description: 'Public summary of an active speech provider. Secrets (api keys,
+
+        organization ids, etc.) are never included. The server always picks
+
+        the config flagged `isDefault` in `aiModels`; when no entry is
+
+        flagged, the first configured entry is used and `isDefault` is
+
+        reported as `false` so the chat UI can surface the fallback.
+
+        '
+      required:
+      - provider
+      properties:
+        provider:
+          type: string
+          description: Provider id (e.g. `openAI`, `gemini`, `whisper`, `wispr`).
+          example: openAI
+        model:
+          type:
+          - string
+          - 'null'
+          description: 'Active (default) model id the server will dispatch to. Same
+
+            value as `defaultModel`; retained for backwards compatibility
+
+            with older chat clients.
+
+            '
+          example: gpt-4o-mini-tts
+        defaultModel:
+          type:
+          - string
+          - 'null'
+          description: 'Model id the server will use when no explicit `model` is passed
+
+            to `/chat/speak` or `/chat/transcribe`. Chosen as the first
+
+            entry from the configured comma-separated `configuration.model`
+
+            list.
+
+            '
+          example: gpt-4o-mini-tts
+        models:
+          type: array
+          items:
+            type: string
+          description: 'All model ids the active provider config exposes. Order matches
+
+            the admin''s comma-separated `configuration.model` value; the
+
+            first entry is the default.
+
+            '
+          example:
+          - gpt-4o-mini-tts
+          - tts-1
+        isDefault:
+          type: boolean
+          description: '`true` when the returned config was picked because it is
+
+            flagged `isDefault` in `aiModels`; `false` when no entry was
+
+            flagged and the server fell back to the first configured one.
+
+            '
+          example: true
+        modelKey:
+          type:
+          - string
+          - 'null'
+          description: 'Stable identifier assigned to the config entry by the admin
+
+            UI. Useful for tying the capability summary back to a specific
+
+            row under `/services/aiModels`.
+
+            '
+        friendlyName:
+          type:
+          - string
+          - 'null'
+          description: Optional display name configured by the admin.
+          example: Production TTS
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'JWT Bearer token for authenticated requests.
+
+
+        A personal access token (see the **Personal Access Tokens** tag) is a
+
+        `phpat_`-prefixed variant of this same JWT — e.g. `phpat_eyJhbGci...`.
+
+        The prefix is display-only, added for secret-scanner detectability; the
+
+        gateway strips it before verifying the token, so send it exactly as
+
+        issued, prefix included.
+
+        '
+    scopedToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Scoped JWT token for service-to-service authentication.
+
+        Format: "Bearer {scoped_token}"
+
+        Required scopes vary by endpoint.
+
+        '
+    oauth2:
+      type: oauth2
+      description: 'OAuth 2.0 authentication with fine-grained scopes.
+
+        Supports authorization_code (with PKCE) and client_credentials flows.
+
+        OAuth tokens are Bearer JWTs — use the same Authorization header as regular tokens.
+
+        For **client_credentials**, machine JWTs may use `userId === client_id`; the Node gateway resolves the OAuth app creator — see **OAuth Provider** tag.
+
+        '
+      flows:
+        authorizationCode:
+          authorizationUrl: /api/v1/oauth2/authorize
+          tokenUrl: /api/v1/oauth2/token
+          refreshUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:read: Read semantic search results and history
+            semantic:write: Execute semantic search
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+            crawl:delete: Delete crawling jobs
+        clientCredentials:
+          tokenUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:write: Execute semantic search
+            semantic:read: Read semantic search results and history
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+x-refined-from:
+- pipeshub-openapi.yaml
+- pipeshub-openapi.yml

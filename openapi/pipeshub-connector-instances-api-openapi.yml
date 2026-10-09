@@ -1,0 +1,1424 @@
+openapi: 3.2.0
+info:
+  title: Pipeshub Connector Instances API
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@pipeshub.com
+  description: 'Operations tagged Connector Instances across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: '{instance_url}/api/v1'
+  description: Base API URL
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL (without /api/v1)
+- url: '{instance_url}'
+  description: Root URL (used for MCP endpoints mounted at /mcp)
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL
+security:
+- bearerAuth: []
+- oauth2: []
+tags:
+- name: Connector Instances
+  description: Create, manage, and delete connector instances for your organization
+paths:
+  /connectors:
+    get:
+      tags:
+      - Connector Instances
+      summary: List connector instances
+      description: 'Get all configured connector instances for your organization.
+
+
+        Overview:
+
+
+        Returns instances created by users, filtered by scope and permissions.
+
+        Team-scope connectors are visible to all org users. Personal connectors
+
+        are only visible to their creators.
+
+
+        Instance States:
+
+
+        isConfigured: All required settings are complete
+
+
+        isAuthenticated: OAuth flow complete or credentials valid
+
+
+        isActive: Connector is enabled for sync/agent
+
+
+        desktopOnline: Owner device''s desktop app connected (Local FS only)
+
+
+        ownerDeviceId / ownerDeviceName: Desktop device that owns the connector, set on first enable (Local FS only)'
+      operationId: listConnectorInstances
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - connector:read
+      parameters:
+      - name: scope
+        in: query
+        required: false
+        description: 'Filter by scope. Defaults to <code>team</code> when omitted.
+
+          '
+        schema:
+          allOf:
+          - $ref: '#/components/schemas/ConnectorScope'
+          default: team
+      - name: page
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 200
+          default: 20
+      - name: search
+        in: query
+        description: Full-text search across instance name, type, and app group
+        schema:
+          type: string
+      - name: isAuthenticated
+        in: query
+        description: 'Filter by authentication status.
+
+          <code>true</code> returns only authenticated instances;
+
+          <code>false</code> returns only unauthenticated ones.
+
+          Omit to return all.
+
+          '
+        schema:
+          type: boolean
+      - name: isActive
+        in: query
+        description: 'Filter by active status.
+
+          <code>true</code> returns only active instances;
+
+          <code>false</code> returns only inactive ones.
+
+          Omit to return all.
+
+          '
+        schema:
+          type: boolean
+      - name: connectorType
+        in: query
+        description: 'Filter by exact connector type string (e.g. <code>Confluence</code>,
+
+          <code>GoogleDrive</code>). Case-sensitive.
+
+          '
+        schema:
+          type: string
+          minLength: 1
+      responses:
+        '200':
+          description: Instances retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  connectors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ConnectorInstance'
+                  pagination:
+                    $ref: '#/components/schemas/ConnectorPagination'
+        '401':
+          description: Unauthorized
+    post:
+      tags:
+      - Connector Instances
+      summary: Create connector instance
+      description: 'Create a new connector instance from a registry type.
+
+
+        Overview:
+
+
+        Creates a new connector instance that can then be configured and enabled.
+
+        The instance is created in an unconfigured state and needs authentication
+
+        and filter setup before it can be activated.
+
+
+        Scope Permissions:
+
+
+        team scope requires admin privileges
+
+
+        personal scope available to all users
+
+
+        Next Steps After Creation:
+
+
+        Configure authentication via PUT /{id}/config/auth
+
+
+        Complete OAuth flow if needed via GET /{id}/oauth/authorize
+
+
+        Set up filters via POST /{id}/filters
+
+
+        Enable connector via POST /{id}/toggle'
+      operationId: createConnectorInstance
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - connector:write
+      requestBody:
+        required: true
+        description: Request payload
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateConnectorRequest'
+            examples:
+              googleDrive:
+                summary: Google Drive (Team)
+                value:
+                  connectorType: google-drive
+                  instanceName: Company Google Drive
+                  scope: team
+                  authType: OAUTH_ADMIN_CONSENT
+              confluence:
+                summary: Confluence (Personal)
+                value:
+                  connectorType: confluence
+                  instanceName: My Confluence
+                  scope: personal
+                  authType: API_TOKEN
+              slackWithOAuthApp:
+                summary: Slack with OAuth App (Non-Admin)
+                value:
+                  connectorType: slack
+                  instanceName: My Team Slack
+                  scope: personal
+                  authType: OAUTH
+                  oauthConfigId: oauth_config_123
+      responses:
+        '201':
+          description: Instance created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  connector:
+                    $ref: '#/components/schemas/ConnectorInstance'
+        '400':
+          description: 'Invalid request. Possible reasons:<br>
+
+            <ul>
+
+            <li>Invalid connector type</li>
+
+            <li>Scope not supported by connector</li>
+
+            <li>Duplicate instance name</li>
+
+            <li>Non-admin users must select an OAuth App when creating OAuth connectors</li>
+
+            </ul>
+
+            '
+        '401':
+          description: Unauthorized
+        '403':
+          description: 'Forbidden. Possible reasons:<br>
+
+            <ul>
+
+            <li>Admin privileges required for team-scope connectors</li>
+
+            <li>Non-admin users cannot provide OAuth credentials (clientId, clientSecret, etc.)</li>
+
+            </ul>
+
+            '
+        '404':
+          description: Selected OAuth App not found or not accessible
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /connectors/active:
+    get:
+      tags:
+      - Connector Instances
+      summary: List active connector instances
+      description: 'Get all active (enabled) connector instances.
+
+
+        Overview:
+
+
+        Returns only instances where isActive: true.
+
+        These are connectors currently syncing data or available to AI agents.'
+      operationId: listActiveConnectors
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - connector:read
+      responses:
+        '200':
+          description: Active connectors retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  connectors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ConnectorInstance'
+        '401':
+          description: Unauthorized
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /connectors/inactive:
+    get:
+      tags:
+      - Connector Instances
+      summary: List inactive connector instances
+      description: Get all inactive (disabled) connector instances.
+      operationId: listInactiveConnectors
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - connector:read
+      responses:
+        '200':
+          description: Inactive connectors retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  connectors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ConnectorInstance'
+        '401':
+          description: Unauthorized
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /connectors/configured:
+    get:
+      tags:
+      - Connector Instances
+      summary: List configured connector instances
+      description: 'Get all connector instances that have completed configuration.
+
+
+        Overview:
+
+
+        Returns instances where isConfigured: true.
+
+        These have all required settings but may not be active yet.'
+      operationId: listConfiguredConnectors
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - connector:read
+      parameters:
+      - name: scope
+        in: query
+        schema:
+          $ref: '#/components/schemas/ConnectorScope'
+      - name: page
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 200
+          default: 20
+      - name: search
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Configured connectors retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  connectors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ConnectorInstance'
+                  pagination:
+                    $ref: '#/components/schemas/ConnectorPagination'
+        '401':
+          description: Unauthorized
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /connectors/agents/active:
+    get:
+      tags:
+      - Connector Instances
+      summary: List active agent connectors
+      description: 'Get connector instances enabled for AI agent integration.
+
+
+        Overview:
+
+
+        Returns connectors where agentEnabled: true.
+
+        These are available to AI agents for querying and actions.'
+      operationId: listActiveAgentConnectors
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - connector:read
+      parameters:
+      - name: scope
+        in: query
+        schema:
+          $ref: '#/components/schemas/ConnectorScope'
+      - name: page
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 200
+          default: 20
+      - name: search
+        in: query
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Active agent connectors retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  connectors:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ConnectorInstance'
+                  pagination:
+                    $ref: '#/components/schemas/ConnectorPagination'
+        '401':
+          description: Unauthorized
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /connectors/{connectorId}:
+    get:
+      tags:
+      - Connector Instances
+      summary: Get connector instance
+      description: Retrieve a specific connector instance by ID.
+      operationId: getConnectorInstance
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - connector:read
+      parameters:
+      - name: connectorId
+        in: path
+        required: true
+        description: Connector instance ID
+        schema:
+          type: string
+        example: conn_abc123
+      responses:
+        '200':
+          description: Instance retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  connector:
+                    $ref: '#/components/schemas/ConnectorInstance'
+        '401':
+          description: Unauthorized
+        '403':
+          description: No access to this connector
+        '404':
+          description: Connector not found
+    delete:
+      tags:
+      - Connector Instances
+      summary: Delete connector instance
+      description: 'Delete a connector instance and all associated data.
+
+
+        Warning:
+
+
+        This permanently removes the connector configuration.
+
+        Synced records in knowledge bases are NOT deleted.
+
+
+        Permissions:
+
+
+        Team scope: Requires admin
+
+
+        Personal scope: Only creator can delete'
+      operationId: deleteConnectorInstance
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - connector:delete
+      parameters:
+      - name: connectorId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Connector deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '401':
+          description: Unauthorized
+        '403':
+          description: Permission denied
+        '404':
+          description: Connector not found
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /connectors/{connectorId}/stats:
+    get:
+      tags:
+      - Connector Instances
+      summary: Get connector statistics
+      description: 'Retrieve statistics for a specific connector instance including record counts,
+
+        indexing status breakdown, and sync information.'
+      operationId: getConnectorStats
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - kb:read
+      parameters:
+      - name: connectorId
+        in: path
+        required: true
+        description: Connector instance ID
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Connector statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectorStats'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Insufficient OAuth scope or no access to connector stats
+        '404':
+          description: Connector not found
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /connectors/{connectorId}/reindex:
+    post:
+      tags:
+      - Connector Instances
+      summary: Reindex a connector instance
+      description: 'Trigger reindexing for a connector instance, optionally scoped by
+
+        indexing status. Covers both external connectors and KB app
+
+        instances (a KB is itself a connector instance). Omitting
+
+        `statusFilters` reindexes everything for a KB connector; other
+
+        connector types default server-side to `FAILED`-only.'
+      operationId: reindexConnector
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - kb:write
+      parameters:
+      - name: connectorId
+        in: path
+        required: true
+        description: Connector instance ID
+        schema:
+          type: string
+      requestBody:
+        required: false
+        description: Request payload
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReindexConnectorRequestBody'
+      responses:
+        '200':
+          description: Reindex triggered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  connectorId:
+                    type: string
+                  connector:
+                    type: string
+                    description: Normalized connector type/name.
+                  eventPublished:
+                    type: boolean
+        '401':
+          description: Unauthorized
+        '404':
+          description: Connector not found
+        '409':
+          description: Conflict — the connector instance is disabled or locked.
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /connectors/{connectorId}/resync:
+    post:
+      tags:
+      - Connector Instances
+      summary: Resync connector
+      description: 'Trigger a resync of records from a connector instance.
+
+
+        **Overview:**
+
+
+        Fetches content from the external source and updates local records. Use when you suspect data is out of sync.
+
+
+        **Warning:** This can be resource-intensive for large connectors.'
+      operationId: resyncConnector
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - kb:write
+      parameters:
+      - name: connectorId
+        in: path
+        required: true
+        description: Connector instance ID
+        schema:
+          type: string
+      requestBody:
+        required: true
+        description: Request body for resync connector
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResyncConnectorRequestBody'
+      responses:
+        '200':
+          description: Resync initiated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  resyncConnectorResponse:
+                    type: object
+                    description: Connector resync job acknowledgement from the relation service.
+        '400':
+          description: Invalid connector parameters
+        '401':
+          description: Unauthorized
+        '409':
+          description: 'Conflict. Possible reasons:<br>
+
+            <ul>
+
+            <li>The connector instance is disabled or locked</li>
+
+            <li><code>DESKTOP_OFFLINE</code> - Local FS: the owner device''s desktop app is not connected</li>
+
+            <li><code>DESKTOP_UNCLAIMED</code> - Local FS: no device owns the connector yet</li>
+
+            </ul>
+
+            Local FS refusals carry <code>details.code</code> and use the body below.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocalFsDesktopRefusal'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /connectors/{connectorId}/name:
+    put:
+      tags:
+      - Connector Instances
+      summary: Update connector instance name
+      description: 'Update the display name of a connector instance.
+
+
+        Note: This only updates the display name, not the connector configuration.'
+      operationId: updateConnectorName
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - connector:write
+      parameters:
+      - name: connectorId
+        in: path
+        required: true
+        schema:
+          type: string
+        description: Unique connector instance ID
+      requestBody:
+        required: true
+        description: Request body for Update connector instance name
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateConnectorNameRequest'
+      responses:
+        '200':
+          description: Name updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  connector:
+                    $ref: '#/components/schemas/ConnectorInstance'
+        '400':
+          description: Invalid name
+        '401':
+          description: Unauthorized
+        '404':
+          description: Connector not found
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+components:
+  schemas:
+    ConnectorSyncConfig:
+      type: object
+      description: Synchronization configuration for a connector instance
+      properties:
+        selectedStrategy:
+          type: string
+          enum:
+          - MANUAL
+          - SCHEDULED
+          - WEBHOOK
+          - REALTIME
+          description: 'Sync strategy: MANUAL (user-triggered), SCHEDULED (interval/cron), WEBHOOK (event-driven), REALTIME (WebSocket)'
+          default: MANUAL
+        scheduledConfig:
+          type: object
+          description: Configuration for scheduled sync strategy
+          properties:
+            intervalMinutes:
+              type: integer
+              description: Sync interval in minutes
+              minimum: 5
+              default: 60
+              example: 60
+            cronExpression:
+              type: string
+              description: Cron expression for advanced scheduling
+              example: 0 */6 * * *
+            timezone:
+              type: string
+              description: Timezone for scheduled sync
+              default: UTC
+              example: America/New_York
+        webhookConfig:
+          type: object
+          description: Configuration for webhook-based sync
+          properties:
+            webhookUrl:
+              type: string
+              description: URL to receive webhook events (auto-generated)
+            events:
+              type: array
+              items:
+                type: string
+              description: Subscribed event types
+              example:
+              - file.created
+              - file.modified
+              - file.deleted
+        values:
+          type: object
+          description: Sync setting values specific to the connector
+          additionalProperties: true
+        customValues:
+          type: object
+          description: Custom sync values
+          additionalProperties: true
+    ReindexConnectorRequestBody:
+      type: object
+      properties:
+        statusFilters:
+          type: array
+          items:
+            $ref: '#/components/schemas/IndexingStatusFilter'
+          description: 'Statuses to reindex. Omitting this reindexes everything for a KB
+
+            connector; other connector types default server-side to `FAILED`.
+
+            '
+    ResyncConnectorRequestBody:
+      type: object
+      required:
+      - connectorName
+      properties:
+        connectorName:
+          type: string
+          description: Connector type name (e.g. `Google Drive`, `DRIVE`).
+          example: DRIVE
+        fullSync:
+          type: boolean
+          description: When true, triggers a full sync instead of incremental.
+          default: false
+    CreateConnectorRequest:
+      type: object
+      description: Request to create a new connector instance
+      required:
+      - connectorType
+      - instanceName
+      - scope
+      properties:
+        connectorType:
+          type: string
+          description: Connector type from registry (e.g., google-drive, confluence, slack)
+          example: google-drive
+        instanceName:
+          type: string
+          description: Display name for this connector instance
+          minLength: 1
+          maxLength: 100
+          example: Marketing Team Drive
+        scope:
+          $ref: '#/components/schemas/ConnectorScope'
+        authType:
+          type: string
+          description: Authentication type (required if connector supports multiple auth methods)
+          enum:
+          - OAUTH
+          - OAUTH_ADMIN_CONSENT
+          - API_TOKEN
+          - USERNAME_PASSWORD
+          - SERVICE_ACCOUNT
+          example: OAUTH
+        oauthConfigId:
+          type: string
+          description: ID of admin-created OAuth App to use (required for non-admin users creating OAuth connectors, optional for admins)
+          example: oauth_config_123
+        config:
+          type: object
+          description: Initial configuration (can also be set after creation)
+          properties:
+            auth:
+              $ref: '#/components/schemas/ConnectorAuthConfig'
+            sync:
+              $ref: '#/components/schemas/ConnectorSyncConfig'
+            filters:
+              $ref: '#/components/schemas/ConnectorFiltersConfig'
+        baseUrl:
+          type: string
+          description: Base URL for self-hosted instances (e.g., Confluence Server, GitLab Self-Managed)
+          format: uri
+          example: https://confluence.mycompany.com
+    ConnectorAuthConfig:
+      type: object
+      description: Authentication configuration for a connector instance
+      properties:
+        values:
+          type: object
+          description: Authentication values (keys depend on connector's auth schema)
+          additionalProperties: true
+          example:
+            apiKey: sk-xxxxx
+            baseUrl: https://api.example.com
+        oauthConfigId:
+          type: string
+          description: ID of admin-created OAuth configuration to use
+          example: oauth_config_123
+        customValues:
+          type: object
+          description: Custom authentication values specific to the connector
+          additionalProperties: true
+    LocalFsDesktopRefusal:
+      type: object
+      description: '409 body returned when a Local FS connector cannot sync because of its
+
+        owner device.
+
+        '
+      required:
+      - success
+      - code
+      - message
+      - details
+      properties:
+        success:
+          type: boolean
+          example: false
+        code:
+          type: string
+          enum:
+          - DESKTOP_OFFLINE
+          - DESKTOP_UNCLAIMED
+          - DESKTOP_OWNED_BY_OTHER_DEVICE
+        message:
+          type: string
+          example: No desktop is connected for connector conn_abc123. Open the Pipeshub desktop app on the machine that owns this folder.
+        details:
+          type: object
+          required:
+          - code
+          - connectorId
+          - retryable
+          properties:
+            code:
+              type: string
+              enum:
+              - DESKTOP_OFFLINE
+              - DESKTOP_UNCLAIMED
+              - DESKTOP_OWNED_BY_OTHER_DEVICE
+            connectorId:
+              type: string
+            retryable:
+              type: boolean
+            ownerDeviceName:
+              type: string
+              description: Name of the owner device, when the connector has one.
+    IndexingStatusFilter:
+      type: string
+      description: 'Indexing status used to filter which records are included in a scoped
+
+        reindex (record or record-group). Omit `statusFilters` to reindex all
+
+        descendants regardless of status.
+
+        '
+      enum:
+      - NOT_STARTED
+      - QUEUED
+      - IN_PROGRESS
+      - COMPLETED
+      - FAILED
+      - FILE_TYPE_NOT_SUPPORTED
+      - AUTO_INDEX_OFF
+      - EMPTY
+    ConnectorAuthType:
+      type: string
+      description: 'Authentication method required by the connector:<br>
+
+        <ul>
+
+        <li><code>OAUTH</code> - User OAuth consent flow</li>
+
+        <li><code>OAUTH_ADMIN_CONSENT</code> - Admin OAuth with org-wide consent</li>
+
+        <li><code>API_TOKEN</code> - API key or token authentication</li>
+
+        <li><code>USERNAME_PASSWORD</code> - Username/password credentials</li>
+
+        <li><code>NONE</code> - No authentication required</li>
+
+        </ul>
+
+        '
+      enum:
+      - OAUTH
+      - OAUTH_ADMIN_CONSENT
+      - API_TOKEN
+      - USERNAME_PASSWORD
+      - NONE
+    ConnectorInstance:
+      type: object
+      description: 'A configured connector instance. Represents an active or configured
+
+        connection to an external service.
+
+        '
+      properties:
+        connectorId:
+          type: string
+          description: Unique instance identifier
+          example: conn_abc123
+        connectorType:
+          type: string
+          description: Type of connector (from registry)
+          example: google-drive
+        instanceName:
+          type: string
+          description: User-defined name for this instance
+          example: Company Google Drive
+        scope:
+          $ref: '#/components/schemas/ConnectorScope'
+        authType:
+          $ref: '#/components/schemas/ConnectorAuthType'
+        createdBy:
+          type: string
+          description: User ID who created this instance
+        orgId:
+          type: string
+          description: Organization ID
+        isActive:
+          type: boolean
+          description: Whether connector is enabled for syncing/agent
+        desktopOnline:
+          type: boolean
+          description: 'Whether the owner device (`ownerDeviceId`) is currently connected.
+
+            Local FS only; omitted otherwise, and while the connector has no owner.
+
+            '
+        ownerDeviceId:
+          type: string
+          description: 'Local FS only. The desktop device that owns this connector, set when
+
+            sync is first enabled from the desktop app.
+
+            '
+        ownerDeviceName:
+          type: string
+          description: 'Local FS only. Display name of the desktop device that owns this
+
+            connector, set when sync is first enabled from the desktop app.
+
+            '
+          example: WIN-LAPTOP
+        isConfigured:
+          type: boolean
+          description: Whether all required configuration is complete
+        isAuthenticated:
+          type: boolean
+          description: Whether authentication is complete and valid
+        pendingFullSync:
+          type: boolean
+          description: Whether a full sync is pending due to filter changes or other configuration updates
+        syncEnabled:
+          type: boolean
+          description: Whether sync is enabled
+        agentEnabled:
+          type: boolean
+          description: Whether agent integration is enabled
+        lastSyncAt:
+          type: string
+          format: date-time
+          description: Timestamp of last successful sync
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    ConnectorStats:
+      type: object
+      description: Statistics for a connector's records
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+          properties:
+            orgId:
+              type: string
+            connectorId:
+              type: string
+            origin:
+              type: string
+            stats:
+              type: object
+              properties:
+                total:
+                  type: integer
+                indexingStatus:
+                  type: object
+                  additionalProperties:
+                    type: integer
+            byRecordType:
+              type: array
+              items:
+                type: object
+    ConnectorScope:
+      type: string
+      description: 'Scope determines visibility and access control for connectors:<br>
+
+        <ul>
+
+        <li><code>team</code> - Available to all users in the organization (admin-only creation)</li>
+
+        <li><code>personal</code> - Private to the creating user only</li>
+
+        </ul>
+
+        '
+      enum:
+      - team
+      - personal
+      example: team
+    ConnectorPagination:
+      type: object
+      description: Pagination information for connector lists
+      properties:
+        page:
+          type: integer
+          description: Current page number
+        limit:
+          type: integer
+          description: Items per page
+        total:
+          type: integer
+          description: Total number of items
+        hasMore:
+          type: boolean
+          description: Whether more pages exist
+    UpdateConnectorNameRequest:
+      type: object
+      description: Request to update connector instance name
+      required:
+      - instanceName
+      properties:
+        instanceName:
+          type: string
+          description: New display name for the connector instance
+          minLength: 1
+          maxLength: 100
+          example: Sales Team Drive (Updated)
+    ConnectorFiltersConfig:
+      type: object
+      description: Filter configuration to control what data is synced (sync filters and indexing filters)
+      properties:
+        sync:
+          type: object
+          description: Sync filter selections
+          properties:
+            values:
+              type: object
+              description: Selected filter values (keys are filter field names)
+              additionalProperties: true
+              example:
+                folders:
+                - folder_id_1
+                - folder_id_2
+                fileTypes:
+                - pdf
+                - docx
+                - xlsx
+                includeShared: true
+        indexing:
+          type: object
+          description: Indexing filter selections
+          properties:
+            values:
+              type: object
+              additionalProperties: true
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'JWT Bearer token for authenticated requests.
+
+
+        A personal access token (see the **Personal Access Tokens** tag) is a
+
+        `phpat_`-prefixed variant of this same JWT — e.g. `phpat_eyJhbGci...`.
+
+        The prefix is display-only, added for secret-scanner detectability; the
+
+        gateway strips it before verifying the token, so send it exactly as
+
+        issued, prefix included.
+
+        '
+    scopedToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Scoped JWT token for service-to-service authentication.
+
+        Format: "Bearer {scoped_token}"
+
+        Required scopes vary by endpoint.
+
+        '
+    oauth2:
+      type: oauth2
+      description: 'OAuth 2.0 authentication with fine-grained scopes.
+
+        Supports authorization_code (with PKCE) and client_credentials flows.
+
+        OAuth tokens are Bearer JWTs — use the same Authorization header as regular tokens.
+
+        For **client_credentials**, machine JWTs may use `userId === client_id`; the Node gateway resolves the OAuth app creator — see **OAuth Provider** tag.
+
+        '
+      flows:
+        authorizationCode:
+          authorizationUrl: /api/v1/oauth2/authorize
+          tokenUrl: /api/v1/oauth2/token
+          refreshUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:read: Read semantic search results and history
+            semantic:write: Execute semantic search
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+            crawl:delete: Delete crawling jobs
+        clientCredentials:
+          tokenUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:write: Execute semantic search
+            semantic:read: Read semantic search results and history
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+x-refined-from:
+- pipeshub-openapi.yaml
+- pipeshub-openapi.yml

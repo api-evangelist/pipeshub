@@ -1,0 +1,1572 @@
+openapi: 3.2.0
+info:
+  title: Pipeshub OAuth Apps API
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@pipeshub.com
+  description: 'Operations tagged OAuth Apps across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: '{instance_url}/api/v1'
+  description: Base API URL
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL (without /api/v1)
+- url: '{instance_url}'
+  description: Root URL (used for MCP endpoints mounted at /mcp)
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL
+security:
+- bearerAuth: []
+- oauth2: []
+tags:
+- name: OAuth Apps
+  description: Manage OAuth 2.0 client applications registered with PipesHub.
+paths:
+  /oauth-clients:
+    get:
+      tags:
+      - OAuth Apps
+      summary: List OAuth apps
+      description: 'Returns a paginated list of OAuth apps registered by the signed-in user. Access is creator-scoped — even org admins only see apps they created themselves, so this endpoint is safe to use for per-user developer dashboards without leaking org-wide app metadata.
+
+
+        Each entry carries the full app configuration except the client secret, which is only ever returned at creation time and immediately after a regeneration.
+
+
+        Use the `status` query parameter to filter by lifecycle state (`active`, `suspended`, `revoked`) and `search` for a case-insensitive substring match against `name` or `description`.'
+      operationId: listOAuthApps
+      x-pipeshub-sdk: true
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+        description: 'Page number (matches `listAppsQuerySchema`: defaults to `1` when omitted or empty).
+
+          '
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+        description: 'Items per page (defaults to `20` when omitted or empty; max 100).
+
+          '
+      - name: status
+        in: query
+        schema:
+          type: string
+          enum:
+          - active
+          - suspended
+          - revoked
+        description: Filter by status
+      - name: search
+        in: query
+        schema:
+          type: string
+        description: Search by app name or description (case-insensitive)
+      responses:
+        '200':
+          description: List of OAuth apps
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthAppListResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationJsonErrorResponse'
+        '403':
+          description: Forbidden — insufficient workspace permission to list OAuth apps
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationJsonErrorResponse'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthClientManagementRateLimitError'
+    post:
+      tags:
+      - OAuth Apps
+      summary: Create OAuth app
+      description: 'Register a new OAuth app for the organization. Any authenticated org member may create apps; the creator is recorded as the app''s owner and is the only user who can subsequently read, update, suspend, activate, regenerate the secret of, or delete it.
+
+
+        The `clientSecret` is returned in this response **only** — it is stored hashed server-side and cannot be retrieved later. Persist it before exiting the create flow; if it is ever lost, rotate via `POST /oauth-clients/{appId}/regenerate-secret`.
+
+
+        `allowedScopes` is validated against the caller''s role-aware scope set (see `GET /oauth-clients/scopes`). Org admins may include admin-only scopes; non-admins requesting a restricted scope receive `400`.
+
+
+        All `/oauth-clients/*` routes share a per-user rate limiter (default 1000 req/min, configurable via the `MAX_OAUTH_CLIENT_REQUESTS_PER_MINUTE` env var).'
+      operationId: createOAuthApp
+      x-pipeshub-sdk: true
+      security:
+      - bearerAuth: []
+      requestBody:
+        description: Request body for Create OAuth app
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateOAuthAppRequest'
+        required: true
+      responses:
+        '201':
+          description: OAuth app created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateOAuthAppResponse'
+        '400':
+          description: Invalid request (validation error)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationJsonErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationJsonErrorResponse'
+        '403':
+          description: Forbidden — insufficient workspace permission to create OAuth apps
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationJsonErrorResponse'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthClientManagementRateLimitError'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /oauth-clients/scopes:
+    get:
+      tags:
+      - OAuth Apps
+      summary: List available scopes
+      description: 'Returns the OAuth scopes the signed-in user is permitted to register on new or updated apps, grouped by category. Use this to populate scope-picker UIs and to validate `allowedScopes` client-side before submitting to `createOAuthApp` / `updateOAuthApp`.
+
+
+        The result is role-aware. Org admins (members of an admin user group) receive every registered scope; everyone else is filtered to exclude admin-only scopes: `org:write`, `org:admin`, `user:invite`, `user:delete`, `usergroup:write`, `team:write`, `config:write`, `crawl:write`, `crawl:delete`.
+
+
+        Each key in the `scopes` map matches the `category` field on the `OAuthScopeInfo` entries it contains. A category may appear with an empty array when every scope it contains is restricted for the caller — treat empty buckets as "no permitted scopes in this group", not as a missing category.
+
+
+        Shares the per-user rate limiter applied to every `/oauth-clients/*` route (default 1000 req/min, `MAX_OAUTH_CLIENT_REQUESTS_PER_MINUTE`).'
+      operationId: listOAuthScopes
+      x-pipeshub-sdk: true
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: List of available scopes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthScopesGroupedResponse'
+              example:
+                scopes:
+                  Identity:
+                  - name: openid
+                    description: OpenID Connect authentication
+                    category: Identity
+                    requiresUserConsent: false
+                  - name: profile
+                    description: User profile information (name, picture)
+                    category: Identity
+                    requiresUserConsent: true
+                  Knowledge Base:
+                  - name: kb:read
+                    description: Read knowledge bases and records
+                    category: Knowledge Base
+                    requiresUserConsent: true
+        '401':
+          description: Unauthorized — missing/invalid token, or session invalidated (e.g. password change after token issuance)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationJsonErrorResponse'
+        '429':
+          description: Rate limit exceeded for OAuth client management routes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthClientManagementRateLimitError'
+              example:
+                error:
+                  code: TOO_MANY_REQUESTS
+                  message: Too many OAuth client requests. Please try again later.
+                  retryAfter: 45
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /oauth-clients/{appId}:
+    get:
+      tags:
+      - OAuth Apps
+      summary: Get OAuth app details
+      description: 'Returns the full configuration of an OAuth app you registered. The `clientSecret` is never echoed back here; if you need a new one, call `POST /oauth-clients/{appId}/regenerate-secret`.
+
+
+        Access is creator-scoped: even org admins receive `404` for apps owned by other users. This avoids leaking app metadata across org members and keeps the read surface symmetric with `listOAuthApps`.'
+      operationId: getOAuthApp
+      x-pipeshub-sdk: true
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: appId
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[a-fA-F0-9]{24}$
+        description: OAuth app ID (MongoDB ObjectId)
+      responses:
+        '200':
+          description: OAuth app details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthAppResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationJsonErrorResponse'
+        '403':
+          description: Forbidden — caller cannot access this OAuth app (creator-only; see OAuth Apps tag).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationJsonErrorResponse'
+        '404':
+          description: OAuth app not found or not visible to this caller (each user only sees apps they created)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationJsonErrorResponse'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthClientManagementRateLimitError'
+    put:
+      tags:
+      - OAuth Apps
+      summary: Update OAuth app
+      description: 'Update an OAuth app''s configuration. All body fields are optional — supply only what should change. URL fields (`homepageUrl`, `privacyPolicyUrl`, `termsOfServiceUrl`) accept `null` to clear them.
+
+
+        Creator-only: even org admins cannot edit apps owned by other users.
+
+
+        When modifying `allowedScopes`, the new set must remain a subset of the caller''s role-aware scope list (same rule as `GET /oauth-clients/scopes`). When adding `authorization_code` to `allowedGrantTypes`, `redirectUris` becomes required and must contain at least one URI; otherwise the request is rejected with `400` by the Zod refine on `updateAppSchema`.
+
+
+        This endpoint never rotates the client secret — use `POST /oauth-clients/{appId}/regenerate-secret` for that.'
+      operationId: updateOAuthApp
+      x-pipeshub-sdk: true
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: appId
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[a-fA-F0-9]{24}$
+        description: OAuth app ID
+      requestBody:
+        description: Request payload
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateOAuthAppRequest'
+        required: true
+      responses:
+        '200':
+          description: OAuth app updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateOAuthAppResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationJsonErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationJsonErrorResponse'
+        '403':
+          description: Forbidden — caller cannot access this OAuth app (creator-only; see OAuth Apps tag).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationJsonErrorResponse'
+        '404':
+          description: OAuth app not found or not visible to this caller (each user only sees apps they created)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationJsonErrorResponse'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthClientManagementRateLimitError'
+    delete:
+      tags:
+      - OAuth Apps
+      summary: Delete OAuth app
+      description: 'Soft-deletes an OAuth app. The app is flagged `isDeleted=true` on the `OAuthApp` document, removed from list/get responses for every caller, and all of its access and refresh tokens are revoked in the same operation. There is no restore endpoint — deletion is final.
+
+
+        Creator-only: even org admins cannot delete apps owned by other users.'
+      operationId: deleteOAuthApp
+      x-pipeshub-sdk: true
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: appId
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[a-fA-F0-9]{24}$
+        description: OAuth app ID
+      responses:
+        '200':
+          description: OAuth app deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: OAuth app deleted successfully
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationJsonErrorResponse'
+        '403':
+          description: Forbidden — caller cannot access this OAuth app (creator-only; see OAuth Apps tag).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationJsonErrorResponse'
+        '404':
+          description: OAuth app not found or not visible to this caller (each user only sees apps they created)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationJsonErrorResponse'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthClientManagementRateLimitError'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /oauth-clients/{appId}/regenerate-secret:
+    post:
+      tags:
+      - OAuth Apps
+      summary: Regenerate client secret
+      description: 'Generates a fresh client secret for an OAuth app. The previous secret is invalidated immediately — any client still presenting it will fail token exchange at `POST /oauth2/token` until updated.
+
+
+        The new secret is returned in this response **only** and cannot be retrieved later. Pair this call with credential propagation to every integration that uses the app. If the rotation was triggered by a suspected leak, also call `POST /oauth-clients/{appId}/revoke-all-tokens` to invalidate already-issued access and refresh tokens instead of waiting for their natural expiry.
+
+
+        Creator-only: even org admins cannot rotate secrets for other users'' apps.'
+      operationId: regenerateOAuthAppSecret
+      x-pipeshub-sdk: true
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: appId
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[a-fA-F0-9]{24}$
+        description: OAuth app ID
+      responses:
+        '200':
+          description: New client secret generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegenerateOAuthAppSecretResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationJsonErrorResponse'
+        '403':
+          description: Forbidden — caller cannot access this OAuth app (creator-only; see OAuth Apps tag).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationJsonErrorResponse'
+        '404':
+          description: OAuth app not found or not visible to this caller (each user only sees apps they created)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationJsonErrorResponse'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthClientManagementRateLimitError'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /oauth-clients/{appId}/suspend:
+    post:
+      tags:
+      - OAuth Apps
+      summary: Suspend OAuth app
+      description: 'Moves an OAuth app to `status: "suspended"`, blocking new token issuance at `POST /oauth2/token` and the authorization-code consent flow. Tokens that have already been issued remain valid until their natural expiry — call `POST /oauth-clients/{appId}/revoke-all-tokens` immediately afterwards if you need an immediate lockout.
+
+
+        Use this for temporary suspensions where you intend to reactivate later. For permanent removal, use `DELETE /oauth-clients/{appId}`. Suspending an app that is already suspended returns `400`.
+
+
+        Creator-only.'
+      operationId: suspendOAuthApp
+      x-pipeshub-sdk: true
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: appId
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[a-fA-F0-9]{24}$
+        description: OAuth app ID
+      responses:
+        '200':
+          description: OAuth app suspended
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuspendOAuthAppResponse'
+        '400':
+          description: Bad request — e.g. OAuth app is already suspended
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationJsonErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationJsonErrorResponse'
+        '403':
+          description: Forbidden — caller cannot access this OAuth app (creator-only; see OAuth Apps tag).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationJsonErrorResponse'
+        '404':
+          description: OAuth app not found or not visible to this caller (each user only sees apps they created)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationJsonErrorResponse'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthClientManagementRateLimitError'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /oauth-clients/{appId}/activate:
+    post:
+      tags:
+      - OAuth Apps
+      summary: Activate suspended OAuth app
+      description: 'Moves a suspended OAuth app back to `status: "active"`, restoring its ability to authenticate and obtain new tokens via `POST /oauth2/token`.
+
+
+        A revoked app cannot be reactivated (returns `400`); the only path back is to register a new app. Activating an app that is already active also returns `400`.
+
+
+        Creator-only.'
+      operationId: activateOAuthApp
+      x-pipeshub-sdk: true
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: appId
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[a-fA-F0-9]{24}$
+        description: OAuth app ID
+      responses:
+        '200':
+          description: OAuth app activated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActivateOAuthAppResponse'
+        '400':
+          description: Bad request — e.g. app is already active, or cannot activate a revoked app
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationJsonErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationJsonErrorResponse'
+        '403':
+          description: Forbidden — caller cannot access this OAuth app (creator-only; see OAuth Apps tag).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationJsonErrorResponse'
+        '404':
+          description: OAuth app not found or not visible to this caller (each user only sees apps they created)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationJsonErrorResponse'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthClientManagementRateLimitError'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /oauth-clients/{appId}/tokens:
+    get:
+      tags:
+      - OAuth Apps
+      summary: List app tokens
+      description: 'Lists active access and refresh tokens currently issued to an OAuth app, sorted newest first. Useful for auditing app usage and picking specific tokens to investigate before a targeted revocation.
+
+
+        Each entry includes the token type (`access` or `refresh`), the user the token was issued for (omitted for client-credentials access tokens), the granted scopes, the issuance and expiry timestamps, and the revocation flag. Each type is capped at 100 most-recent rows server-side (`listTokensForApp` in `oauth_token.service.ts`); revoked and expired tokens are excluded.
+
+
+        Creator-only.'
+      operationId: listOAuthAppTokens
+      x-pipeshub-sdk: true
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: appId
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[a-fA-F0-9]{24}$
+        description: OAuth app ID
+      responses:
+        '200':
+          description: List of tokens
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthAppTokensListResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationJsonErrorResponse'
+        '403':
+          description: Forbidden — caller cannot access this OAuth app (creator-only; see OAuth Apps tag).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationJsonErrorResponse'
+        '404':
+          description: OAuth app not found or not visible to this caller (each user only sees apps they created)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationJsonErrorResponse'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthClientManagementRateLimitError'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /oauth-clients/{appId}/revoke-all-tokens:
+    post:
+      tags:
+      - OAuth Apps
+      summary: Revoke all app tokens
+      description: 'Revokes every access and refresh token currently issued to an OAuth app, in a single operation. Use this for emergency credential rotation, suspected secret leaks, or as a follow-up to `POST /oauth-clients/{appId}/regenerate-secret` when you want existing sessions invalidated immediately rather than letting them expire naturally.
+
+
+        The response `count` is the total number of tokens revoked across both types. Clients of this app must then obtain new tokens via the standard OAuth flow.
+
+
+        Creator-only.'
+      operationId: revokeAllOAuthAppTokens
+      x-pipeshub-sdk: true
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: appId
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[a-fA-F0-9]{24}$
+        description: OAuth app ID
+      responses:
+        '200':
+          description: All tokens revoked
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: All tokens revoked successfully
+                  count:
+                    type: integer
+                    description: Number of tokens revoked
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationJsonErrorResponse'
+        '403':
+          description: Forbidden — caller cannot access this OAuth app (creator-only; see OAuth Apps tag).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationJsonErrorResponse'
+        '404':
+          description: OAuth app not found or not visible to this caller (each user only sees apps they created)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationJsonErrorResponse'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OAuthClientManagementRateLimitError'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /oauth-clients/{appId}/token-identity:
+    put:
+      tags:
+      - OAuth Apps
+      summary: Choose whose identity this app's client_credentials tokens carry
+      description: 'By default a `client_credentials` token acts as the person who created
+
+        the application, carrying their document access and their role, and it
+
+        stops working if their account is deleted. Pointing the application at
+
+        a service account instead means its tokens act as an identity that
+
+        exists for the job, holds only what someone granted it, and survives
+
+        any one person leaving.
+
+
+        **This revokes the tokens the application has already issued.** They
+
+        were minted carrying the previous identity, and the Python services
+
+        read that claim to decide whose documents a request may reach — so
+
+        leaving them alive would mean the application went on acting as the
+
+        previous identity until they expired, which is the situation this call
+
+        is made to end. Whatever uses the application needs a new token
+
+        afterwards.
+
+
+        Pass `serviceAccountId: null` to put the application back to acting as
+
+        its creator. That revokes outstanding tokens too.
+
+
+        This does not change who manages the application. The creator still
+
+        owns it in Developer Settings — moving that would leave the
+
+        application visible to nobody, since no person can sign in as a
+
+        service account.'
+      operationId: setOAuthAppTokenIdentity
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - user:write
+      parameters:
+      - name: appId
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F]{24}$
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+              - serviceAccountId
+              properties:
+                serviceAccountId:
+                  type:
+                  - string
+                  - 'null'
+                  pattern: ^[0-9a-fA-F]{24}$
+                  description: The service account, or null to revert to the creator
+      responses:
+        '200':
+          description: Identity changed
+        '400':
+          description: The service account is disabled, or admin access required
+        '401':
+          description: Not authenticated
+        '403':
+          description: Token lacks the required scope
+        '404':
+          description: No such application, or no such service account in this organisation
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+components:
+  schemas:
+    OAuthTokenListItem:
+      type: object
+      description: 'Information about an issued token (one element returned by `listTokensForApp`
+
+        in `oauth_token.service.ts`). `userId` is omitted for client-credentials access
+
+        tokens; all other fields are always populated.
+
+        '
+      required:
+      - id
+      - tokenType
+      - scopes
+      - createdAt
+      - expiresAt
+      - isRevoked
+      properties:
+        id:
+          type: string
+          description: Token ID
+        tokenType:
+          type: string
+          enum:
+          - access
+          - refresh
+          description: Type of token
+        userId:
+          type: string
+          description: User ID (omitted for client-credentials access tokens)
+        scopes:
+          type: array
+          items:
+            type: string
+          description: Granted scopes
+        createdAt:
+          type: string
+          format: date-time
+          description: Token creation time
+        expiresAt:
+          type: string
+          format: date-time
+          description: Token expiration time
+        isRevoked:
+          type: boolean
+          description: Whether token has been revoked
+    OAuthAppWithSecret:
+      allOf:
+      - $ref: '#/components/schemas/OAuthAppResponse'
+      - type: object
+        properties:
+          clientSecret:
+            type: string
+            description: 'Client secret (only shown on creation and secret regeneration).
+
+              Store this securely - it cannot be retrieved later.
+
+              '
+        required:
+        - clientSecret
+    SuspendOAuthAppResponse:
+      type: object
+      description: 'Response body for `POST /oauth-clients/{appId}/suspend`
+
+        (`oauth.app.controller.ts` `suspendApp`). Suspended app (never includes
+
+        `clientSecret`) is nested under `app`.
+
+        '
+      required:
+      - message
+      - app
+      properties:
+        message:
+          type: string
+          example: OAuth app suspended successfully
+        app:
+          $ref: '#/components/schemas/OAuthAppResponse'
+    RegenerateOAuthAppSecretResponse:
+      type: object
+      description: 'Response body for `POST /oauth-clients/{appId}/regenerate-secret` (`regenerateSecret`).
+
+        '
+      required:
+      - message
+      - clientId
+      - clientSecret
+      properties:
+        message:
+          type: string
+          example: Client secret regenerated successfully
+        clientId:
+          type: string
+          description: OAuth client ID (unchanged)
+        clientSecret:
+          type: string
+          description: New client secret (store securely; previous secret is invalidated)
+    UpdateOAuthAppRequest:
+      type: object
+      description: 'Request to update an OAuth app (`updateAppSchema` in `oauth.validators.ts`).
+
+
+        All fields are optional — include only fields that should change. URL fields (`homepageUrl`, `privacyPolicyUrl`, `termsOfServiceUrl`) accept `null` to clear them (nullable in Zod).
+
+
+        **Redirect rule (Zod refine):** If `allowedGrantTypes` includes `authorization_code` and `redirectUris` is present in the body, `redirectUris` must contain at least one URI.
+
+        '
+      properties:
+        name:
+          type: string
+          description: App name
+          minLength: 1
+          maxLength: 100
+        description:
+          type: string
+          description: App description
+          maxLength: 500
+        redirectUris:
+          type: array
+          items:
+            type: string
+            format: uri
+          description: 'Allowed redirect URIs (up to 10). Required when `authorization_code` grant type is enabled.
+
+            Preserved in the database even if `authorization_code` is removed from grant types.
+
+            '
+          maxItems: 10
+        allowedGrantTypes:
+          type: array
+          items:
+            type: string
+            enum:
+            - authorization_code
+            - client_credentials
+            - refresh_token
+        allowedScopes:
+          type: array
+          items:
+            type: string
+          minItems: 1
+        homepageUrl:
+          type:
+          - string
+          - 'null'
+          format: uri
+        privacyPolicyUrl:
+          type:
+          - string
+          - 'null'
+          format: uri
+        termsOfServiceUrl:
+          type:
+          - string
+          - 'null'
+          format: uri
+        accessTokenLifetime:
+          type: integer
+          minimum: 300
+          maximum: 86400
+        refreshTokenLifetime:
+          type: integer
+          minimum: 3600
+          maximum: 31536000
+    OAuthAppResponse:
+      type: object
+      description: 'OAuth app details (without secret). Fields under `required:` always appear
+
+        in `toAppResponse` (`oauth.app.service.ts`); optional URL/description fields
+
+        are only present when set by the caller.
+
+        '
+      required:
+      - id
+      - slug
+      - clientId
+      - name
+      - redirectUris
+      - allowedGrantTypes
+      - allowedScopes
+      - status
+      - isConfidential
+      - accessTokenLifetime
+      - refreshTokenLifetime
+      - createdAt
+      - updatedAt
+      properties:
+        id:
+          type: string
+          description: App ID
+        slug:
+          type: string
+          description: URL-friendly app slug
+        clientId:
+          type: string
+          description: OAuth client ID
+        name:
+          type: string
+          description: App name
+        description:
+          type: string
+          description: App description
+        redirectUris:
+          type: array
+          items:
+            type: string
+            format: uri
+          description: Allowed redirect URIs (always returned; may be empty)
+        allowedGrantTypes:
+          type: array
+          items:
+            type: string
+          description: Allowed grant types
+        allowedScopes:
+          type: array
+          items:
+            type: string
+          description: Allowed scopes
+        status:
+          type: string
+          enum:
+          - active
+          - suspended
+          - revoked
+          description: App status
+        homepageUrl:
+          type: string
+          format: uri
+          description: App homepage
+        privacyPolicyUrl:
+          type: string
+          format: uri
+          description: Privacy policy URL
+        termsOfServiceUrl:
+          type: string
+          format: uri
+          description: Terms of service URL
+        isConfidential:
+          type: boolean
+          description: Whether app is a confidential client
+        accessTokenLifetime:
+          type: integer
+          description: Access token lifetime in seconds
+        refreshTokenLifetime:
+          type: integer
+          description: Refresh token lifetime in seconds
+        createdAt:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp
+    CreateOAuthAppRequest:
+      type: object
+      description: 'Request to create a new OAuth app (`createAppSchema` in `oauth.validators.ts`).
+
+
+        **Required:** `name`, `allowedScopes`. **Optional:** `description`, `redirectUris`, `allowedGrantTypes`,
+
+        `homepageUrl`, `privacyPolicyUrl`, `termsOfServiceUrl`, `isConfidential`, `accessTokenLifetime`, `refreshTokenLifetime`.
+
+
+        **Redirect rule (Zod refine):** If the effective grant list includes `authorization_code`
+
+        (including when `allowedGrantTypes` is omitted — defaults to `authorization_code` + `refresh_token`),
+
+        at least one redirect URI is required. If grants exclude `authorization_code`, `redirectUris` may be omitted.
+
+        '
+      properties:
+        name:
+          type: string
+          description: App name (displayed to users during authorization)
+          minLength: 1
+          maxLength: 100
+          example: My Integration App
+        description:
+          type: string
+          description: App description
+          maxLength: 500
+          example: Integrates PipesHub with our internal tools
+        redirectUris:
+          type: array
+          items:
+            type: string
+            format: uri
+          description: 'Allowed redirect URIs (max 10). Required when an effective grant list includes `authorization_code`
+
+            (including the default when `allowedGrantTypes` is omitted).
+
+            '
+          maxItems: 10
+          example:
+          - https://myapp.com/callback
+          - http://localhost:3000/callback
+        allowedGrantTypes:
+          type: array
+          items:
+            type: string
+            enum:
+            - authorization_code
+            - client_credentials
+            - refresh_token
+          description: 'Allowed grant types. Defaults to `["authorization_code", "refresh_token"]` if omitted (applied by the service, not Zod).
+
+            '
+          example:
+          - authorization_code
+          - refresh_token
+        allowedScopes:
+          type: array
+          items:
+            type: string
+          description: Scopes the app can request (non-empty)
+          minItems: 1
+          example:
+          - openid
+          - profile
+          - read:records
+        homepageUrl:
+          type: string
+          format: uri
+          description: App homepage URL (shown during authorization)
+        privacyPolicyUrl:
+          type: string
+          format: uri
+          description: Privacy policy URL
+        termsOfServiceUrl:
+          type: string
+          format: uri
+          description: Terms of service URL
+        isConfidential:
+          type: boolean
+          description: 'Whether the app can securely store secrets.
+
+            - `true`: Server-side app (secret required for token requests)
+
+            - `false`: Browser/mobile app (must use PKCE)
+
+            '
+          default: true
+        accessTokenLifetime:
+          type: integer
+          description: Access token lifetime in seconds (300–86400)
+          minimum: 300
+          maximum: 86400
+          default: 3600
+          example: 3600
+        refreshTokenLifetime:
+          type: integer
+          description: Refresh token lifetime in seconds (3600–31536000)
+          minimum: 3600
+          maximum: 31536000
+          default: 2592000
+          example: 2592000
+      required:
+      - name
+      - allowedScopes
+    OAuthClientManagementRateLimitError:
+      type: object
+      description: JSON body when OAuth client management routes exceed the per-minute rate limit (same limiter as other `/oauth-clients/*` routes).
+      required:
+      - error
+      properties:
+        error:
+          type: object
+          required:
+          - code
+          - message
+          properties:
+            code:
+              type: string
+              example: TOO_MANY_REQUESTS
+            message:
+              type: string
+              example: Too many OAuth client requests. Please try again later.
+            retryAfter:
+              type:
+              - integer
+              - 'null'
+              description: Seconds until the limit window resets (when `Retry-After` is present); may be null.
+    ActivateOAuthAppResponse:
+      type: object
+      description: 'Response body for `POST /oauth-clients/{appId}/activate`
+
+        (`oauth.app.controller.ts` `activateApp`). Re-activated app (never includes
+
+        `clientSecret`) is nested under `app`.
+
+        '
+      required:
+      - message
+      - app
+      properties:
+        message:
+          type: string
+          example: OAuth app activated successfully
+        app:
+          $ref: '#/components/schemas/OAuthAppResponse'
+    OAuthScopesGroupedResponse:
+      type: object
+      description: 'OAuth scopes available to the signed-in user for app registration, grouped by category label.
+
+        Category keys are UI labels (e.g. `Identity`, `Knowledge Base`); each maps to a list of scopes in that group.
+
+        Categories defined in server config may appear with an **empty array** when every scope in that category is restricted for the caller''s role (e.g. non–org-admin users never receive admin-only scopes).
+
+        '
+      properties:
+        scopes:
+          type: object
+          description: Map of category display name to scopes in that category
+          additionalProperties:
+            type: array
+            items:
+              $ref: '#/components/schemas/OAuthScopeInfo'
+      required:
+      - scopes
+    OAuthScopeInfo:
+      type: object
+      description: Information about an OAuth scope
+      properties:
+        name:
+          type: string
+          description: Scope identifier
+          example: openid
+        description:
+          type: string
+          description: Human-readable scope description
+          example: OpenID Connect authentication
+        category:
+          type: string
+          description: Scope category for grouping (matches the key under `scopes` on list responses)
+          example: Identity
+        requiresUserConsent:
+          type: boolean
+          description: Whether end-user consent is required when this scope is requested
+          example: false
+      required:
+      - name
+      - description
+      - category
+      - requiresUserConsent
+    OAuthAppListResponse:
+      type: object
+      description: Paginated list of OAuth apps
+      required:
+      - data
+      - pagination
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/OAuthAppResponse'
+          description: List of OAuth apps
+        pagination:
+          type: object
+          required:
+          - page
+          - limit
+          - total
+          - totalPages
+          properties:
+            page:
+              type: integer
+              description: Current page number
+            limit:
+              type: integer
+              description: Items per page
+            total:
+              type: integer
+              description: Total number of items
+            totalPages:
+              type: integer
+              description: Total number of pages
+    ApplicationJsonErrorResponse:
+      type: object
+      description: 'Standard JSON error envelope from `ErrorMiddleware` for `BaseError` subclasses (`error.middleware.ts`).
+
+        Returned for most API 4xx errors (unauthorized, forbidden, not found, validation failures, etc.).
+
+        '
+      required:
+      - error
+      properties:
+        error:
+          type: object
+          required:
+          - code
+          - message
+          properties:
+            code:
+              type: string
+              description: Machine-readable code (e.g. `HTTP_UNAUTHORIZED`, `HTTP_FORBIDDEN`).
+            message:
+              type: string
+            metadata:
+              type: object
+              description: Optional; may appear in non-production for some errors.
+              additionalProperties: true
+    CreateOAuthAppResponse:
+      type: object
+      description: 'Response body for `POST /oauth-clients` (`oauth.app.controller.ts` `createApp`).
+
+        The new app (including one-time `clientSecret`) is nested under `app`.
+
+        '
+      required:
+      - message
+      - app
+      properties:
+        message:
+          type: string
+          example: OAuth app created successfully
+        app:
+          $ref: '#/components/schemas/OAuthAppWithSecret'
+    OAuthAppTokensListResponse:
+      type: object
+      description: 'Response body for `GET /oauth-clients/{appId}/tokens` (`listAppTokens`).
+
+        '
+      required:
+      - tokens
+      properties:
+        tokens:
+          type: array
+          items:
+            $ref: '#/components/schemas/OAuthTokenListItem'
+          description: Active access and refresh tokens for the app
+    UpdateOAuthAppResponse:
+      type: object
+      description: 'Response body for `PUT /oauth-clients/{appId}` (`oauth.app.controller.ts` `updateApp`).
+
+        Updated app (never includes `clientSecret`) is nested under `app`.
+
+        '
+      required:
+      - message
+      - app
+      properties:
+        message:
+          type: string
+          example: OAuth app updated successfully
+        app:
+          $ref: '#/components/schemas/OAuthAppResponse'
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'JWT Bearer token for authenticated requests.
+
+
+        A personal access token (see the **Personal Access Tokens** tag) is a
+
+        `phpat_`-prefixed variant of this same JWT — e.g. `phpat_eyJhbGci...`.
+
+        The prefix is display-only, added for secret-scanner detectability; the
+
+        gateway strips it before verifying the token, so send it exactly as
+
+        issued, prefix included.
+
+        '
+    scopedToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Scoped JWT token for service-to-service authentication.
+
+        Format: "Bearer {scoped_token}"
+
+        Required scopes vary by endpoint.
+
+        '
+    oauth2:
+      type: oauth2
+      description: 'OAuth 2.0 authentication with fine-grained scopes.
+
+        Supports authorization_code (with PKCE) and client_credentials flows.
+
+        OAuth tokens are Bearer JWTs — use the same Authorization header as regular tokens.
+
+        For **client_credentials**, machine JWTs may use `userId === client_id`; the Node gateway resolves the OAuth app creator — see **OAuth Provider** tag.
+
+        '
+      flows:
+        authorizationCode:
+          authorizationUrl: /api/v1/oauth2/authorize
+          tokenUrl: /api/v1/oauth2/token
+          refreshUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:read: Read semantic search results and history
+            semantic:write: Execute semantic search
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+            crawl:delete: Delete crawling jobs
+        clientCredentials:
+          tokenUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:write: Execute semantic search
+            semantic:read: Read semantic search results and history
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+x-refined-from:
+- pipeshub-openapi.yaml
+- pipeshub-openapi.yml

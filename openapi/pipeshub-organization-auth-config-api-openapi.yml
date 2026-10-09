@@ -1,0 +1,689 @@
+openapi: 3.2.0
+info:
+  title: Pipeshub Organization Auth Config API
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@pipeshub.com
+  description: 'Operations tagged Organization Auth Config across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: '{instance_url}/api/v1'
+  description: Base API URL
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL (without /api/v1)
+- url: '{instance_url}'
+  description: Root URL (used for MCP endpoints mounted at /mcp)
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL
+security:
+- bearerAuth: []
+- oauth2: []
+tags:
+- name: Organization Auth Config
+  description: Admin configuration of authentication methods including MFA steps and allowed providers
+paths:
+  /orgAuthConfig/authMethods:
+    get:
+      tags:
+      - Organization Auth Config
+      summary: Get organization authentication methods
+      description: 'Retrieve the configured authentication methods for the organization.
+
+
+        **Response Structure:**
+
+
+        Returns an array of authentication steps, each containing:
+
+        - `order`: Step number (1-3)
+
+        - `allowedMethods`: Array of methods allowed for that step
+
+
+        **Example Response:**
+
+
+        ```json
+
+        {
+
+        "authMethods": [
+
+        { "order": 1, "allowedMethods": [{ "type": "password" }, { "type": "google" }] },
+
+        { "order": 2, "allowedMethods": [{ "type": "otp" }] }
+
+        ]
+
+        }
+
+        ```
+
+
+        **Admin Access Required:** Only organization admins can view auth configuration.'
+      operationId: getAuthMethods
+      x-pipeshub-sdk: true
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Authentication methods retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthConfig'
+        '400':
+          description: 'Bad request. Possible causes:
+
+            - User is not an organization admin
+
+            - User not authenticated (token decoded but `req.user` is null)
+
+            - Organization ID missing from token payload
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or expired access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 'Not found. Possible causes:
+
+            - Auth container not found
+
+            - Account not found (userId or orgId missing)
+
+            - Admin check failed in IAM service
+
+            - Organization auth configuration not found
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /orgAuthConfig/updateAuthMethod:
+    post:
+      tags:
+      - Organization Auth Config
+      summary: Update organization authentication methods
+      description: 'Update the authentication methods configuration for an organization.
+
+        This allows admins to configure single or multi-factor authentication.
+
+
+        **Validation Rules:**
+
+        - Minimum 1 step, maximum 3 steps
+
+        - Each step must have a unique order (1, 2, or 3)
+
+        - No duplicate methods within the same step
+
+        - No method can appear in multiple steps
+
+        - Each step must have at least one allowed method
+
+        - `samlSso` is only allowed in a single-step policy; it can''t be combined with other steps
+
+
+        **Available Methods:**
+
+        - `password`: Email/password authentication
+
+        - `otp`: One-time password via email
+
+        - `google`: Google OAuth 2.0
+
+        - `microsoft`: Microsoft OAuth 2.0
+
+        - `azureAd`: Azure Active Directory
+
+        - `samlSso`: SAML 2.0 Single Sign-On
+
+        - `oauth`: Generic OAuth 2.0 provider
+
+
+        **Example - Single Factor (Password or Google):**
+
+
+        ```json
+
+        {
+
+        "authMethod": [
+
+        { "order": 1, "allowedMethods": [{ "type": "password" }, { "type": "google" }] }
+
+        ]
+
+        }
+
+        ```
+
+
+        **Example - Two Factor (Password + OTP):**
+
+
+        ```json
+
+        {
+
+        "authMethod": [
+
+        { "order": 1, "allowedMethods": [{ "type": "password" }] },
+
+        { "order": 2, "allowedMethods": [{ "type": "otp" }] }
+
+        ]
+
+        }
+
+        ```
+
+
+        **Admin Access Required:** Only organization admins can update auth configuration.'
+      operationId: updateAuthMethod
+      x-pipeshub-sdk: true
+      security:
+      - bearerAuth: []
+      requestBody:
+        description: Request payload
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+              - authMethod
+              properties:
+                authMethod:
+                  type: array
+                  description: Authentication steps to set for the organization (1-3 steps)
+                  minItems: 1
+                  maxItems: 3
+                  items:
+                    $ref: '#/components/schemas/AuthStep'
+      responses:
+        '200':
+          description: Authentication methods updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateAuthMethodResponse'
+        '400':
+          description: 'Bad request. Possible causes:
+
+            - User is not an organization admin
+
+            - `authMethod` field missing from request body
+
+            - Validation failure (duplicate steps, duplicate methods, out-of-range order, empty methods array)
+
+            - `samlSso` used in a policy with more than one step
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 'Unauthorized. Possible causes:
+
+            - Invalid or expired access token
+
+            - User not authenticated (token decoded but `req.user` is null)
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 'Not found. Possible causes:
+
+            - Auth container not found
+
+            - Account not found (userId or orgId missing)
+
+            - Admin check failed in IAM service
+
+            - Organization auth configuration not found
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /orgAuthConfig:
+    post:
+      tags:
+      - Organization Auth Config
+      summary: Set up auth configuration
+      description: Set up or initialize the organization's authentication configuration.
+      operationId: setUpAuthConfig
+      x-pipeshub-sdk: true
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        description: Organization setup details
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrgAuthConfigCreateRequest'
+      responses:
+        '200':
+          description: Auth configuration already exists for this deployment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrgAuthConfigSetupResponse'
+        '201':
+          description: Auth configuration created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrgAuthConfigSetupResponse'
+        '400':
+          description: 'Bad request. Possible causes:
+
+            - User is not an organization admin
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - invalid or expired access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 'Not found. Possible causes:
+
+            - Auth container not found
+
+            - Account not found (userId or orgId missing)
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+components:
+  schemas:
+    AuthMethod:
+      type: object
+      additionalProperties: false
+      description: Authentication method configuration
+      properties:
+        type:
+          type: string
+          enum:
+          - samlSso
+          - otp
+          - password
+          - google
+          - microsoft
+          - azureAd
+          - oauth
+          description: 'Type of authentication method:
+
+            - `password`: Email/password authentication
+
+            - `otp`: One-time password via email (6-digit, expires in 10 minutes)
+
+            - `google`: Google OAuth 2.0
+
+            - `microsoft`: Microsoft OAuth 2.0
+
+            - `azureAd`: Azure Active Directory
+
+            - `samlSso`: SAML 2.0 Single Sign-On
+
+            - `oauth`: Generic OAuth 2.0 provider
+
+            '
+      required:
+      - type
+    AuthConfig:
+      type: object
+      additionalProperties: false
+      description: 'Organization authentication configuration. Supports 1-3 authentication steps for multi-factor authentication.
+
+        **Validation Rules:**
+
+        - Minimum 1 step, maximum 3 steps
+
+        - Each step must have unique order
+
+        - No duplicate methods within the same step
+
+        - No method can appear in multiple steps
+
+        '
+      properties:
+        authMethods:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuthStep'
+          description: List of authentication steps in order
+          minItems: 1
+          maxItems: 3
+      required:
+      - authMethods
+    UpdateAuthMethodResponse:
+      type: object
+      additionalProperties: false
+      description: Response after updating organization authentication methods
+      properties:
+        message:
+          type: string
+          example: Auth method updated
+        authMethod:
+          type: array
+          description: Updated authentication steps (same shape as request body)
+          items:
+            $ref: '#/components/schemas/AuthStep'
+      required:
+      - message
+      - authMethod
+    OrgAuthConfigSetupResponse:
+      type: object
+      additionalProperties: false
+      description: Response from setting up organization auth configuration
+      properties:
+        message:
+          type: string
+      required:
+      - message
+    OrgAuthConfigCreateRequest:
+      type: object
+      additionalProperties: false
+      description: Request to create initial organization auth configuration
+      properties:
+        contactEmail:
+          type: string
+          format: email
+          description: Organization contact email
+        registeredName:
+          type: string
+          description: Organization registered name
+        adminFullName:
+          type: string
+          description: Admin user full name
+        sendEmail:
+          type: boolean
+          description: Whether to send welcome email
+          default: false
+      required:
+      - contactEmail
+      - registeredName
+      - adminFullName
+    AuthStep:
+      type: object
+      additionalProperties: false
+      description: A single step in multi-factor authentication flow
+      properties:
+        order:
+          type: integer
+          description: Order of the authentication step (1-3, must be unique across steps)
+          minimum: 1
+          maximum: 3
+        allowedMethods:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuthMethod'
+          description: List of allowed authentication methods for this step. User can choose any one method from this list.
+          minItems: 1
+      required:
+      - order
+      - allowedMethods
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      description: 'Standard error envelope returned by all errors routed through `ErrorMiddleware`.
+
+        Applies to all `BaseError` subclasses including `HttpError`, `ValidationError`, and others.
+
+        The `code` field is a machine-readable string identifying the error type (e.g.
+
+        `HTTP_UNAUTHORIZED`, `HTTP_NOT_FOUND`, `VALIDATION_ERROR`, `INTERNAL_ERROR`).
+
+        '
+      properties:
+        error:
+          type: object
+          additionalProperties: false
+          required:
+          - code
+          - message
+          properties:
+            requestId:
+              type: string
+              description: 'Identifier for this request, echoed so a bug report can quote it.
+
+                Absent when the request never reached the middleware that assigns one.
+
+                '
+            code:
+              type: string
+              description: 'Machine-readable error code. For application errors it takes the form `HTTP_<VARIANT>`
+
+                For unhandled runtime errors (e.g. database unavailable) it is `INTERNAL_ERROR`.
+
+                '
+              example: HTTP_BAD_REQUEST
+            message:
+              type: string
+              description: Human-readable description of the error
+              example: Admin access required
+            metadata:
+              type: object
+              description: Additional context (only present in development environments)
+              additionalProperties: true
+      required:
+      - error
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'JWT Bearer token for authenticated requests.
+
+
+        A personal access token (see the **Personal Access Tokens** tag) is a
+
+        `phpat_`-prefixed variant of this same JWT — e.g. `phpat_eyJhbGci...`.
+
+        The prefix is display-only, added for secret-scanner detectability; the
+
+        gateway strips it before verifying the token, so send it exactly as
+
+        issued, prefix included.
+
+        '
+    scopedToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Scoped JWT token for service-to-service authentication.
+
+        Format: "Bearer {scoped_token}"
+
+        Required scopes vary by endpoint.
+
+        '
+    oauth2:
+      type: oauth2
+      description: 'OAuth 2.0 authentication with fine-grained scopes.
+
+        Supports authorization_code (with PKCE) and client_credentials flows.
+
+        OAuth tokens are Bearer JWTs — use the same Authorization header as regular tokens.
+
+        For **client_credentials**, machine JWTs may use `userId === client_id`; the Node gateway resolves the OAuth app creator — see **OAuth Provider** tag.
+
+        '
+      flows:
+        authorizationCode:
+          authorizationUrl: /api/v1/oauth2/authorize
+          tokenUrl: /api/v1/oauth2/token
+          refreshUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:read: Read semantic search results and history
+            semantic:write: Execute semantic search
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+            crawl:delete: Delete crawling jobs
+        clientCredentials:
+          tokenUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:write: Execute semantic search
+            semantic:read: Read semantic search results and history
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+x-refined-from:
+- pipeshub-openapi.yaml
+- pipeshub-openapi.yml

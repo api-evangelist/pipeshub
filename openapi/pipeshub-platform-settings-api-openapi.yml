@@ -1,0 +1,519 @@
+openapi: 3.2.0
+info:
+  title: Pipeshub Platform Settings API
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@pipeshub.com
+  description: 'Operations tagged Platform Settings across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: '{instance_url}/api/v1'
+  description: Base API URL
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL (without /api/v1)
+- url: '{instance_url}'
+  description: Root URL (used for MCP endpoints mounted at /mcp)
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL
+security:
+- bearerAuth: []
+- oauth2: []
+tags:
+- name: Platform Settings
+  description: Platform-wide settings including file upload limits, feature flags, and custom system prompts.
+paths:
+  /configurationManager/platform/settings:
+    post:
+      tags:
+      - Platform Settings
+      summary: Update platform settings
+      description: 'Configure platform-wide settings including file upload limits and feature flags.
+
+
+        **File Upload Limits:**
+
+        - Default: 30MB (31457280 bytes)
+
+        - Maximum: 1GB (1073741824 bytes)
+
+
+        **Available Feature Flags:**
+
+        - ENABLE_BETA_CONNECTORS: Enable beta connector integrations (default: false)
+
+        - ENABLE_MCP: Enable MCP servers (default: false)
+
+        - ENABLE_ACTIONS: Enable toolset actions (default: true)
+
+        - ENABLE_VECTOR_STORE_REBUILD: Enable vector store cleanup/reindex from Connectors (default: false)
+
+        - ENABLE_SKILLS: Enable Skills — SKILL.md packages agents can load (default: true)
+
+        - ENABLE_USER_CONTEXT: Include user name, email, and organization in default assistant / Universal Agent system prompts (default: true)'
+      operationId: setPlatformSettings
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - config:write
+      requestBody:
+        required: true
+        description: Request body for Update platform settings
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - fileUploadMaxSizeBytes
+              - featureFlags
+              properties:
+                fileUploadMaxSizeBytes:
+                  type: integer
+                  minimum: 1
+                  maximum: 1073741824
+                  description: Maximum file upload size in bytes
+                  example: 31457280
+                featureFlags:
+                  type: object
+                  additionalProperties:
+                    type: boolean
+                  description: Key-value map of feature flags. Set to true to enable, false to disable.
+                  example:
+                    ENABLE_BETA_CONNECTORS: false
+            examples:
+              default30MB:
+                summary: Default settings (30MB limit)
+                value:
+                  fileUploadMaxSizeBytes: 31457280
+                  featureFlags:
+                    ENABLE_BETA_CONNECTORS: false
+              increased100MB:
+                summary: Increased limit (100MB)
+                value:
+                  fileUploadMaxSizeBytes: 104857600
+                  featureFlags:
+                    ENABLE_BETA_CONNECTORS: false
+              enableBetaFeatures:
+                summary: Enable beta connectors
+                value:
+                  fileUploadMaxSizeBytes: 31457280
+                  featureFlags:
+                    ENABLE_BETA_CONNECTORS: true
+      responses:
+        '200':
+          description: Platform settings saved successfully
+        '400':
+          description: Invalid settings
+        '401':
+          description: Unauthorized
+        '403':
+          description: Admin access required
+    get:
+      tags:
+      - Platform Settings
+      summary: Get platform settings
+      description: Retrieve current platform settings including file upload limits and feature flag states.
+      operationId: getPlatformSettings
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - config:read
+      responses:
+        '200':
+          description: Platform settings retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PlatformSettings'
+              example:
+                fileUploadMaxSizeBytes: 31457280
+                featureFlags:
+                  ENABLE_BETA_CONNECTORS: false
+                updatedAt: '2024-01-15T10:30:00Z'
+        '401':
+          description: Unauthorized
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /configurationManager/platform/feature-flags/available:
+    get:
+      tags:
+      - Platform Settings
+      summary: Get available feature flags
+      description: 'List all user-toggleable feature flags with their descriptions and default values,
+
+        for the Labs admin UI. Admin-only — hidden flags (internal/legacy) are seeded with
+
+        their defaults but never returned here.'
+      operationId: getAvailableFeatureFlags
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - config:read
+      responses:
+        '200':
+          description: Feature flags retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  flags:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/FeatureFlag'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Admin access required
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /configurationManager/platform/feature-flags/effective:
+    get:
+      tags:
+      - Platform Settings
+      summary: Get effective feature flag values
+      description: 'Resolved boolean value of every platform feature flag (stored overrides merged
+
+        over `PLATFORM_FEATURE_FLAGS` defaults). Unlike `.../available`, this is callable
+
+        by every authenticated user, not just admins: flag values carry no secrets, and
+
+        non-admin UI (chat, agent builder, personal Skills/MCP/Actions pages) needs them
+
+        to decide whether to render flag-gated features.'
+      operationId: getEffectivePlatformFeatureFlags
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Effective feature flag values retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  featureFlags:
+                    type: object
+                    additionalProperties:
+                      type: boolean
+                    description: Key-value map of every known feature flag to its resolved boolean value.
+                    example:
+                      ENABLE_BETA_CONNECTORS: false
+                      ENABLE_MCP: false
+                      ENABLE_ACTIONS: true
+                      ENABLE_VECTOR_STORE_REBUILD: false
+                      ENABLE_SKILLS: true
+                      ENABLE_USER_CONTEXT: true
+        '401':
+          description: Unauthorized
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /configurationManager/prompts/system:
+    put:
+      tags:
+      - Platform Settings
+      summary: Update custom system prompt
+      description: Set a custom system prompt that will be used by AI models.
+      operationId: setCustomSystemPrompt
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - config:write
+      requestBody:
+        required: true
+        description: Request body for Update custom system prompt
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomSystemPrompt'
+      responses:
+        '200':
+          description: System prompt updated
+        '400':
+          description: Invalid prompt
+        '401':
+          description: Unauthorized
+        '403':
+          description: Admin access required
+    get:
+      tags:
+      - Platform Settings
+      summary: Get custom system prompt
+      description: Get custom system prompt.
+      operationId: getCustomSystemPrompt
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - config:read
+      responses:
+        '200':
+          description: System prompt retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomSystemPrompt'
+        '401':
+          description: Unauthorized
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+components:
+  schemas:
+    PlatformSettings:
+      type: object
+      description: Platform-wide configuration settings for file uploads and feature toggles
+      properties:
+        fileUploadMaxSizeBytes:
+          type: integer
+          minimum: 1
+          maximum: 1073741824
+          description: Maximum file upload size in bytes. Default is 30MB (31457280 bytes). Maximum allowed is 1GB.
+          example: 31457280
+        featureFlags:
+          type: object
+          additionalProperties:
+            type: boolean
+          description: 'Key-value map of feature flags to enable/disable platform features.
+
+            Available flags:
+
+            - ENABLE_BETA_CONNECTORS: Allow usage of beta connector integrations that may be unstable
+
+            - ENABLE_MCP: Allow agents to use MCP servers and show MCP server management in the UI
+
+            - ENABLE_ACTIONS: Allow agents to use toolset actions and show Actions management in the UI
+
+            - ENABLE_VECTOR_STORE_REBUILD: Allow admins to clean up and reindex the vector store
+
+            - ENABLE_SKILLS: Allow users to create, import and manage Skills (SKILL.md packages) and let agents load them (default: true)
+
+            - ENABLE_USER_CONTEXT: Include the current user''s name, email, and organization in default assistant / Universal Agent system prompts (default: true)
+
+            '
+          example:
+            ENABLE_BETA_CONNECTORS: false
+            ENABLE_SKILLS: true
+            ENABLE_USER_CONTEXT: true
+        updatedAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+          description: Timestamp of last settings update (read-only, set automatically). May not be present in the response.
+          readOnly: true
+          example: '2024-01-15T10:30:00Z'
+    FeatureFlag:
+      type: object
+      description: Platform feature flag definition
+      properties:
+        key:
+          type: string
+          description: 'Unique feature flag key. Current keys: ENABLE_BETA_CONNECTORS,
+
+            ENABLE_MCP, ENABLE_ACTIONS, ENABLE_VECTOR_STORE_REBUILD, ENABLE_SKILLS,
+
+            ENABLE_USER_CONTEXT.
+
+            '
+          example: ENABLE_BETA_CONNECTORS
+        label:
+          type: string
+          description: Display label
+          example: Enable Beta Connectors
+        description:
+          type: string
+          description: Feature flag description
+        defaultEnabled:
+          type: boolean
+          description: Default enabled state
+    CustomSystemPrompt:
+      type: object
+      description: Custom system prompt configuration
+      properties:
+        customSystemPrompt:
+          type: string
+          description: Custom system prompt text used for Internal Search chat mode
+        customSystemPromptWebSearch:
+          type: string
+          description: Custom system prompt text used for Web Search chat mode
+        customSystemPromptAgent:
+          type: string
+          description: Custom system prompt text used for Agent chat mode
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'JWT Bearer token for authenticated requests.
+
+
+        A personal access token (see the **Personal Access Tokens** tag) is a
+
+        `phpat_`-prefixed variant of this same JWT — e.g. `phpat_eyJhbGci...`.
+
+        The prefix is display-only, added for secret-scanner detectability; the
+
+        gateway strips it before verifying the token, so send it exactly as
+
+        issued, prefix included.
+
+        '
+    scopedToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Scoped JWT token for service-to-service authentication.
+
+        Format: "Bearer {scoped_token}"
+
+        Required scopes vary by endpoint.
+
+        '
+    oauth2:
+      type: oauth2
+      description: 'OAuth 2.0 authentication with fine-grained scopes.
+
+        Supports authorization_code (with PKCE) and client_credentials flows.
+
+        OAuth tokens are Bearer JWTs — use the same Authorization header as regular tokens.
+
+        For **client_credentials**, machine JWTs may use `userId === client_id`; the Node gateway resolves the OAuth app creator — see **OAuth Provider** tag.
+
+        '
+      flows:
+        authorizationCode:
+          authorizationUrl: /api/v1/oauth2/authorize
+          tokenUrl: /api/v1/oauth2/token
+          refreshUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:read: Read semantic search results and history
+            semantic:write: Execute semantic search
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+            crawl:delete: Delete crawling jobs
+        clientCredentials:
+          tokenUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:write: Execute semantic search
+            semantic:read: Read semantic search results and history
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+x-refined-from:
+- pipeshub-openapi.yaml
+- pipeshub-openapi.yml

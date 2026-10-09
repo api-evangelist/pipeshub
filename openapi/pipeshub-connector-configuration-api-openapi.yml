@@ -1,0 +1,639 @@
+openapi: 3.2.0
+info:
+  title: Pipeshub Connector Configuration API
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@pipeshub.com
+  description: 'Operations tagged Connector Configuration across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: '{instance_url}/api/v1'
+  description: Base API URL
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL (without /api/v1)
+- url: '{instance_url}'
+  description: Root URL (used for MCP endpoints mounted at /mcp)
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL
+security:
+- bearerAuth: []
+- oauth2: []
+tags:
+- name: Connector Configuration
+  description: Configure authentication, sync settings, and filters for connectors
+paths:
+  /connectors/{connectorId}/config:
+    get:
+      tags:
+      - Connector Configuration
+      summary: Get connector configuration
+      description: 'Get the current configuration for a connector instance.
+
+
+        Security:
+
+
+        Sensitive data (credentials, OAuth tokens) are redacted from the response.
+
+        Only admins can see partial credential information.'
+      operationId: getConnectorConfig
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - connector:read
+      parameters:
+      - name: connectorId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Configuration retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  config:
+                    $ref: '#/components/schemas/ConnectorConfig'
+        '401':
+          description: Unauthorized
+        '403':
+          description: No access to this connector
+        '404':
+          description: Connector not found
+    put:
+      tags:
+      - Connector Configuration
+      summary: Update connector configuration
+      description: 'Update authentication, sync, and filter configuration.
+
+
+        Prerequisites:
+
+
+        Connector must be disabled before updating configuration.
+
+        Disable it first using POST /{id}/toggle.
+
+
+        Partial Updates:
+
+
+        Only provide the sections you want to update. Omitted sections
+
+        are not modified.'
+      operationId: updateConnectorConfig
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - connector:write
+      parameters:
+      - name: connectorId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        description: Request payload
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateConnectorConfigRequest'
+      responses:
+        '200':
+          description: Configuration updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  config:
+                    $ref: '#/components/schemas/ConnectorConfig'
+        '400':
+          description: 'Invalid configuration or connector is active.
+
+            Disable connector before updating.
+
+            '
+        '401':
+          description: Unauthorized
+        '404':
+          description: Connector not found
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /connectors/{connectorId}/config/auth:
+    put:
+      tags:
+      - Connector Configuration
+      summary: Update authentication configuration
+      description: 'Update only the authentication configuration.
+
+
+        Use Case:
+
+
+        Use this when you need to update credentials without changing
+
+        sync or filter settings. Useful for credential rotation.
+
+
+        Prerequisites:
+
+
+        Connector must be disabled. This endpoint clears OAuth state,
+
+        requiring re-authentication for OAuth connectors.'
+      operationId: updateConnectorAuthConfig
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - connector:write
+      parameters:
+      - name: connectorId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        description: Request payload
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateConnectorAuthRequest'
+      responses:
+        '200':
+          description: Auth configuration updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  config:
+                    $ref: '#/components/schemas/ConnectorConfig'
+        '400':
+          description: Connector must be disabled first
+        '401':
+          description: Unauthorized
+        '404':
+          description: Connector not found
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /connectors/{connectorId}/config/filters-sync:
+    put:
+      tags:
+      - Connector Configuration
+      summary: Update filters and sync configuration
+      description: 'Update filter selections and sync settings without touching auth.
+
+
+        Use Case:
+
+
+        Use this to change what data is synced or adjust sync schedule
+
+        without re-authenticating.'
+      operationId: updateConnectorFiltersSyncConfig
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - connector:write
+      parameters:
+      - name: connectorId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        description: Request payload
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateConnectorFiltersSyncRequest'
+      responses:
+        '200':
+          description: Configuration updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  config:
+                    $ref: '#/components/schemas/ConnectorConfig'
+                  message:
+                    type: string
+                    description: Success message
+                  syncFiltersChanged:
+                    type: boolean
+                    description: Indicates whether sync filters changed, requiring a full resync
+        '401':
+          description: Unauthorized
+        '404':
+          description: Connector not found
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+components:
+  schemas:
+    ConnectorSyncConfig:
+      type: object
+      description: Synchronization configuration for a connector instance
+      properties:
+        selectedStrategy:
+          type: string
+          enum:
+          - MANUAL
+          - SCHEDULED
+          - WEBHOOK
+          - REALTIME
+          description: 'Sync strategy: MANUAL (user-triggered), SCHEDULED (interval/cron), WEBHOOK (event-driven), REALTIME (WebSocket)'
+          default: MANUAL
+        scheduledConfig:
+          type: object
+          description: Configuration for scheduled sync strategy
+          properties:
+            intervalMinutes:
+              type: integer
+              description: Sync interval in minutes
+              minimum: 5
+              default: 60
+              example: 60
+            cronExpression:
+              type: string
+              description: Cron expression for advanced scheduling
+              example: 0 */6 * * *
+            timezone:
+              type: string
+              description: Timezone for scheduled sync
+              default: UTC
+              example: America/New_York
+        webhookConfig:
+          type: object
+          description: Configuration for webhook-based sync
+          properties:
+            webhookUrl:
+              type: string
+              description: URL to receive webhook events (auto-generated)
+            events:
+              type: array
+              items:
+                type: string
+              description: Subscribed event types
+              example:
+              - file.created
+              - file.modified
+              - file.deleted
+        values:
+          type: object
+          description: Sync setting values specific to the connector
+          additionalProperties: true
+        customValues:
+          type: object
+          description: Custom sync values
+          additionalProperties: true
+    ConnectorAuthConfig:
+      type: object
+      description: Authentication configuration for a connector instance
+      properties:
+        values:
+          type: object
+          description: Authentication values (keys depend on connector's auth schema)
+          additionalProperties: true
+          example:
+            apiKey: sk-xxxxx
+            baseUrl: https://api.example.com
+        oauthConfigId:
+          type: string
+          description: ID of admin-created OAuth configuration to use
+          example: oauth_config_123
+        customValues:
+          type: object
+          description: Custom authentication values specific to the connector
+          additionalProperties: true
+    UpdateConnectorFiltersSyncRequest:
+      type: object
+      description: Request to update filters and sync config (connector must be authenticated and inactive)
+      properties:
+        sync:
+          $ref: '#/components/schemas/ConnectorSyncConfig'
+        filters:
+          $ref: '#/components/schemas/ConnectorFiltersConfig'
+        baseUrl:
+          type: string
+          format: uri
+    ConnectorAuthType:
+      type: string
+      description: 'Authentication method required by the connector:<br>
+
+        <ul>
+
+        <li><code>OAUTH</code> - User OAuth consent flow</li>
+
+        <li><code>OAUTH_ADMIN_CONSENT</code> - Admin OAuth with org-wide consent</li>
+
+        <li><code>API_TOKEN</code> - API key or token authentication</li>
+
+        <li><code>USERNAME_PASSWORD</code> - Username/password credentials</li>
+
+        <li><code>NONE</code> - No authentication required</li>
+
+        </ul>
+
+        '
+      enum:
+      - OAUTH
+      - OAUTH_ADMIN_CONSENT
+      - API_TOKEN
+      - USERNAME_PASSWORD
+      - NONE
+    ConnectorConfig:
+      type: object
+      description: Configuration for a connector instance including auth, sync, and filter settings
+      properties:
+        connectorId:
+          type: string
+          description: Connector instance ID
+        connectorType:
+          type: string
+          description: Connector type
+        instanceName:
+          type: string
+          description: Instance name
+        authType:
+          $ref: '#/components/schemas/ConnectorAuthType'
+        scope:
+          $ref: '#/components/schemas/ConnectorScope'
+        config:
+          type: object
+          description: Configuration sections
+          properties:
+            auth:
+              type: object
+              description: Authentication configuration (sensitive data redacted)
+            sync:
+              type: object
+              description: Sync configuration (schedule, options)
+            filters:
+              type: object
+              description: Filter selections for data scope
+        baseUrl:
+          type: string
+          description: Base URL for self-hosted instances
+        isActive:
+          type: boolean
+        isConfigured:
+          type: boolean
+        isAuthenticated:
+          type: boolean
+    UpdateConnectorAuthRequest:
+      type: object
+      description: Request to update authentication config (clears OAuth tokens, requires re-auth)
+      required:
+      - auth
+      properties:
+        auth:
+          $ref: '#/components/schemas/ConnectorAuthConfig'
+        baseUrl:
+          type: string
+          description: Base URL (if changed with auth update)
+          format: uri
+    UpdateConnectorConfigRequest:
+      type: object
+      description: Request to update connector configuration (partial updates supported)
+      properties:
+        auth:
+          $ref: '#/components/schemas/ConnectorAuthConfig'
+        sync:
+          $ref: '#/components/schemas/ConnectorSyncConfig'
+        filters:
+          $ref: '#/components/schemas/ConnectorFiltersConfig'
+        baseUrl:
+          type: string
+          description: Base URL for self-hosted instances
+          format: uri
+          example: https://confluence.mycompany.com
+    ConnectorScope:
+      type: string
+      description: 'Scope determines visibility and access control for connectors:<br>
+
+        <ul>
+
+        <li><code>team</code> - Available to all users in the organization (admin-only creation)</li>
+
+        <li><code>personal</code> - Private to the creating user only</li>
+
+        </ul>
+
+        '
+      enum:
+      - team
+      - personal
+      example: team
+    ConnectorFiltersConfig:
+      type: object
+      description: Filter configuration to control what data is synced (sync filters and indexing filters)
+      properties:
+        sync:
+          type: object
+          description: Sync filter selections
+          properties:
+            values:
+              type: object
+              description: Selected filter values (keys are filter field names)
+              additionalProperties: true
+              example:
+                folders:
+                - folder_id_1
+                - folder_id_2
+                fileTypes:
+                - pdf
+                - docx
+                - xlsx
+                includeShared: true
+        indexing:
+          type: object
+          description: Indexing filter selections
+          properties:
+            values:
+              type: object
+              additionalProperties: true
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'JWT Bearer token for authenticated requests.
+
+
+        A personal access token (see the **Personal Access Tokens** tag) is a
+
+        `phpat_`-prefixed variant of this same JWT — e.g. `phpat_eyJhbGci...`.
+
+        The prefix is display-only, added for secret-scanner detectability; the
+
+        gateway strips it before verifying the token, so send it exactly as
+
+        issued, prefix included.
+
+        '
+    scopedToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Scoped JWT token for service-to-service authentication.
+
+        Format: "Bearer {scoped_token}"
+
+        Required scopes vary by endpoint.
+
+        '
+    oauth2:
+      type: oauth2
+      description: 'OAuth 2.0 authentication with fine-grained scopes.
+
+        Supports authorization_code (with PKCE) and client_credentials flows.
+
+        OAuth tokens are Bearer JWTs — use the same Authorization header as regular tokens.
+
+        For **client_credentials**, machine JWTs may use `userId === client_id`; the Node gateway resolves the OAuth app creator — see **OAuth Provider** tag.
+
+        '
+      flows:
+        authorizationCode:
+          authorizationUrl: /api/v1/oauth2/authorize
+          tokenUrl: /api/v1/oauth2/token
+          refreshUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:read: Read semantic search results and history
+            semantic:write: Execute semantic search
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+            crawl:delete: Delete crawling jobs
+        clientCredentials:
+          tokenUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:write: Execute semantic search
+            semantic:read: Read semantic search results and history
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+x-refined-from:
+- pipeshub-openapi.yaml
+- pipeshub-openapi.yml

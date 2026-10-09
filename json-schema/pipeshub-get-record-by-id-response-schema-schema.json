@@ -1,0 +1,740 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/pipeshub/main/json-schema/pipeshub-get-record-by-id-response-schema-schema.json",
+  "title": "GetRecordByIdResponseSchema",
+  "description": "Response returned by GET /knowledgeBase/record/{recordId}.",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/pipeshub-openapi.yml#/components/schemas/GetRecordByIdResponseSchema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "record",
+    "knowledgeBase",
+    "folder",
+    "metadata",
+    "permissions"
+  ],
+  "properties": {
+    "record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "orgId",
+        "recordName",
+        "externalRecordId",
+        "connectorId",
+        "connectorName",
+        "recordType",
+        "origin",
+        "version",
+        "createdAtTimestamp",
+        "updatedAtTimestamp",
+        "sourceCreatedAtTimestamp",
+        "sourceLastModifiedTimestamp",
+        "indexingStatus",
+        "extractionStatus",
+        "isDeleted",
+        "isArchived",
+        "isVLMOcrProcessed",
+        "mimeType",
+        "sizeInBytes",
+        "webUrl",
+        "fileRecord",
+        "mailRecord",
+        "ticketRecord"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "orgId": {
+          "type": "string"
+        },
+        "recordName": {
+          "type": "string"
+        },
+        "externalRecordId": {
+          "type": "string"
+        },
+        "externalRootGroupId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "externalGroupId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "externalParentId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "externalRevisionId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "recordGroupId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "rootRecordGroupId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Internal identifier of the top-most record group in this record's\nchain. A group with no parent is its own root, so this is null\nonly for records written before the field existed, or by\nconnectors that do not set it.\n"
+        },
+        "connectorId": {
+          "type": "string"
+        },
+        "connectorName": {
+          "$ref": "#/$defs/ConnectorNameEnum"
+        },
+        "recordType": {
+          "$ref": "#/$defs/RecordTypeEnum"
+        },
+        "origin": {
+          "type": "string"
+        },
+        "version": {
+          "type": "integer"
+        },
+        "isLatestVersion": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "createdAtTimestamp": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "updatedAtTimestamp": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "sourceCreatedAtTimestamp": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "sourceLastModifiedTimestamp": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "lastSyncTimestamp": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "int64"
+        },
+        "lastIndexTimestamp": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "lastExtractionTimestamp": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "processingStartedAt": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "int64"
+        },
+        "queuedAtTimestamp": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "int64"
+        },
+        "parsingStatus": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "indexingStatus": {
+          "type": "string"
+        },
+        "extractionStatus": {
+          "type": "string"
+        },
+        "reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "isDeleted": {
+          "type": "boolean"
+        },
+        "isArchived": {
+          "type": "boolean"
+        },
+        "deletedByUserId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "isDirty": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "isVLMOcrProcessed": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "mimeType": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "sizeInBytes": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "int64"
+        },
+        "md5Checksum": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "virtualRecordId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "summaryDocumentId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "storageDocumentId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "webUrl": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "previewRenderable": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "isShared": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "isDependentNode": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "parentNodeId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "hideWeburl": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "isInternal": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "isPlaceholder": {
+          "type": [
+            "boolean",
+            "null"
+          ],
+          "description": "True for placeholder/stub records standing in for an out-of-scope ancestor (rendered read-only, no content actions; excluded from search and indexing)."
+        },
+        "fileRecord": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "orgId",
+            "name",
+            "extension",
+            "isFile"
+          ],
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "orgId": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "extension": {
+              "type": "string"
+            },
+            "etag": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "ctag": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "md5Checksum": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "quickXorHash": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "crc32Hash": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "sha1Hash": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "sha256Hash": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "mimeType": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "sizeInBytes": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "format": "int64"
+            },
+            "isFile": {
+              "type": "boolean"
+            },
+            "webUrl": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "path": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "localFsRelativePath": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          }
+        },
+        "mailRecord": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "properties": {}
+        },
+        "ticketRecord": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "properties": {}
+        }
+      }
+    },
+    "knowledgeBase": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "orgId"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "orgId": {
+          "type": "string"
+        }
+      }
+    },
+    "folder": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "languages",
+        "topics",
+        "subcategories1",
+        "subcategories2",
+        "subcategories3",
+        "departments",
+        "categories"
+      ],
+      "properties": {
+        "languages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "topics": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "subcategories1": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "subcategories2": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "subcategories3": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "departments": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "categories": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "permissions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "type",
+          "relationship",
+          "accessType"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "relationship": {
+            "type": "string",
+            "enum": [
+              "OWNER",
+              "WRITER",
+              "READER"
+            ]
+          },
+          "accessType": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "ConnectorNameEnum": {
+      "type": "string",
+      "description": "Name of the source connector. Mirrors the values of the backend\n`Connectors` enum (`backend/python/app/config/constants/arangodb.py`);\nrecords store the enum value (e.g. Google Drive is `DRIVE`,\nSharePoint Online is `SHAREPOINT ONLINE`), not the enum member name.\n",
+      "enum": [
+        "DRIVE",
+        "DRIVE WORKSPACE",
+        "GMAIL",
+        "GMAIL WORKSPACE",
+        "CALENDAR",
+        "ONEDRIVE",
+        "SHAREPOINT ONLINE",
+        "OUTLOOK",
+        "OUTLOOK PERSONAL",
+        "OUTLOOK CALENDAR",
+        "MICROSOFT TEAMS",
+        "NOTION",
+        "NOTION PERSONAL",
+        "SLACK",
+        "SLACK WORKSPACE",
+        "KB",
+        "CONFLUENCE",
+        "CONFLUENCE DATA CENTER",
+        "CONFLUENCE DATA CENTER PERSONAL",
+        "JIRA",
+        "JIRA PERSONAL",
+        "JIRA DATA CENTER",
+        "JIRA DATA CENTER PERSONAL",
+        "BOX",
+        "NEXTCLOUD",
+        "DROPBOX",
+        "DROPBOX PERSONAL",
+        "WEB",
+        "BOOKSTACK",
+        "DRUPAL WIKI",
+        "GITHUB",
+        "GITHUB TEAMS",
+        "SERVICENOW",
+        "SALESFORCE",
+        "S3",
+        "MINIO",
+        "GCS",
+        "AZURE BLOB",
+        "AZURE FILES",
+        "LINEAR",
+        "ZAMMAD",
+        "ZOOM",
+        "GITLAB",
+        "GITLAB PERSONAL",
+        "SNOWFLAKE",
+        "POSTGRESQL",
+        "MARIADB",
+        "UNKNOWN",
+        "RSS",
+        "LOCAL_FS",
+        "CODING_SANDBOX",
+        "DATABASE_SANDBOX",
+        "IMAGE_GENERATION",
+        "ATTACHMENTS"
+      ]
+    },
+    "RecordTypeEnum": {
+      "type": "string",
+      "description": "Type of content. Mirrors the backend `RecordType` enum\n(`backend/python/app/models/entities.py`); connector-sourced records\nmay use any of the connector-specific types below.\n- FILE: Uploaded or synced documents (PDF, DOCX, etc.)\n- DRIVE: Drive/folder container (Google Drive, OneDrive, etc.)\n- WEBPAGE: Web pages crawled or bookmarked\n- DATABASE: Database object (e.g. Notion database)\n- DATASOURCE: Data source object\n- MESSAGE: Chat/messaging content (Slack, Teams)\n- MAIL: Email messages (Gmail, Outlook)\n- GROUP_MAIL: Group/shared mailbox email messages\n- TICKET: Support/issue tickets (Jira, ServiceNow)\n- COMMENT: Comments from collaboration tools\n- INLINE_COMMENT: Inline comments anchored to content (e.g. Confluence)\n- CONFLUENCE_PAGE: Confluence page\n- CONFLUENCE_BLOGPOST: Confluence blog post\n- SHAREPOINT_PAGE: SharePoint page\n- SHAREPOINT_LIST: SharePoint list\n- SHAREPOINT_LIST_ITEM: SharePoint list item\n- SHAREPOINT_DOCUMENT_LIBRARY: SharePoint document library\n- LINK: Web link / bookmark\n- PROJECT: Project entity (e.g. Jira project)\n- PULL_REQUEST: Source-control pull request\n- MEETING: Meeting record (e.g. Zoom)\n- PRODUCT: Product entity (CRM)\n- DEAL: Deal/opportunity entity (CRM)\n- CASE: Case entity (CRM/support)\n- TASK: Task entity\n- ARTIFACT: Generated/derived artifact\n- CODE_FILE: Source-code file\n- SQL_TABLE: SQL table object\n- SQL_VIEW: SQL view object\n- OTHERS: Miscellaneous content types\n",
+      "enum": [
+        "FILE",
+        "DRIVE",
+        "WEBPAGE",
+        "DATABASE",
+        "DATASOURCE",
+        "MESSAGE",
+        "MAIL",
+        "GROUP_MAIL",
+        "TICKET",
+        "COMMENT",
+        "INLINE_COMMENT",
+        "CONFLUENCE_PAGE",
+        "CONFLUENCE_BLOGPOST",
+        "SHAREPOINT_PAGE",
+        "SHAREPOINT_LIST",
+        "SHAREPOINT_LIST_ITEM",
+        "SHAREPOINT_DOCUMENT_LIBRARY",
+        "LINK",
+        "PROJECT",
+        "PULL_REQUEST",
+        "MEETING",
+        "PRODUCT",
+        "DEAL",
+        "CASE",
+        "TASK",
+        "ARTIFACT",
+        "CODE_FILE",
+        "SQL_TABLE",
+        "SQL_VIEW",
+        "OTHERS"
+      ]
+    }
+  }
+}

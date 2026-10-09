@@ -1,0 +1,1494 @@
+openapi: 3.2.0
+info:
+  title: Pipeshub User Account API
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@pipeshub.com
+  description: 'Operations tagged User Account across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: '{instance_url}/api/v1'
+  description: Base API URL
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL (without /api/v1)
+- url: '{instance_url}'
+  description: Root URL (used for MCP endpoints mounted at /mcp)
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL
+security:
+- bearerAuth: []
+- oauth2: []
+tags:
+- name: User Account
+  description: User authentication including multi-step MFA, password reset, OTP login, and token management
+paths:
+  /userAccount/initAuth:
+    post:
+      tags:
+      - User Account
+      summary: Initialize authentication session
+      description: 'Start a server-side authentication session and discover which sign-in methods are
+
+        configured for the organization. This is the first step in the multi-step login flow.
+
+
+        **Request body (optional)**
+
+
+        - You may omit the body, send an empty JSON object `{}`, or send `{ "email": "..." }`.
+
+        - `email` in the body is optional and kept for legacy reasons; omitting it does not prevent
+
+        initialization. The web client typically calls this endpoint without a body and sends
+
+        `email` on `/authenticate` instead.
+
+        - When provided, `email` is stored on the session for correlation with subsequent steps.
+
+
+        **Flow:**
+
+
+        1. Call this endpoint (optional JSON body as above).
+
+        2. Receive a session token in the `x-session-token` response header.
+
+        3. Send that token on subsequent `/authenticate` requests (`x-session-token` header).
+
+        4. Use `allowedMethods` and `authProviders` from the response to render the login UI.
+
+
+        **Session token**
+
+
+        - Returned as header `x-session-token`.
+
+        - Required for `/authenticate` (and related steps) until it expires.
+
+
+        **Multi-factor authentication**
+
+
+        If the organization has MFA, complete multiple authentication steps; each step may
+
+        return the next step''s allowed methods.'
+      operationId: initAuth
+      x-pipeshub-sdk: true
+      security: []
+      requestBody:
+        description: 'Optional. Omit entirely or send `{}`. You may include `email` for legacy compatibility (pre-fills the session); invalid `email` format is rejected when the field is present.
+
+          '
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InitAuthRequest'
+        required: false
+      responses:
+        '200':
+          description: Authentication session initialized successfully
+          headers:
+            x-session-token:
+              schema:
+                type: string
+              description: Session token for subsequent authentication requests. Store this securely.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InitAuthResponse'
+        '400':
+          description: Invalid request (e.g. malformed `email` when that property is sent)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /userAccount/authenticate:
+    post:
+      tags:
+      - User Account
+      summary: Authenticate user with credentials
+      description: 'Authenticate a user using the specified method and credentials.
+
+        Requires a valid session token from `/initAuth`.
+
+
+        **Credential Formats by Method:**
+
+
+        - `password`: `{ "credentials": { "password": "your-password" } }`
+
+        - `otp`: `{ "credentials": { "otp": "123456" } }` (6-digit code, valid for 10 minutes)
+
+        - `google`: `{ "credentials": "google-id-token-string" }`
+
+        - `microsoft`: `{ "credentials": { "accessToken": "...", "idToken": "..." } }`
+
+        - `azureAd`: `{ "credentials": { "accessToken": "...", "idToken": "..." } }`
+
+        - `oauth`: `{ "credentials": { "accessToken": "...", "idToken": "..." } }`
+
+        - `samlSso`: not accepted here; this endpoint answers `400`. SAML sign-in runs as a browser
+
+        redirect: send the browser to `/saml/signIn` instead
+
+
+        **Multi-Step Response:**
+
+
+        If organization uses MFA, successful authentication returns:
+
+        - `status: "success"` with `nextStep` and `allowedMethods` for next step
+
+
+        **Fully Authenticated Response:**
+
+
+        After completing all steps:
+
+        - `message: "Fully authenticated"` with `accessToken` (1hr) and `refreshToken` (7d)
+
+
+        **Security:**
+
+
+        - Account locks for 24 hours after 5 consecutive failed attempts, and the owner is
+
+        sent an email saying so. While it is locked, sign-in is refused with the same answer
+
+        as a wrong password or code, even when the password or code is right
+
+        - CAPTCHA may be required if enabled (pass `cf-turnstile-response`)
+
+        - An email with no account gets the same status and message as a real account given
+
+        a wrong password (`400`) or a wrong, missing or expired sign-in code (`401`)'
+      operationId: authenticate
+      x-pipeshub-sdk: true
+      security: []
+      parameters:
+      - name: x-session-token
+        in: header
+        required: true
+        description: Session token received from `/initAuth` endpoint
+        schema:
+          type: string
+      requestBody:
+        description: Request payload
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthenticateRequest'
+        required: true
+      responses:
+        '200':
+          description: Authentication step successful or fully authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticateResponse'
+        '400':
+          description: Invalid request, method not allowed, invalid credential format, `samlSso` sent here instead of `/saml/signIn`, or wrong or missing password. A wrong password, an email with no account and a locked account all get the same message
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Wrong, missing or expired sign-in code (the same message for an email with no account and for a locked account), CAPTCHA refused, or the identity provider rejected the sign-in
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Sign-in session expired or missing; start again with `/initAuth`
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /userAccount/login/otp/generate:
+    post:
+      tags:
+      - User Account
+      summary: Request a sign-in code (OTP) for login
+      description: 'Ask for a 6-digit one-time password (OTP) to be emailed, for use with the `otp`
+
+        method on `/authenticate`. If that email can sign in with a code, one is sent;
+
+        the answer is the same either way (see **Account privacy** below).
+
+
+        **OTP Details:**
+
+
+        - 6 digits numeric code
+
+        - Valid for **10 minutes** after generation
+
+        - Sent only to the email of an existing account that isn''t locked
+
+
+        **Rate Limiting:**
+
+
+        - Multiple OTP requests may be rate-limited
+
+        - Wait for the current OTP to expire before requesting a new one
+
+
+        **CAPTCHA:**
+
+
+        If Cloudflare Turnstile is enabled, include `cf-turnstile-response` in the request body.
+
+
+        **Account privacy:**
+
+
+        The answer is the same `200` and message whether or not the email has an account,
+
+        and also when the account is locked or the email could not be sent. A code is only
+
+        sent when the account exists and isn''t locked. Failures to send are logged on the
+
+        server.
+
+
+        **Success response body**
+
+
+        - `200` returns a **plain string**: `If that email can sign in with a code, one is being sent. ...`
+
+        - The answer doesn''t wait for the email to go out, and a failed send is only
+
+        logged on the server'
+      operationId: generateLoginOtp
+      security: []
+      requestBody:
+        description: Request payload
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OtpGenerateRequest'
+        required: true
+      responses:
+        '200':
+          description: Request accepted. If that email can sign in with a code (an existing account that isn't locked), one is being sent. The answer is the same either way, and doesn't say whether the email was delivered.
+          content:
+            text/html:
+              schema:
+                $ref: '#/components/schemas/LoginOtpGenerateResponse'
+        '400':
+          description: Invalid request or malformed email
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: The account lookup failed on the server (the same for every email)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /userAccount/password/forgot:
+    post:
+      tags:
+      - User Account
+      summary: Request password reset email
+      description: 'Send a password reset link to the user''s email.
+
+        The link contains a time-limited token that can be used to reset the password.
+
+
+        **Note:** To prevent account enumeration, this endpoint always returns
+
+        200 with the same generic message regardless of whether the supplied
+
+        email is registered. If the account exists a reset link is sent;
+
+        otherwise the request is silently ignored. Internal lookup or mail
+
+        delivery failures are logged server-side and do not change the response.'
+      operationId: forgotPassword
+      security: []
+      requestBody:
+        description: Request body for Request password reset email
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForgotPasswordRequest'
+        required: true
+      responses:
+        '200':
+          description: Request accepted. Same response is returned whether the email is registered or not.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataStringResponse'
+        '400':
+          description: Missing or invalid email in the request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: CAPTCHA verification failed (when Turnstile is configured)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /userAccount/password/reset/token:
+    post:
+      tags:
+      - User Account
+      summary: Reset password with email token
+      description: 'Reset password using a token received via email from the forgot password flow.
+
+
+        **Password Requirements:**
+
+
+        - Minimum 8 characters
+
+        - At least 1 uppercase letter
+
+        - At least 1 lowercase letter
+
+        - At least 1 number
+
+        - At least 1 special character (#?!@$%^&*-)
+
+
+        **Security Notes:**
+
+
+        - Token is single-use and expires after a set time
+
+        - Response body contains a confirmation string in `data`'
+      operationId: resetPasswordWithToken
+      security:
+      - scopedToken: []
+      requestBody:
+        description: Request payload
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenPasswordResetRequest'
+        required: true
+      responses:
+        '200':
+          description: Password reset successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataStringResponse'
+        '400':
+          description: Invalid request or password doesn't meet requirements
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Missing, invalid or expired password reset token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /userAccount/validateEmailChange:
+    put:
+      tags:
+      - User Account
+      summary: Validate email change token
+      description: 'Validate a token for changing the user''s email address.
+
+        This is used in the email change flow to verify the token before allowing the change.
+
+
+        **Flow:**
+
+
+        1. User requests email change and receives a token via email
+
+        2. This endpoint validates the token and returns success if valid
+
+        3. If valid, user can proceed to change their email address'
+      operationId: validateEmailChangeToken
+      security:
+      - scopedToken: []
+      responses:
+        '200':
+          description: Email change token is valid and email is updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidateEmailChangeResponse'
+        '400':
+          description: New email address is already in use by another account
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 'Missing, expired, invalid-scope, or already-consumed token
+
+            (link was previously used to complete an email change)
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /userAccount/refresh/token:
+    post:
+      tags:
+      - User Account
+      summary: Refresh access token
+      description: 'Get a new access token using a valid refresh token.
+
+
+        **Usage:**
+
+
+        - Pass the refresh token as a Bearer token in the Authorization header
+
+        - Returns a new access token and basic user information
+
+
+        **Token Lifetimes:**
+
+
+        - Access token: 24 hours (configurable via `ACCESS_TOKEN_EXPIRY` environment variable)
+
+        - Refresh token: 30 days (configurable via `REFRESH_TOKEN_EXPIRY` environment variable)
+
+
+        **Best Practices:**
+
+
+        - Call this endpoint before the access token expires
+
+        - Store the new access token and continue using it for authenticated requests
+
+        - If refresh fails with 401, redirect user to login flow'
+      operationId: refreshToken
+      x-pipeshub-sdk: true
+      security:
+      - scopedToken: []
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshTokenResponse'
+        '400':
+          description: Disabled user account
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Invalid or expired refresh token - user must re-authenticate
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: User not found (account may have been deleted), User credentials not found, or Organization not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /userAccount/logout/manual:
+    post:
+      tags:
+      - User Account
+      summary: Logout current session
+      description: 'Log out the current user session.
+
+
+        **Effects:**
+
+
+        - Records a logout activity entry for the user
+
+        - Client should clear stored tokens locally after calling this endpoint
+
+
+        **Note:** This endpoint requires the access token, not the refresh token.'
+      operationId: logout
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Logged out successfully (empty response body)
+        '401':
+          description: Unauthorized - invalid or expired access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Auth container not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /userAccount/password/reset:
+    post:
+      tags:
+      - User Account
+      summary: Reset password
+      description: 'Reset the password for the currently authenticated user.
+
+
+        **Overview:**
+
+
+        Allows a logged-in user to change their password by providing the current password and a new password.'
+      operationId: resetPassword
+      x-pipeshub-sdk: true
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        description: Request payload
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+              - currentPassword
+              - newPassword
+              properties:
+                currentPassword:
+                  type: string
+                  format: password
+                newPassword:
+                  type: string
+                  format: password
+                cf-turnstile-response:
+                  type: string
+                  description: Cloudflare Turnstile CAPTCHA token (required when Turnstile is configured server-side)
+      responses:
+        '200':
+          description: Password reset successfully - returns new access token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthenticatedPasswordResetResponse'
+        '400':
+          description: 'Bad request. Possible causes:
+
+            - `currentPassword` or `newPassword` missing from request body
+
+            - Current and new password are the same (plain-text comparison)
+
+            - New password does not meet strength requirements (min 8 chars, uppercase, lowercase, number, special character)
+
+            - Old and new password are the same (hash comparison against stored password)
+
+            - Account is blocked due to too many incorrect login attempts
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 'Unauthorized. Possible causes:
+
+            - Invalid or expired access token
+
+            - Current password is incorrect
+
+            - Invalid CAPTCHA verification (when Turnstile is configured)
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 'Not found. Possible causes:
+
+            - Auth container not found
+
+            - User credentials not found (no password set for account)
+
+            - User not found in IAM service
+
+            - Organization not found
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+components:
+  schemas:
+    OAuthCredentials:
+      type: object
+      additionalProperties: false
+      description: Credentials for OAuth authentication (Microsoft, Azure AD, generic OAuth)
+      properties:
+        accessToken:
+          type: string
+          description: OAuth access token
+        idToken:
+          type: string
+          description: OAuth ID token (JWT)
+      required:
+      - accessToken
+    AuthenticateResponse:
+      oneOf:
+      - $ref: '#/components/schemas/AuthenticateMultiStepResponse'
+      - $ref: '#/components/schemas/AuthenticateFinalResponse'
+      description: 'Either the next step in a multi-factor flow (`status`, `nextStep`, `allowedMethods`, `authProviders`)
+
+        or final tokens (`message`, `accessToken`, `refreshToken`).
+
+        '
+    OtpGenerateRequest:
+      type: object
+      additionalProperties: false
+      description: Request for a sign-in code (OTP); a code is sent only if that email can sign in with one
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email address to send OTP to
+        cf-turnstile-response:
+          type: string
+          description: Cloudflare Turnstile CAPTCHA token (optional)
+      required:
+      - email
+    AuthenticatedPasswordResetResponse:
+      type: object
+      additionalProperties: false
+      description: Response after authenticated user changes password (new access token issued)
+      properties:
+        data:
+          type: string
+          example: password reset
+        accessToken:
+          type: string
+          description: New JWT access token after password change
+      required:
+      - data
+      - accessToken
+    DataStringResponse:
+      type: object
+      additionalProperties: false
+      description: Generic success payload with a single string field (e.g. password reset email, token reset)
+      properties:
+        data:
+          type: string
+      required:
+      - data
+    InitAuthResponse:
+      type: object
+      additionalProperties: false
+      description: Response containing available authentication methods and session info
+      properties:
+        currentStep:
+          type: integer
+          description: Current authentication step (0-indexed). Always 0 for initial response.
+          example: 0
+        allowedMethods:
+          type: array
+          items:
+            type: string
+            enum:
+            - samlSso
+            - otp
+            - password
+            - google
+            - microsoft
+            - azureAd
+            - oauth
+          description: List of allowed authentication methods for the current step
+          example:
+          - password
+          - google
+          - otp
+        message:
+          type: string
+          description: Response message
+          example: Authentication initialized
+        authProviders:
+          $ref: '#/components/schemas/AuthProviders'
+        jitEnabled:
+          type: boolean
+          description: True when at least one allowed external provider has JIT provisioning enabled
+      required:
+      - currentStep
+      - allowedMethods
+      - message
+      - authProviders
+      - jitEnabled
+    ValidateEmailChangeResponse:
+      type: object
+      additionalProperties: false
+      description: Response after validating an email change token
+      properties:
+        message:
+          type: string
+          example: Email updated successfully
+      required:
+      - message
+    RefreshTokenResponse:
+      type: object
+      additionalProperties: false
+      description: Response with new access token
+      properties:
+        user:
+          $ref: '#/components/schemas/RefreshTokenUser'
+        accessToken:
+          type: string
+          description: New JWT access token (24 hour default expiry, configurable via ACCESS_TOKEN_EXPIRY)
+      required:
+      - user
+      - accessToken
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      description: 'Standard error envelope returned by all errors routed through `ErrorMiddleware`.
+
+        Applies to all `BaseError` subclasses including `HttpError`, `ValidationError`, and others.
+
+        The `code` field is a machine-readable string identifying the error type (e.g.
+
+        `HTTP_UNAUTHORIZED`, `HTTP_NOT_FOUND`, `VALIDATION_ERROR`, `INTERNAL_ERROR`).
+
+        '
+      properties:
+        error:
+          type: object
+          additionalProperties: false
+          required:
+          - code
+          - message
+          properties:
+            requestId:
+              type: string
+              description: 'Identifier for this request, echoed so a bug report can quote it.
+
+                Absent when the request never reached the middleware that assigns one.
+
+                '
+            code:
+              type: string
+              description: 'Machine-readable error code. For application errors it takes the form `HTTP_<VARIANT>`
+
+                For unhandled runtime errors (e.g. database unavailable) it is `INTERNAL_ERROR`.
+
+                '
+              example: HTTP_BAD_REQUEST
+            message:
+              type: string
+              description: Human-readable description of the error
+              example: Admin access required
+            metadata:
+              type: object
+              description: Additional context (only present in development environments)
+              additionalProperties: true
+      required:
+      - error
+    AuthProviderAzureAdPublicConfig:
+      type: object
+      additionalProperties: false
+      description: Public Azure AD OAuth settings returned to clients
+      properties:
+        tenantId:
+          type: string
+          description: Azure AD tenant ID
+        clientId:
+          type: string
+          description: Azure AD client ID
+        enableJit:
+          type: boolean
+          description: Whether just-in-time user provisioning is enabled for Azure AD
+    AuthenticateFinalResponse:
+      type: object
+      additionalProperties: false
+      description: All authentication steps complete; JWT tokens returned
+      properties:
+        message:
+          type: string
+          description: Success message
+          example: Fully authenticated
+        accessToken:
+          type: string
+          description: JWT access token (1 hour expiry)
+        refreshToken:
+          type: string
+          description: JWT refresh token (7 days expiry)
+      required:
+      - message
+      - accessToken
+      - refreshToken
+    AuthProviderGooglePublicConfig:
+      type: object
+      additionalProperties: false
+      description: Public Google OAuth settings returned to clients
+      properties:
+        clientId:
+          type: string
+          description: Google OAuth client ID
+        enableJit:
+          type: boolean
+          description: Whether just-in-time user provisioning is enabled for Google
+    RefreshTokenUser:
+      type: object
+      additionalProperties: false
+      description: User record returned with a refreshed access token
+      properties:
+        _id:
+          type: string
+          description: User ID
+        orgId:
+          type: string
+          description: Organization ID
+        email:
+          type: string
+          format: email
+        fullName:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        middleName:
+          type: string
+        mobile:
+          type: string
+          description: Mobile number (10-15 digits with optional +)
+          pattern: ^$|^\+?[0-9]{10,15}$
+        designation:
+          type: string
+        kind:
+          type: string
+          enum:
+          - human
+          - service
+          description: 'Whether this account is a person who signs in (`human`) or a
+
+            machine identity that automation authenticates as (`service`).
+
+            Absent on records written before service accounts existed, which
+
+            are all human.
+
+            '
+        description:
+          type: string
+          description: Free text explaining what a service account is for. Unused for people.
+        isDisabled:
+          type: boolean
+          default: false
+          description: 'The account is suspended: its tokens stop working and no session
+
+            can be issued, but the record, its group memberships and its
+
+            permission-graph node survive so it can be switched back on.
+
+            '
+        restoreOpId:
+          type: string
+          description: 'Internal and transient. Present only while a deleted service
+
+            account is being brought back, and cleared when that finishes
+
+            either way. It lets the steps that complete or undo a restore tell
+
+            their own attempt from a later one. Not something to depend on.
+
+            '
+        role:
+          type: string
+          enum:
+          - admin
+          - member
+          description: Organization role stored on the user document (`admin` or `member`)
+        address:
+          $ref: '#/components/schemas/Address'
+        dataCollectionConsent:
+          type: boolean
+          description: Whether user has consented to data collection
+        hasLoggedIn:
+          type: boolean
+        isDeleted:
+          type: boolean
+        deletedBy:
+          type: string
+          description: ID of user who deleted this user
+        profilePicture:
+          type:
+          - string
+          - 'null'
+          description: Base64-encoded data URI of the user's display picture
+        slug:
+          type: string
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+        __v:
+          type: integer
+      required:
+      - _id
+      - orgId
+      - email
+      - fullName
+      - hasLoggedIn
+      - isDeleted
+      - slug
+      - createdAt
+      - updatedAt
+      - __v
+    TokenPasswordResetRequest:
+      type: object
+      additionalProperties: false
+      description: Request to reset password using email token
+      properties:
+        password:
+          type: string
+          format: password
+          description: 'New password (must meet password requirements)
+
+            '
+          minLength: 8
+      required:
+      - password
+    AuthProviderMicrosoftPublicConfig:
+      type: object
+      additionalProperties: false
+      description: Public Microsoft OAuth settings returned to clients
+      properties:
+        tenantId:
+          type: string
+          description: Microsoft tenant ID
+        clientId:
+          type: string
+          description: Microsoft OAuth client ID
+        enableJit:
+          type: boolean
+          description: Whether just-in-time user provisioning is enabled for Microsoft
+    InitAuthRequest:
+      type: object
+      additionalProperties: false
+      description: 'Optional JSON body for `/userAccount/initAuth`. Valid shapes include: omitting the body entirely, sending `{}` (empty object), or `{ "email": "<address>" }`. Neither the body nor `email` is required. When `email` is omitted or empty, the session is still created and `allowedMethods` / `authProviders` are returned as usual; clients typically supply `email` later on `/userAccount/authenticate`. The `email` property remains supported mainly for legacy clients and backward compatibility.
+
+        '
+      properties:
+        email:
+          type: string
+          format: email
+          description: 'Optional; retained for legacy reasons. When set, stored on the auth session for correlation with later `/authenticate` calls (RFC 5321 compliant address).
+
+            '
+          example: user@example.com
+    AuthProviderOAuthPublicConfig:
+      type: object
+      additionalProperties: false
+      description: Public generic OAuth provider settings returned to clients
+      properties:
+        providerName:
+          type: string
+          description: Custom OAuth provider display name
+        clientId:
+          type: string
+          description: OAuth client ID
+        tokenEndpoint:
+          type: string
+          description: OAuth token endpoint URL
+        authorizationUrl:
+          type: string
+          description: OAuth authorization URL
+        clientSecret:
+          type: string
+          description: Client secret (omitted when stripped for public responses)
+        userInfoEndpoint:
+          type: string
+          description: UserInfo endpoint URL
+        scope:
+          type: string
+          description: Default OAuth scopes
+        enableJit:
+          type: boolean
+          description: Whether just-in-time user provisioning is enabled for this provider
+      required:
+      - providerName
+      - clientId
+      - tokenEndpoint
+      - authorizationUrl
+    AuthenticateRequest:
+      type: object
+      additionalProperties: false
+      description: 'Request to authenticate using specified method.
+
+        **Credential format varies by method:**
+
+        - `password`: `{ password: "string" }`
+
+        - `otp`: `{ otp: "123456" }` (6-digit code)
+
+        - `google`: `"google-id-token-string"`
+
+        - `microsoft`: `{ accessToken: "...", idToken: "..." }`
+
+        - `azureAd`: `{ accessToken: "...", idToken: "..." }`
+
+        - `oauth`: `{ accessToken: "...", idToken: "..." }`
+
+        - `samlSso`: not accepted by `/userAccount/authenticate`, which answers `400`. SAML sign-in runs as a browser redirect: send the browser to `/saml/signIn` instead
+
+        '
+      properties:
+        method:
+          type: string
+          enum:
+          - samlSso
+          - otp
+          - password
+          - google
+          - microsoft
+          - azureAd
+          - oauth
+          description: Authentication method to use
+        credentials:
+          oneOf:
+          - $ref: '#/components/schemas/PasswordCredentials'
+          - $ref: '#/components/schemas/OtpCredentials'
+          - $ref: '#/components/schemas/OAuthCredentials'
+          - type: string
+            description: Google ID token (for google method)
+          description: Credentials based on the authentication method
+        email:
+          type: string
+          format: email
+          description: Optional email for verification (used with some OAuth methods)
+        cf-turnstile-response:
+          type: string
+          description: Cloudflare Turnstile CAPTCHA token (optional, if CAPTCHA is enabled)
+      required:
+      - method
+      - credentials
+    ForgotPasswordRequest:
+      type: object
+      additionalProperties: false
+      description: Request to send password reset email
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email address to send reset link to
+        cf-turnstile-response:
+          type: string
+          description: Cloudflare Turnstile CAPTCHA token (optional)
+      required:
+      - email
+    AuthenticateMultiStepResponse:
+      type: object
+      additionalProperties: false
+      description: Current authentication step succeeded; additional MFA steps remain
+      properties:
+        status:
+          type: string
+          enum:
+          - success
+          description: Step completion status
+        nextStep:
+          type: integer
+          description: Next authentication step index
+        allowedMethods:
+          type: array
+          items:
+            type: string
+          description: Allowed method types for the next step
+        authProviders:
+          $ref: '#/components/schemas/AuthProviders'
+      required:
+      - status
+      - nextStep
+      - allowedMethods
+      - authProviders
+    Address:
+      type: object
+      additionalProperties: false
+      properties:
+        _id:
+          type: string
+          format: ObjectId
+          description: Optional address document id
+        addressLine1:
+          type: string
+          description: Address line 1
+        city:
+          type: string
+          description: City
+        state:
+          type: string
+          description: State/Province
+        postCode:
+          type: string
+          description: Postal/ZIP code
+        country:
+          type: string
+          description: Country
+    AuthProviders:
+      type: object
+      additionalProperties: false
+      description: Configuration for external authentication providers (returned when those methods are allowed)
+      properties:
+        google:
+          $ref: '#/components/schemas/AuthProviderGooglePublicConfig'
+        microsoft:
+          $ref: '#/components/schemas/AuthProviderMicrosoftPublicConfig'
+        azuread:
+          $ref: '#/components/schemas/AuthProviderAzureAdPublicConfig'
+        oauth:
+          $ref: '#/components/schemas/AuthProviderOAuthPublicConfig'
+        saml:
+          type: object
+          description: Present when SAML SSO is an allowed method; may be an empty object
+          additionalProperties: true
+    OtpCredentials:
+      type: object
+      additionalProperties: false
+      description: Credentials for OTP authentication
+      properties:
+        otp:
+          type: string
+          description: 6-digit one-time password
+          pattern: ^\d{6}$
+          example: '123456'
+      required:
+      - otp
+    PasswordCredentials:
+      type: object
+      additionalProperties: false
+      description: Credentials for password authentication
+      properties:
+        password:
+          type: string
+          description: User password
+          format: password
+      required:
+      - password
+    LoginOtpGenerateResponse:
+      type: string
+      description: 'Plain-text response body, identical whether or not the email has an account, and
+
+        worded so it doesn''t claim a code was delivered:
+
+        ``If that email can sign in with a code, one is being sent. It works for 10 minutes. If nothing arrives, check your spam folder or try again later.``
+
+        '
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'JWT Bearer token for authenticated requests.
+
+
+        A personal access token (see the **Personal Access Tokens** tag) is a
+
+        `phpat_`-prefixed variant of this same JWT — e.g. `phpat_eyJhbGci...`.
+
+        The prefix is display-only, added for secret-scanner detectability; the
+
+        gateway strips it before verifying the token, so send it exactly as
+
+        issued, prefix included.
+
+        '
+    scopedToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Scoped JWT token for service-to-service authentication.
+
+        Format: "Bearer {scoped_token}"
+
+        Required scopes vary by endpoint.
+
+        '
+    oauth2:
+      type: oauth2
+      description: 'OAuth 2.0 authentication with fine-grained scopes.
+
+        Supports authorization_code (with PKCE) and client_credentials flows.
+
+        OAuth tokens are Bearer JWTs — use the same Authorization header as regular tokens.
+
+        For **client_credentials**, machine JWTs may use `userId === client_id`; the Node gateway resolves the OAuth app creator — see **OAuth Provider** tag.
+
+        '
+      flows:
+        authorizationCode:
+          authorizationUrl: /api/v1/oauth2/authorize
+          tokenUrl: /api/v1/oauth2/token
+          refreshUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:read: Read semantic search results and history
+            semantic:write: Execute semantic search
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+            crawl:delete: Delete crawling jobs
+        clientCredentials:
+          tokenUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:write: Execute semantic search
+            semantic:read: Read semantic search results and history
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+x-refined-from:
+- pipeshub-openapi.yaml
+- pipeshub-openapi.yml

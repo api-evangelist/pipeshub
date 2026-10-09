@@ -1,0 +1,462 @@
+openapi: 3.2.0
+info:
+  title: Pipeshub Connector OAuth API
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@pipeshub.com
+  description: 'Operations tagged Connector OAuth across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: '{instance_url}/api/v1'
+  description: Base API URL
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL (without /api/v1)
+- url: '{instance_url}'
+  description: Root URL (used for MCP endpoints mounted at /mcp)
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL
+security:
+- bearerAuth: []
+- oauth2: []
+tags:
+- name: Connector OAuth
+  description: OAuth 2.0 authorization flow for connectors requiring user consent
+paths:
+  /connectors/{connectorId}/oauth/authorize:
+    get:
+      tags:
+      - Connector OAuth
+      summary: Get OAuth authorization URL
+      description: 'Generate an OAuth authorization URL to start the OAuth flow.
+
+
+        Flow:
+
+
+        Call this endpoint to get the authorization URL
+
+
+        Redirect user''s browser to the URL
+
+
+        User authenticates with the provider
+
+
+        Provider redirects to callback with authorization code
+
+
+        Callback exchanges code for tokens automatically
+
+
+        State Parameter:
+
+
+        The response includes a state value that encodes the
+
+        connector ID. This is validated in the callback.'
+      operationId: getOAuthAuthorizationUrl
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - connector:read
+      parameters:
+      - name: connectorId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: baseUrl
+        in: query
+        description: Base URL for self-hosted instances
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Authorization URL generated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  authorizationUrl:
+                    type: string
+                    description: Redirect user to this URL
+                  state:
+                    type: string
+                    description: State parameter for validation
+        '400':
+          description: Connector doesn't support OAuth
+        '401':
+          description: Unauthorized
+        '404':
+          description: Connector not found
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /connectors/oauth/callback:
+    get:
+      tags:
+      - Connector OAuth
+      summary: OAuth callback handler
+      description: 'Handle the OAuth callback from the identity provider.
+
+
+        Note:
+
+
+        This endpoint is called by the OAuth provider after user authentication.
+
+        The state parameter contains the encoded connector ID.
+
+
+        Success:
+
+
+        On success, tokens are stored and the connector becomes authenticated.
+
+        User is redirected to the frontend success page.
+
+
+        Error:
+
+
+        If the provider returns an error (e.g., user denied access),
+
+        user is redirected with error information.'
+      operationId: handleOAuthCallback
+      security: []
+      parameters:
+      - name: code
+        in: query
+        description: Authorization code from provider
+        schema:
+          type: string
+      - name: state
+        in: query
+        description: State parameter (contains connector ID)
+        schema:
+          type: string
+      - name: error
+        in: query
+        description: Error code if authorization failed
+        schema:
+          type: string
+      - name: baseUrl
+        in: query
+        description: Base URL for redirect
+        schema:
+          type: string
+      responses:
+        '302':
+          description: Redirect to frontend with result
+          headers:
+            Location:
+              description: Frontend URL with success/error params
+              schema:
+                type: string
+        '400':
+          description: Invalid or missing state parameter
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /connectors/getTokenFromCode:
+    post:
+      tags:
+      - Connector OAuth
+      summary: Exchange Google authorization code for tokens
+      deprecated: true
+      description: '⚠️ Deprecated: Legacy Google Workspace token exchange endpoint. Use the generic
+
+        OAuth flow via /connectors/{connectorId}/oauth/authorize instead.
+
+
+        Overview:
+
+
+        Exchanges a Google OAuth authorization code for access and refresh tokens,
+
+        stores the credentials, and enables the Google Workspace connector.
+
+
+        What Happens:
+
+
+        Retrieves Google Workspace OAuth config (client ID/secret)
+
+
+        Exchanges the authorization code for tokens via Google''s token endpoint
+
+
+        Verifies the ID token
+
+
+        Stores access and refresh tokens in configuration manager
+
+
+        Creates or enables the Google Workspace connector
+
+
+        Publishes an AppEnabledEvent for the sync service
+
+
+        Admin Only:
+
+
+        Requires organization admin privileges.'
+      operationId: getTokenFromCode
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - connector:write
+      requestBody:
+        required: true
+        description: Google OAuth authorization code received from the consent flow.
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - tempCode
+              properties:
+                tempCode:
+                  type: string
+                  description: Google OAuth authorization code received from the consent flow
+      responses:
+        '200':
+          description: Existing connector enabled successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Connector is now enabled
+                  connector:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                      orgId:
+                        type: string
+                      name:
+                        type: string
+                      isEnabled:
+                        type: boolean
+                      lastUpdatedBy:
+                        type: string
+                      createdAt:
+                        type: string
+                        format: date-time
+                      updatedAt:
+                        type: string
+                        format: date-time
+        '201':
+          description: New connector created and enabled
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Connector google_workspace created and enabled
+                  connector:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                      orgId:
+                        type: string
+                      name:
+                        type: string
+                      isEnabled:
+                        type: boolean
+                      lastUpdatedBy:
+                        type: string
+                      createdAt:
+                        type: string
+                        format: date-time
+                      updatedAt:
+                        type: string
+                        format: date-time
+        '400':
+          description: Error exchanging authorization code
+        '401':
+          description: Unauthorized
+        '404':
+          description: Google Workspace configuration missing (client ID or secret)
+        '500':
+          description: Internal server error
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'JWT Bearer token for authenticated requests.
+
+
+        A personal access token (see the **Personal Access Tokens** tag) is a
+
+        `phpat_`-prefixed variant of this same JWT — e.g. `phpat_eyJhbGci...`.
+
+        The prefix is display-only, added for secret-scanner detectability; the
+
+        gateway strips it before verifying the token, so send it exactly as
+
+        issued, prefix included.
+
+        '
+    scopedToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Scoped JWT token for service-to-service authentication.
+
+        Format: "Bearer {scoped_token}"
+
+        Required scopes vary by endpoint.
+
+        '
+    oauth2:
+      type: oauth2
+      description: 'OAuth 2.0 authentication with fine-grained scopes.
+
+        Supports authorization_code (with PKCE) and client_credentials flows.
+
+        OAuth tokens are Bearer JWTs — use the same Authorization header as regular tokens.
+
+        For **client_credentials**, machine JWTs may use `userId === client_id`; the Node gateway resolves the OAuth app creator — see **OAuth Provider** tag.
+
+        '
+      flows:
+        authorizationCode:
+          authorizationUrl: /api/v1/oauth2/authorize
+          tokenUrl: /api/v1/oauth2/token
+          refreshUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:read: Read semantic search results and history
+            semantic:write: Execute semantic search
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+            crawl:delete: Delete crawling jobs
+        clientCredentials:
+          tokenUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:write: Execute semantic search
+            semantic:read: Read semantic search results and history
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+x-refined-from:
+- pipeshub-openapi.yaml
+- pipeshub-openapi.yml

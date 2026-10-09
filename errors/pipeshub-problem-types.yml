@@ -1,0 +1,114 @@
+generated: '2026-10-09'
+method: derived
+generator: derive-problem-types.py
+source:
+- openapi/pipeshub-openapi.yml
+format: custom
+envelope:
+  media_type: application/json
+  schema: ErrorResponse
+coverage:
+  operations: 381
+  statuses_declared: 15
+problems:
+- status: 400
+  title: Bad Request
+  description: 'Invalid request. Possible reasons:'
+  operations: 215
+  media_types:
+  - application/json
+  schema: ErrorResponse
+- status: 401
+  title: Unauthorized
+  description: Unauthorized
+  operations: 366
+  media_types:
+  - application/json
+  schema: ErrorResponse
+- status: 403
+  title: Forbidden
+  description: Skills are disabled for this organization
+  operations: 182
+  media_types:
+  - application/json
+  schema: ErrorResponse
+- status: 404
+  title: Not Found
+  description: 'Not found. Possible reasons:'
+  operations: 222
+  media_types:
+  - application/json
+  schema: ErrorResponse
+- status: 405
+  title: Method Not Allowed
+  description: Method Not Allowed (stateless mode does not support SSE streaming)
+  operations: 1
+  media_types: []
+  schema: null
+- status: 409
+  title: Conflict
+  description: A skill with this name already exists, or the name is reserved for a builtin pack
+  operations: 19
+  media_types:
+  - application/json
+  schema: ErrorResponse
+- status: 413
+  title: Content Too Large
+  description: The request is larger than the selected model accepts.
+  operations: 8
+  media_types:
+  - application/json
+  schema: ErrorResponse
+- status: 422
+  title: Unprocessable Content
+  description: The model provider's content filter blocked the request.
+  operations: 4
+  media_types: []
+  schema: null
+- status: 424
+  title: Failed Dependency
+  description: No usable LLM — none is configured for the organization, or the
+  operations: 4
+  media_types:
+  - application/json
+  schema: ErrorResponse
+- status: 429
+  title: Too Many Requests
+  description: Rate limit exceeded
+  operations: 33
+  media_types:
+  - application/json
+  schema: OAuthClientManagementRateLimitError
+- status: 500
+  title: Internal Server Error
+  description: Internal server error
+  operations: 125
+  media_types:
+  - application/json
+  schema: ErrorResponse
+- status: 502
+  title: Bad Gateway
+  description: Upstream provider failure (message is intentionally generic; see server logs for details).
+  operations: 3
+  media_types: []
+  schema: null
+- status: 503
+  title: Service Unavailable
+  description: Connector service unavailable or connection refused
+  operations: 30
+  media_types:
+  - application/json
+  schema: ErrorResponse
+- status: 504
+  title: Gateway Timeout
+  description: The upstream AI search service timed out before returning a
+  operations: 1
+  media_types: []
+  schema: null
+- status: default
+  title: null
+  description: Other status codes are forwarded from the query service (e.g. 404) with an **empty** response body
+    from this route.
+  operations: 2
+  media_types: []
+  schema: null

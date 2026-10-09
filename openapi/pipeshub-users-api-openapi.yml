@@ -1,0 +1,3038 @@
+openapi: 3.2.0
+info:
+  title: Pipeshub Users API
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@pipeshub.com
+  description: 'Operations tagged Users across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: '{instance_url}/api/v1'
+  description: Base API URL
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL (without /api/v1)
+- url: '{instance_url}'
+  description: Root URL (used for MCP endpoints mounted at /mcp)
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL
+security:
+- bearerAuth: []
+- oauth2: []
+tags:
+- name: Users
+  description: User management operations
+paths:
+  /users/health:
+    get:
+      tags:
+      - Users
+      summary: Users module health check
+      description: Returns the health status of the users module. No authentication required.
+      operationId: getUsersHealth
+      security: []
+      responses:
+        '200':
+          description: Service healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                - status
+                - timestamp
+                properties:
+                  status:
+                    type: string
+                    enum:
+                    - healthy
+                  timestamp:
+                    type: string
+                    format: date-time
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /users:
+    get:
+      tags:
+      - Users
+      summary: Get all users
+      description: 'Retrieve users in the organization. Behavior depends on query parameters:
+
+
+        **Default / paginated mode**: Returns enriched user objects with profile pictures, group
+
+        memberships, and blocked status, wrapped in a `{ users, pagination }` envelope. Defaults
+
+        to `page=1, limit=25` when no pagination params are supplied.
+
+
+        **Blocked users mode** (when `blocked=true`): Returns an array of blocked users with
+
+        basic profile fields only (no pagination envelope).
+
+
+        Deleted users are always excluded. Requires `user:read` OAuth scope.'
+      operationId: getAllUsers
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - user:read
+      parameters:
+      - name: page
+        in: query
+        required: false
+        description: Page number (1-based). Defaults to 1 when omitted.
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+      - name: limit
+        in: query
+        required: false
+        description: Number of users per page. Defaults to 25, capped at 100.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 25
+      - name: search
+        in: query
+        required: false
+        description: Search users by name or email (case-insensitive regex).
+        schema:
+          type: string
+      - name: hasLoggedIn
+        in: query
+        required: false
+        description: Filter by login status (`true` or `false`).
+        schema:
+          type: boolean
+      - name: isBlocked
+        in: query
+        required: false
+        description: Filter by blocked status (`true` or `false`).
+        schema:
+          type: boolean
+      - name: groupIds
+        in: query
+        required: false
+        description: Comma-separated group IDs to filter users by group membership.
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Users retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                - users
+                - pagination
+                properties:
+                  users:
+                    type: array
+                    items:
+                      type: object
+                      additionalProperties: false
+                      required:
+                      - id
+                      - userId
+                      - isActive
+                      - hasLoggedIn
+                      - isBlocked
+                      - role
+                      - groupCount
+                      - userGroups
+                      properties:
+                        id:
+                          type: string
+                          format: ObjectId
+                        userId:
+                          type: string
+                          format: ObjectId
+                        orgId:
+                          type: string
+                          format: ObjectId
+                        name:
+                          type: string
+                          description: User's fullName (may be absent if not set)
+                        email:
+                          type: string
+                          format: email
+                        isActive:
+                          type: boolean
+                          description: '`true` only when not blocked AND `hasLoggedIn: true`'
+                        hasLoggedIn:
+                          type: boolean
+                        isBlocked:
+                          type: boolean
+                        createdAtTimestamp:
+                          type: integer
+                          description: Epoch milliseconds of `createdAt` (absent if field is null)
+                        updatedAtTimestamp:
+                          type: integer
+                          description: Epoch milliseconds of `updatedAt` (absent if field is null)
+                        profilePicture:
+                          type: string
+                          description: Base64 data URI (`data:image/jpeg;base64,...`). Absent when no picture uploaded.
+                        role:
+                          type: string
+                          enum:
+                          - Admin
+                          - Member
+                        groupCount:
+                          type: integer
+                          description: Number of groups the user belongs to, excluding the `everyone` group
+                        userGroups:
+                          type: array
+                          items:
+                            type: object
+                            additionalProperties: false
+                            required:
+                            - _id
+                            - name
+                            - type
+                            properties:
+                              _id:
+                                type: string
+                                format: ObjectId
+                              name:
+                                type: string
+                              type:
+                                type: string
+                                enum:
+                                - admin
+                                - standard
+                                - everyone
+                                - custom
+                  pagination:
+                    $ref: '#/components/schemas/PaginationMetadata'
+        '401':
+          description: Unauthorized - Valid bearer token required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    post:
+      tags:
+      - Users
+      summary: Create a new user
+      description: 'Create a new user account in the organization.
+
+
+        **Validation rules** (enforced by Zod — extra fields are stripped):
+
+
+        - `fullName`: Required, non-empty string
+
+        - `email`: Required, valid email format
+
+        - `role`: Optional, `admin` or `member` (defaults to `member` when omitted)
+
+        - `mobile`: Optional, must match `^\+?[0-9]{10,15}$`
+
+        - `designation`: Optional string
+
+        - `password`: Optional starting password, accepted only for the bundled
+
+        demo personas. The address must end in `@acme-demo.example`, and the
+
+        password must be at least 8 characters with an uppercase letter, a
+
+        lowercase letter, a number and a special character, and at most 72
+
+        bytes (bcrypt ignores anything past that). Invite real users instead,
+
+        so they choose their own password.
+
+
+        **Side effects:**
+
+
+        - User is automatically added to the "everyone" group via `$addToSet`
+
+        - When `password` is given, the bcrypt hash is written to the user''s
+
+        `UserCredentials` record, so the account can sign in straight away
+
+        - A `NewUserEvent` is published to the event bus
+
+
+        **Authorization:** Admin privileges required (`userAdminCheck` middleware).'
+      operationId: createUser
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - user:invite
+      requestBody:
+        required: true
+        description: Request payload
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+              - fullName
+              - email
+              properties:
+                fullName:
+                  type: string
+                  minLength: 1
+                  description: User's full display name
+                  example: John Smith
+                email:
+                  type: string
+                  format: email
+                  description: User's email address
+                  example: john.smith@company.com
+                role:
+                  type: string
+                  enum:
+                  - admin
+                  - member
+                  description: Organization role to assign on create
+                  example: member
+                mobile:
+                  type: string
+                  pattern: ^$|^\+?[0-9]{10,15}$
+                  description: Mobile phone number with optional country code
+                  example: '+15551234567'
+                designation:
+                  type: string
+                  description: Job title or designation
+                  example: Software Engineer
+                password:
+                  type: string
+                  minLength: 8
+                  description: 'Starting password for a bundled demo persona. Only accepted when
+
+                    `email` ends in `@acme-demo.example`. At least 8 characters with an
+
+                    uppercase letter, a lowercase letter, a number and a special
+
+                    character, and at most 72 bytes.
+
+                    '
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: 'Invalid request. Possible reasons:
+
+
+            - Missing required fields (`fullName`, `email`)
+
+            - Invalid email format
+
+            - Invalid role (must be `admin` or `member` when provided)
+
+            - Invalid mobile number format
+
+            - `password` given for an address outside `@acme-demo.example`
+
+            - `password` fails the complexity rules or is longer than 72 bytes
+
+            - Requester does not have admin privileges (`userAdminCheck`)
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Valid bearer token required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Account not found - `userId` or `orgId` missing from token (`userAdminCheck`)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error (DB save failure or event publish failure)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /users/{id}:
+    get:
+      tags:
+      - Users
+      summary: Get user by ID
+      description: 'Retrieve a specific user''s profile by their MongoDB ObjectId.
+
+
+        The `id` path parameter is validated as a 24-character hex string. If the organization
+
+        or user does not exist (checked by `userExists` middleware), a `404` is returned before
+
+        the controller runs.
+
+
+        The email field may be omitted from the response if the `HIDE_EMAIL` environment variable
+
+        is set to `true`.'
+      operationId: getUserById
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - user:read
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: User ID (24-character MongoDB ObjectId)
+        schema:
+          type: string
+          pattern: ^[a-fA-F0-9]{24}$
+          example: 507f1f77bcf86cd799439011
+      responses:
+        '200':
+          description: User details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: Invalid user ID format (Zod validation)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Valid bearer token required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Organization or user not found (`userExists` middleware)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+      - Users
+      summary: Update user
+      description: 'Update user profile fields. The Zod schema uses `.strict()` mode, so any unknown
+
+        fields in the request body cause a `400` validation error.
+
+
+        **Updatable fields:** `fullName`, `firstName`, `lastName`, `middleName`, `email`,
+
+        `designation`, `mobile`, `address`, `dataCollectionConsent`, `hasLoggedIn`.
+
+
+        Restricted system fields (`_id`, `orgId`, `slug`, `__v`) cannot be updated and
+
+        cause a `400` if included.
+
+
+        **Email change:** Only the account owner can change its email address. Anyone
+
+        else, including an admin, gets `403` when `email` differs from the stored address
+
+        (compared lowercased and trimmed). Sending the stored address back is not a change
+
+        and succeeds with `meta.emailChangeMailStatus: notNeeded`. The stored
+
+        address does not change here: a verification link is sent to the new address,
+
+        and the change is applied when that link is opened (`PUT /userAccount/validateEmailChange`),
+
+        which also publishes `UpdateUserEvent` with the new address. The response
+
+        includes `meta.emailChangeMailStatus`: `notNeeded` | `sent` | `failed`.
+
+
+        **Role:** Only org admins can set `role`. Promoting a member to `admin` is rejected
+
+        with `400` when the change would exceed 5 non-deleted admins (including pending
+
+        admin invites). Demoting the last remaining admin is also rejected.
+
+
+        **Authorization:** Admin can update any user''s other fields; non-admin can only update
+
+        themselves (`userAdminOrSelfCheck` middleware, throws `400` not `403`). The email rule
+
+        above applies to admins too.'
+      operationId: updateUser
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - user:write
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: User ID (24-character MongoDB ObjectId)
+        schema:
+          type: string
+          pattern: ^[a-fA-F0-9]{24}$
+          example: 507f1f77bcf86cd799439011
+      requestBody:
+        required: true
+        description: Request payload
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                fullName:
+                  type: string
+                  minLength: 1
+                  description: Full display name
+                  example: John Smith
+                firstName:
+                  type: string
+                  description: First name only
+                  example: John
+                lastName:
+                  type: string
+                  description: Last name only
+                  example: Smith
+                middleName:
+                  type: string
+                  description: Middle name
+                  example: Alan
+                email:
+                  type: string
+                  format: email
+                  description: Email address (triggers verification email to new address)
+                  example: john.smith@company.com
+                mobile:
+                  type: string
+                  pattern: ^$|^\+?[0-9]{10,15}$
+                  description: Mobile phone with optional country code
+                  example: '+15551234567'
+                designation:
+                  type: string
+                  description: Job title or role
+                  example: Senior Software Engineer
+                role:
+                  type: string
+                  enum:
+                  - admin
+                  - member
+                  description: Organization role (`admin` or `member`). Only admins can change roles.
+                  example: member
+                address:
+                  $ref: '#/components/schemas/Address'
+                dataCollectionConsent:
+                  type: boolean
+                  description: User's data collection consent flag
+                hasLoggedIn:
+                  type: boolean
+                  description: Whether user has completed first login
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpdateUserResponse'
+        '400':
+          description: 'Invalid request. Possible reasons:
+
+
+            - Unknown fields in request body (Zod strict mode)
+
+            - Invalid email format or mobile format
+
+            - No valid fields provided for update
+
+            - Restricted fields (`_id`, `orgId`, `slug`, `__v`) included
+
+            - Email already in use by another user
+
+            - Requester is not admin and is trying to update a different user
+
+            - Promoting to admin would exceed the organization limit of 5 admins
+
+            - Demoting the last remaining admin
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 'Only the account owner can change its email address: the request''s `email`
+
+            differs from the stored address and the caller isn''t that user. Checked after
+
+            the user is loaded, so a missing id is `404`; a caller who is neither an admin
+
+            nor that user is refused earlier with `400` by the admin-or-self check.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Valid bearer token required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 'Not found. Possible reasons:
+
+
+            - `userId` or `orgId` missing from token (`userAdminOrSelfCheck`)
+
+            - Organization or user not found (`userExists`)
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error (DB save or event publish failure)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+      - Users
+      summary: Delete user
+      description: 'Soft-delete a user from the organization. Sets `isDeleted: true` and `hasLoggedIn: false`,
+
+        removes the user from all user groups, clears the hashed password, and publishes a
+
+        `DeleteUserEvent`.
+
+
+        **Restrictions:**
+
+
+        - Cannot delete a user who is in the `admin` group — demote them first
+
+        - The `userAdminCheck` middleware enforces that only org admins can call this endpoint
+
+
+        **Note:** There is no recovery mechanism via API — a deleted user can be re-invited via
+
+        `POST /users/bulk/invite`, which restores the account.'
+      operationId: deleteUser
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - user:delete
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: User ID (24-character MongoDB ObjectId)
+        schema:
+          type: string
+          pattern: ^[a-fA-F0-9]{24}$
+          example: 507f1f77bcf86cd799439011
+      responses:
+        '200':
+          description: User soft-deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                - message
+                properties:
+                  message:
+                    type: string
+                    example: User deleted successfully
+        '400':
+          description: 'Invalid request. Possible reasons:
+
+
+            - Invalid user ID format (Zod validation)
+
+            - Requester does not have admin privileges (`userAdminCheck`)
+
+            - Target user is in the admin group and cannot be deleted directly
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Valid bearer token required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 'Not found. Possible reasons:
+
+
+            - `userId` or `orgId` missing from token (`userAdminCheck`)
+
+            - Organization or user not found (`userExists`)
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /users/{id}/email:
+    get:
+      tags:
+      - Users
+      summary: Get user email by ID
+      description: 'Retrieve the email address for a specific user. Requires admin privileges.
+
+
+        The `id` path parameter is validated as a 24-character hex string. The `userAdminCheck`
+
+        middleware runs before `userExists`, so missing token context returns `404` before the
+
+        admin check can throw `400`.
+
+
+        Returns `{ email }` for the matched user.'
+      operationId: getUserEmailById
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - user:read
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: User ID (24-character MongoDB ObjectId)
+        schema:
+          type: string
+          pattern: ^[a-fA-F0-9]{24}$
+          example: 507f1f77bcf86cd799439011
+      responses:
+        '200':
+          description: User email retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                - email
+                properties:
+                  email:
+                    type: string
+                    format: email
+                    example: john.smith@company.com
+        '400':
+          description: 'Invalid request. Possible reasons:
+
+
+            - Invalid user ID format (Zod validation)
+
+            - Requester does not have admin privileges (`userAdminCheck`)
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Valid bearer token required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 'Not found. Possible reasons:
+
+
+            - `userId` or `orgId` missing from token (`userAdminCheck`)
+
+            - Organization or user not found (`userExists`)
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    patch:
+      tags:
+      - Users
+      summary: Request an email address change
+      description: 'Start changing the caller''s own email address. The stored address does not change
+
+        here: the new address is checked for uniqueness within the organization, and a
+
+        verification link is sent to it. The change is applied when that link is opened
+
+        (`PUT /userAccount/validateEmailChange`), which also publishes `UpdateUserEvent`
+
+        with the new address. If the link cannot be sent, the response is `500`.
+
+
+        **Authorization:** An admin or the account owner may call it, but only the owner
+
+        can change the address. An unchanged address (compared lowercased and trimmed)
+
+        returns `200` with `emailChangeMailStatus: notNeeded` for either; a different
+
+        address from anyone but the owner is `403`, checked after the user is loaded.'
+      operationId: updateEmail
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - user:write
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: User ID (24-character MongoDB ObjectId)
+        schema:
+          type: string
+          pattern: ^[a-fA-F0-9]{24}$
+      requestBody:
+        required: true
+        description: Request payload
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+              - email
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        '200':
+          description: 'Verification requested, or nothing to do. `email` is the address still stored;
+
+            `emailChangeMailStatus` is `sent` when a link went to the new address, or
+
+            `notNeeded` when it matches the current one.
+
+            '
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                - email
+                - emailChangeMailStatus
+                properties:
+                  email:
+                    type: string
+                    format: email
+                    example: john.smith@company.com
+                  emailChangeMailStatus:
+                    type: string
+                    enum:
+                    - sent
+                    - notNeeded
+        '400':
+          description: 'Invalid request. Possible reasons:
+
+
+            - Invalid user ID format or invalid email format (Zod)
+
+            - Email already in use by another user in the organization
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 'Only the account owner can change its email address: the request''s `email`
+
+            differs from the stored address and the caller isn''t that user. Checked after
+
+            the user is loaded, so a missing id is `404`; a caller who is neither an admin
+
+            nor that user is refused earlier with `400` by the admin-or-self check.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Valid bearer token required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 'Not found. Possible reasons:
+
+
+            - `userId` or `orgId` missing from token (`userAdminOrSelfCheck`)
+
+            - Organization or user not found (`userExists`)
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /users/dp:
+    put:
+      tags:
+      - Users
+      summary: Upload display picture
+      description: 'Upload or replace the display picture for the authenticated user.
+
+
+        **File requirements** (enforced by `FileProcessorFactory` middleware):
+
+
+        - **Field name:** `file`
+
+        - **Allowed types:** PNG, JPEG, JPG, WebP, GIF
+
+        - **Maximum size:** 1 MB (1,048,576 bytes)
+
+
+        The image is compressed to JPEG by `sharp`. If the compressed image still exceeds 100 KB
+
+        after quality reduction, a `413` is returned.
+
+
+        The response is the compressed binary JPEG data (`Content-Type: image/jpeg`), not JSON.
+
+        The record is upserted in `UserDisplayPicture`.'
+      operationId: uploadUserDisplayPicture
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - user:write
+      requestBody:
+        required: true
+        description: Request payload
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+              - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Image file (PNG, JPEG, WebP, or GIF, max 1 MB)
+      responses:
+        '201':
+          description: Display picture uploaded and compressed successfully — binary JPEG returned
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: 'Invalid request. Possible reasons:
+
+
+            - No file uploaded
+
+            - File type not allowed (must be PNG, JPEG, JPG, WebP, or GIF)
+
+            - File exceeds 1 MB limit
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Valid bearer token required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '413':
+          description: Compressed image exceeds 100 KB after quality reduction
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error (DB upsert or image processing failure)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      tags:
+      - Users
+      summary: Get display picture
+      description: 'Retrieve the authenticated user''s display picture.
+
+
+        **When a display picture exists:** returns the raw binary image buffer with the stored
+
+        `Content-Type` header (typically `image/jpeg`).
+
+
+        **When no display picture is set:** returns `200` with a JSON body
+
+        `{ "errorMessage": "User pic not found" }` — not a `404`.'
+      operationId: getUserDisplayPicture
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - user:read
+      responses:
+        '200':
+          description: 'Response varies:
+
+            - If picture exists: binary image data with appropriate `Content-Type`
+
+            - If no picture: `{ "errorMessage": "User pic not found" }`
+
+            '
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+            image/png:
+              schema:
+                type: string
+                format: binary
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                - errorMessage
+                properties:
+                  errorMessage:
+                    type: string
+                    example: User pic not found
+        '401':
+          description: Unauthorized - Valid bearer token required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+      - Users
+      summary: Remove display picture
+      description: 'Remove the authenticated user''s display picture by setting `pic` and `mimeType` to `null`
+
+        in the `UserDisplayPicture` document.
+
+
+        **When no display picture exists:** returns `200` with
+
+        `{ "errorMessage": "User display picture not found" }` — not a `404`.
+
+
+        **When a display picture exists:** nullifies the fields and returns the updated
+
+        `UserDisplayPicture` document.'
+      operationId: removeUserDisplayPicture
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - user:write
+      responses:
+        '200':
+          description: 'Response varies:
+
+            - If picture existed: the updated `UserDisplayPicture` document (with `pic: null`)
+
+            - If no picture: `{ "errorMessage": "User display picture not found" }`
+
+            '
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        '401':
+          description: Unauthorized - Valid bearer token required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /users/bulk/invite:
+    post:
+      tags:
+      - Users
+      summary: Bulk invite users
+      description: 'Invite multiple users to the organization by email. Handles three cases per email:
+
+
+        1. **New emails** — creates a `Users` document, publishes `NewUserEvent`, and sends an
+
+        invitation email.
+
+        2. **Previously deleted accounts** — restores the account (`isDeleted: false`) and sends a
+
+        re-invite email.
+
+        3. **Active accounts with `hasLoggedIn: false`** (pending, not blocked) — resends the
+
+        invitation email.
+
+        4. **Active accounts already logged in** — silently skipped; no error.
+
+
+        Optional `groupIds` adds new/restored users to the specified groups via `$addToSet`.
+
+
+        **Middleware chain:**
+
+
+        - `smtpConfigCheck` — verifies SMTP host/port/fromEmail are configured; throws `404` if
+
+        missing fields, `500` if config fetch fails.
+
+        - `userAdminCheck` — requires admin privileges; throws `400` if not admin, `404` if token
+
+        context is missing.
+
+        - `accountTypeCheck` — rejects `individual` account type; throws `400`.
+
+
+        If all provided emails already have active accounts, returns `200` with
+
+        `{ "errorMessage": "All provided emails already have active accounts" }`.
+
+
+        If mail sending fails for any email, the loop continues and the final response reflects
+
+        the mail service''s HTTP status code.
+
+
+        Optional `role` (`admin` | `member`, default `member`) is applied to new invites and
+
+        to restored/pending users when promoting to admin. Inviting as `admin` is rejected
+
+        with `400` when the batch would take the organization past 5 non-deleted admins.'
+      operationId: bulkInviteUsers
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - user:invite
+      requestBody:
+        required: true
+        description: Request payload
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+              - emails
+              properties:
+                emails:
+                  type: array
+                  items:
+                    type: string
+                    format: email
+                  minItems: 1
+                  description: Array of email addresses to invite
+                  example:
+                  - user1@company.com
+                  - user2@company.com
+                groupIds:
+                  type: array
+                  items:
+                    type: string
+                    pattern: ^[a-fA-F0-9]{24}$
+                  description: Optional group IDs to add invited users to
+                  example:
+                  - 507f1f77bcf86cd799439011
+                role:
+                  type: string
+                  enum:
+                  - admin
+                  - member
+                  description: Organization role for invited users. Only org admins may invite as admin.
+                  example: member
+      responses:
+        '200':
+          description: Invitations processed (including all-skipped case)
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  message:
+                    type: string
+                    example: Invite sent successfully
+                  errorMessage:
+                    type: string
+                    description: Present when all emails were already active
+                    example: All provided emails already have active accounts
+        '400':
+          description: 'Invalid request. Possible reasons:
+
+
+            - Missing or empty `emails` field
+
+            - Invalid email format in array
+
+            - Requester does not have admin privileges (`userAdminCheck`)
+
+            - Organization is an individual account (`accountTypeCheck`)
+
+            - Inviting as admin would exceed the organization limit of 5 admins
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Valid bearer token required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 'Not found. Possible reasons:
+
+
+            - SMTP configuration missing host, port, or fromEmail (`smtpConfigCheck`)
+
+            - `userId` or `orgId` missing from token (`userAdminCheck`)
+
+            - Organization not found (`accountTypeCheck`)
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 'Internal server error. Possible reasons:
+
+
+            - SMTP config fetch failed (`smtpConfigCheck`)
+
+            - Auth methods fetch failed
+
+            - User ID missing during invite processing
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /users/bulk/invite/upload:
+    post:
+      tags:
+      - Users
+      summary: Bulk invite users from a CSV/Excel file
+      description: 'Upload a CSV or Excel (`.csv`, `.xlsx`, `.xls`) file of email addresses and invite them in
+
+        bulk. The file is parsed server-side; every cell containing `@` is treated as a candidate
+
+        email, then normalized (trimmed, lower-cased, BOM-stripped) and de-duplicated.
+
+
+        The file is validated on the request thread — an empty/unreadable file, a file with no
+
+        emails, or more than 1000 addresses is rejected with `400` before any processing. Otherwise
+
+        the endpoint responds `202 Accepted` immediately and performs the invites in a background
+
+        task, so the request never blocks.
+
+
+        Invalid email addresses are skipped (not rejected); valid ones follow the same
+
+        new/restored/pending logic as `POST /users/bulk/invite`. When the batch finishes, a
+
+        notification is sent to the uploading admin summarizing the result
+
+        (invited / re-invited / restored / already-members / invalid / failed-to-email).
+
+
+        Optional `groupIds` (a JSON-encoded array of 24-hex-character ObjectIds) adds new/restored
+
+        users to the specified groups. Same middleware chain as `POST /users/bulk/invite`
+
+        (`smtpConfigCheck`, `userAdminCheck`, `accountTypeCheck`).'
+      operationId: bulkInviteUsersFromFile
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - user:invite
+      requestBody:
+        required: true
+        description: Multipart form with the file and optional group IDs
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: CSV or Excel file (max 5 MB, up to 1000 emails)
+                groupIds:
+                  type: string
+                  description: JSON-encoded array of group ObjectIds to add invited users to
+                  example: '["507f1f77bcf86cd799439011"]'
+      responses:
+        '202':
+          description: File accepted; invites are processed in the background
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  message:
+                    type: string
+                    example: Import started. You will be notified when it finishes.
+        '400':
+          description: 'Invalid request. Possible reasons:
+
+
+            - No file uploaded, or an unsupported/unreadable file
+
+            - No email addresses found in the file
+
+            - More than 1000 addresses
+
+            - `groupIds` contains an invalid ObjectId
+
+            - Requester is not an admin (`userAdminCheck`), or individual account (`accountTypeCheck`)
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Valid bearer token required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 'Not found. Possible reasons:
+
+
+            - SMTP configuration missing host, port, or fromEmail (`smtpConfigCheck`)
+
+            - `userId` or `orgId` missing from token (`userAdminCheck`)
+
+            - Organization not found (`accountTypeCheck`)
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /users/{id}/resend-invite:
+    post:
+      tags:
+      - Users
+      summary: Resend user invite
+      description: 'Resend the invitation email to a pending user who has not yet completed account setup
+
+        (`hasLoggedIn: false`).
+
+
+        **Middleware chain:**
+
+
+        - `smtpConfigCheck` — verifies SMTP is configured; throws `404` if fields missing,
+
+        `500` if config fetch fails.
+
+        - `userAdminCheck` — admin only; throws `400` if not admin, `404` if token context missing.
+
+        - `accountTypeCheck` — rejects individual account type; throws `400`.
+
+
+        **Controller behavior:**
+
+
+        - Throws `400` if `id` param is missing.
+
+        - Throws `401` if `req.user` is missing.
+
+        - Throws `401` (`UnauthorizedError`) if the target user is not found in the DB.
+
+        - Throws `400` if the user has already logged in (`hasLoggedIn: true`).
+
+        - Throws `500` if auth methods fetch or email sending fails.
+
+
+        Returns `{ message: ''Invite sent successfully'' }` on success.'
+      operationId: resendUserInvite
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - user:invite
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: User ID of the user to resend invitation to
+        schema:
+          type: string
+          pattern: ^[a-fA-F0-9]{24}$
+          example: 507f1f77bcf86cd799439011
+      responses:
+        '200':
+          description: Invitation resent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                - message
+                properties:
+                  message:
+                    type: string
+                    example: Invite sent successfully
+        '400':
+          description: 'Invalid request. Possible reasons:
+
+
+            - Invalid user ID format (Zod)
+
+            - User has already logged in (`hasLoggedIn: true`)
+
+            - Requester does not have admin privileges (`userAdminCheck`)
+
+            - Organization is an individual account (`accountTypeCheck`)
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: 'Unauthorized. Possible reasons:
+
+
+            - Missing or invalid bearer token
+
+            - Target user not found in DB (controller throws `UnauthorizedError`)
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 'Not found. Possible reasons:
+
+
+            - SMTP configuration missing fields (`smtpConfigCheck`)
+
+            - `userId` or `orgId` missing from token (`userAdminCheck`)
+
+            - Organization not found (`accountTypeCheck`)
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 'Internal server error. Possible reasons:
+
+
+            - SMTP config fetch failed
+
+            - Auth methods fetch failed
+
+            - Email sending failed
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /users/graph/list:
+    get:
+      tags:
+      - Users
+      summary: List users (paginated, enriched)
+      description: 'Retrieve a paginated list of users by proxying to the connector backend
+
+        (`/api/v1/entity/user/list`). The response from the connector is then enriched locally
+
+        with profile pictures, `hasLoggedIn` flags, group memberships, and role.
+
+
+        Only `page`, `limit`, and `search` are forwarded to the connector.
+
+
+        **Query validation** (Zod at route layer): `page` and `limit` must be positive integer
+
+        strings when provided; `limit` is capped at 100. The `search` parameter is additionally
+
+        validated in the controller for XSS, format specifiers, and a 1000-character maximum.
+
+
+        Returns the connector''s response object directly (including any `users` and `pagination`
+
+        fields it provides), with each user entry enriched.'
+      operationId: listUsersGraph
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - user:read
+      parameters:
+      - name: page
+        in: query
+        required: false
+        description: Page number (1-based). Must be a positive integer string when provided.
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+      - name: limit
+        in: query
+        required: false
+        description: Number of results per page. Must be a positive integer string no greater than 100 when provided.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 10
+      - name: search
+        in: query
+        required: false
+        description: Search query (max 1000 characters at controller layer, XSS-validated)
+        schema:
+          type: string
+          maxLength: 1000
+          example: john
+      responses:
+        '200':
+          description: Paginated list of enriched users from the connector backend
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                description: Connector-defined response shape with users enriched locally
+        '400':
+          description: 'Invalid request. Possible reasons:
+
+
+            - Invalid `page` or `limit` query parameters (Zod validation — non-numeric, negative, or limit > 100)
+
+            - `orgId` or `userId` missing from token
+
+            - Search parameter too long or contains XSS/format specifiers
+
+            - Connector returned a non-200 status
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Valid bearer token required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /users/{id}/unblock:
+    put:
+      tags:
+      - Users
+      summary: Unblock a user in organization
+      description: 'Unblock a previously blocked user. Sets `isBlocked: false` and resets
+
+        `wrongCredentialCount` to `0` on the user''s `UserCredentials` document.
+
+
+        If the `UserCredentials` record is not found (user not blocked or doesn''t exist in this
+
+        org), the controller throws a `BadRequestError` — returns `400`, not `404`.
+
+
+        **Path validation:** `id` must be a 24-character hex MongoDB ObjectId (Zod at route layer).
+
+
+        **Authorization:** `userAdminCheck` middleware — throws `400` if requester is not admin,
+
+        `404` if `userId`/`orgId` are missing from the token.'
+      operationId: unblockUser
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - user:write
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: User ID to unblock
+        schema:
+          type: string
+          pattern: ^[a-fA-F0-9]{24}$
+          example: 507f1f77bcf86cd799439011
+      responses:
+        '200':
+          description: User unblocked successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                - message
+                properties:
+                  message:
+                    type: string
+                    example: User unblocked successfully
+        '400':
+          description: 'Invalid request. Possible reasons:
+
+
+            - Invalid user ID format in path (Zod validation)
+
+            - `userId` or `orgId` missing from request context (controller check)
+
+            - Requester does not have admin privileges (`userAdminCheck`)
+
+            - User not found or not currently blocked
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Valid bearer token required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: '`userId` or `orgId` missing from token (`userAdminCheck`)'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /users/fetch/with-groups:
+    get:
+      tags:
+      - Users
+      summary: Get all users with groups
+      description: 'Retrieve all non-deleted users in the organization along with their group memberships,
+
+        using a MongoDB aggregation pipeline.
+
+
+        Returns an array where each element contains: `_id`, `userId`, `orgId`, `fullName`,
+
+        `hasLoggedIn`, and `groups` (array of `{ name, type }` objects for non-deleted groups
+
+        in the same org).
+
+
+        Accessible by any authenticated user with `user:read` scope — no admin check.'
+      operationId: getAllUsersWithGroups
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - user:read
+      responses:
+        '200':
+          description: Users with group data retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: false
+                  properties:
+                    _id:
+                      type: string
+                      format: ObjectId
+                    userId:
+                      type: string
+                    orgId:
+                      type: string
+                      format: ObjectId
+                    fullName:
+                      type: string
+                    hasLoggedIn:
+                      type: boolean
+                    groups:
+                      type: array
+                      items:
+                        type: object
+                        additionalProperties: false
+                        required:
+                        - name
+                        - type
+                        properties:
+                          name:
+                            type: string
+                          type:
+                            type: string
+                            enum:
+                            - admin
+                            - standard
+                            - everyone
+                            - custom
+        '401':
+          description: Unauthorized - Valid bearer token required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /users/by-ids:
+    post:
+      tags:
+      - Users
+      summary: Get users by IDs
+      description: 'Retrieve multiple users by their MongoDB ObjectIds in a single request.
+
+
+        The request body field is `userIds` (not `ids`). The Zod schema validates each entry
+
+        as a 24-character hex string and requires at least one ID.
+
+
+        Returns a raw array of `User` documents for matching, non-deleted users within the
+
+        requester''s organization.'
+      operationId: getUsersByIds
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - user:read
+      requestBody:
+        required: true
+        description: Request payload
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+              - userIds
+              properties:
+                userIds:
+                  type: array
+                  items:
+                    type: string
+                    pattern: ^[a-fA-F0-9]{24}$
+                  minItems: 1
+                  description: Array of MongoDB ObjectId strings
+                  example:
+                  - 507f1f77bcf86cd799439011
+                  - 507f1f77bcf86cd799439012
+      responses:
+        '200':
+          description: Users retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '400':
+          description: 'Invalid request. Possible reasons:
+
+
+            - Missing `userIds` field
+
+            - `userIds` is empty (minItems: 1)
+
+            - Any ID is not a valid 24-character hex string
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Valid bearer token required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /users/{id}/fullname:
+    patch:
+      tags:
+      - Users
+      summary: Update user full name
+      description: 'Update the `fullName` field of a specific user. The value must be at least 1 character.
+
+
+        A `UpdateUserEvent` is published to the event bus on success.
+
+
+        **Authorization:** Admin or the user themselves (`userAdminOrSelfCheck` — throws `400`
+
+        not `403`).'
+      operationId: updateFullName
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - user:write
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: User ID (24-character MongoDB ObjectId)
+        schema:
+          type: string
+          pattern: ^[a-fA-F0-9]{24}$
+      requestBody:
+        required: true
+        description: Request payload
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+              - fullName
+              properties:
+                fullName:
+                  type: string
+                  minLength: 1
+      responses:
+        '200':
+          description: Full name updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: 'Invalid request. Possible reasons:
+
+
+            - Missing or empty `fullName` (Zod)
+
+            - Invalid user ID format (Zod)
+
+            - Requester is not admin and is not the target user (`userAdminOrSelfCheck`)
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Valid bearer token required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 'Not found. Possible reasons:
+
+
+            - `userId` or `orgId` missing from token (`userAdminOrSelfCheck`)
+
+            - Organization or user not found (`userExists`)
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /users/{id}/firstName:
+    patch:
+      tags:
+      - Users
+      summary: Update user first name
+      description: 'Update the `firstName` field of a specific user. The value must be at least 1 character.
+
+
+        A `UpdateUserEvent` is published to the event bus on success.
+
+
+        **Authorization:** Admin or the user themselves (`userAdminOrSelfCheck` — throws `400`
+
+        not `403`).'
+      operationId: updateFirstName
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - user:write
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: User ID (24-character MongoDB ObjectId)
+        schema:
+          type: string
+          pattern: ^[a-fA-F0-9]{24}$
+      requestBody:
+        required: true
+        description: Request payload
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+              - firstName
+              properties:
+                firstName:
+                  type: string
+                  minLength: 1
+      responses:
+        '200':
+          description: First name updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: 'Invalid request. Possible reasons:
+
+
+            - Missing or empty `firstName` (Zod)
+
+            - Invalid user ID format (Zod)
+
+            - Requester is not admin and is not the target user (`userAdminOrSelfCheck`)
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Valid bearer token required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 'Not found. Possible reasons:
+
+
+            - `userId` or `orgId` missing from token (`userAdminOrSelfCheck`)
+
+            - Organization or user not found (`userExists`)
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /users/{id}/lastName:
+    patch:
+      tags:
+      - Users
+      summary: Update user last name
+      description: 'Update the `lastName` field of a specific user. The value must be at least 1 character.
+
+
+        A `UpdateUserEvent` is published to the event bus on success.
+
+
+        **Authorization:** Admin or the user themselves (`userAdminOrSelfCheck` — throws `400`
+
+        not `403`).'
+      operationId: updateLastName
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - user:write
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: User ID (24-character MongoDB ObjectId)
+        schema:
+          type: string
+          pattern: ^[a-fA-F0-9]{24}$
+      requestBody:
+        required: true
+        description: Request payload
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+              - lastName
+              properties:
+                lastName:
+                  type: string
+                  minLength: 1
+      responses:
+        '200':
+          description: Last name updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: 'Invalid request. Possible reasons:
+
+
+            - Missing or empty `lastName` (Zod)
+
+            - Invalid user ID format (Zod)
+
+            - Requester is not admin and is not the target user (`userAdminOrSelfCheck`)
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Valid bearer token required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 'Not found. Possible reasons:
+
+
+            - `userId` or `orgId` missing from token (`userAdminOrSelfCheck`)
+
+            - Organization or user not found (`userExists`)
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /users/{id}/designation:
+    patch:
+      tags:
+      - Users
+      summary: Update user designation
+      description: 'Update the `designation` (job title) field of a specific user. The value must be at
+
+        least 1 character.
+
+
+        A `UpdateUserEvent` is published to the event bus on success.
+
+
+        **Authorization:** Admin or the user themselves (`userAdminOrSelfCheck` — throws `400`
+
+        not `403`).'
+      operationId: updateDesignation
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - user:write
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: User ID (24-character MongoDB ObjectId)
+        schema:
+          type: string
+          pattern: ^[a-fA-F0-9]{24}$
+      requestBody:
+        required: true
+        description: Request payload
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required:
+              - designation
+              properties:
+                designation:
+                  type: string
+                  minLength: 1
+      responses:
+        '200':
+          description: Designation updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: 'Invalid request. Possible reasons:
+
+
+            - Missing or empty `designation` (Zod)
+
+            - Invalid user ID format (Zod)
+
+            - Requester is not admin and is not the target user (`userAdminOrSelfCheck`)
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Valid bearer token required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 'Not found. Possible reasons:
+
+
+            - `userId` or `orgId` missing from token (`userAdminOrSelfCheck`)
+
+            - Organization or user not found (`userExists`)
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /users/{id}/adminCheck:
+    get:
+      tags:
+      - Users
+      summary: Check if requester is admin
+      description: 'Checks whether the **authenticated requester** has admin privileges in their organization.
+
+        The `{id}` path parameter is validated for ObjectId format but is not used to look up a
+
+        user — the check is performed on `req.user` (the token bearer), not on the target ID.
+
+
+        Returns `200` if the requester is an admin. Returns `400` if not (from `userAdminCheck`
+
+        which throws `BadRequestError`, not `ForbiddenError`).'
+      operationId: adminCheck
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - user:read
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: User ID (validated for ObjectId format only; not checked against DB)
+        schema:
+          type: string
+          pattern: ^[a-fA-F0-9]{24}$
+      responses:
+        '200':
+          description: Requester has admin access
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                - message
+                properties:
+                  message:
+                    type: string
+                    example: User has admin access
+        '400':
+          description: 'Invalid request. Possible reasons:
+
+
+            - Invalid user ID format (Zod)
+
+            - Requester does not have admin privileges (`userAdminCheck`)
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Valid bearer token required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: '`userId` or `orgId` missing from token (`userAdminCheck`)'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /users/me/role:
+    get:
+      tags:
+      - Users
+      summary: Get the requester's role
+      description: 'Returns the **authenticated requester''s** current role in their organization, read
+
+        live from the user record. Only the bearer''s own role is disclosed, so no OAuth scope
+
+        is required.
+
+
+        Returns `401` when the credentials are no longer valid — an expired or revoked
+
+        OAuth/PAT token, an invalidated session, or a user that no longer exists. Internal
+
+        services rely on this to stop accepting such tokens.'
+      operationId: getMyRole
+      security:
+      - bearerAuth: []
+      - oauth2: []
+      responses:
+        '200':
+          description: The requester's role
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                - role
+                properties:
+                  role:
+                    type: string
+                    enum:
+                    - admin
+                    - member
+        '401':
+          description: Unauthorized - token missing, invalid, expired or revoked, or the user no longer exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+components:
+  schemas:
+    PaginationMetadata:
+      type: object
+      additionalProperties: false
+      description: 'Generic pagination block emitted by `buildPaginationMetadata` (utils.ts).
+
+        `totalPages` is `Math.ceil(totalCount / limit)`; an empty result yields
+
+        `totalPages: 0`, not `1`.
+
+        '
+      required:
+      - page
+      - limit
+      - totalCount
+      - totalPages
+      - hasNextPage
+      - hasPrevPage
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        totalCount:
+          type: integer
+        totalPages:
+          type: integer
+        hasNextPage:
+          type: boolean
+        hasPrevPage:
+          type: boolean
+    User:
+      type: object
+      additionalProperties: false
+      description: User account in an organization
+      properties:
+        _id:
+          type: string
+          format: ObjectId
+          description: Unique user identifier (MongoDB ObjectId)
+        slug:
+          type: string
+          description: Unique slug for the user
+        orgId:
+          type: string
+          format: ObjectId
+          description: Organization ID the user belongs to
+        fullName:
+          type: string
+          description: Full name of the user
+          minLength: 1
+        firstName:
+          type: string
+          description: First name
+        lastName:
+          type: string
+          description: Last name
+        middleName:
+          type: string
+          description: Middle name
+        email:
+          type: string
+          format: email
+          description: Email address (unique, lowercase)
+        mobile:
+          type: string
+          description: Mobile number (10-15 digits with optional +)
+          pattern: ^$|^\+?[0-9]{10,15}$
+        hasLoggedIn:
+          type: boolean
+          description: Whether user has logged in at least once
+          default: false
+        designation:
+          type: string
+          description: Job title/designation
+        kind:
+          type: string
+          enum:
+          - human
+          - service
+          description: 'Whether this account is a person who signs in (`human`) or a
+
+            machine identity that automation authenticates as (`service`).
+
+            Absent on records written before service accounts existed, which
+
+            are all human.
+
+            '
+        description:
+          type: string
+          description: Free text explaining what a service account is for. Unused for people.
+        isDisabled:
+          type: boolean
+          default: false
+          description: 'The account is suspended: its tokens stop working and no session
+
+            can be issued, but the record, its group memberships and its
+
+            permission-graph node survive so it can be switched back on.
+
+            '
+        restoreOpId:
+          type: string
+          description: 'Internal and transient. Present only while a deleted service
+
+            account is being brought back, and cleared when that finishes
+
+            either way. It lets the steps that complete or undo a restore tell
+
+            their own attempt from a later one. Not something to depend on.
+
+            '
+        role:
+          type: string
+          enum:
+          - admin
+          - member
+          description: Organization role stored on the user document (`admin` or `member`)
+        address:
+          $ref: '#/components/schemas/Address'
+        dataCollectionConsent:
+          type: boolean
+          description: Whether user has consented to data collection
+        isDeleted:
+          type: boolean
+          description: Soft delete flag
+          default: false
+        deletedBy:
+          type: string
+          description: ID of user who deleted this user
+        profilePicture:
+          type:
+          - string
+          - 'null'
+          description: Base64-encoded data URI of the user's display picture. Present in list responses when the user has uploaded a picture.
+        __v:
+          type: integer
+          description: Document version (MongoDB)
+        createdAt:
+          type: string
+          format: date-time
+          description: Creation timestamp (ISO 8601)
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp (ISO 8601)
+      required:
+      - _id
+      - orgId
+    Address:
+      type: object
+      additionalProperties: false
+      properties:
+        _id:
+          type: string
+          format: ObjectId
+          description: Optional address document id
+        addressLine1:
+          type: string
+          description: Address line 1
+        city:
+          type: string
+          description: City
+        state:
+          type: string
+          description: State/Province
+        postCode:
+          type: string
+          description: Postal/ZIP code
+        country:
+          type: string
+          description: Country
+    UpdateUserResponse:
+      type: object
+      additionalProperties: false
+      description: Response returned by the updateUser endpoint — all User fields plus operation metadata
+      required:
+      - _id
+      - orgId
+      - meta
+      properties:
+        _id:
+          type: string
+          format: ObjectId
+          description: Unique user identifier (MongoDB ObjectId)
+        slug:
+          type: string
+          description: Unique slug for the user
+        orgId:
+          type: string
+          format: ObjectId
+          description: Organization ID the user belongs to
+        fullName:
+          type: string
+          description: Full name of the user
+          minLength: 1
+        firstName:
+          type: string
+          description: First name
+        lastName:
+          type: string
+          description: Last name
+        middleName:
+          type: string
+          description: Middle name
+        email:
+          type: string
+          format: email
+          description: Email address (unique, lowercase)
+        mobile:
+          type: string
+          description: Mobile number (10-15 digits with optional +)
+          pattern: ^$|^\+?[0-9]{10,15}$
+        hasLoggedIn:
+          type: boolean
+          description: Whether user has logged in at least once
+          default: false
+        designation:
+          type: string
+          description: Job title/designation
+        kind:
+          type: string
+          enum:
+          - human
+          - service
+          description: 'Whether this account is a person who signs in (`human`) or a
+
+            machine identity that automation authenticates as (`service`).
+
+            Absent on records written before service accounts existed, which
+
+            are all human.
+
+            '
+        description:
+          type: string
+          description: Free text explaining what a service account is for. Unused for people.
+        isDisabled:
+          type: boolean
+          default: false
+          description: 'The account is suspended: its tokens stop working and no session
+
+            can be issued, but the record, its group memberships and its
+
+            permission-graph node survive so it can be switched back on.
+
+            '
+        restoreOpId:
+          type: string
+          description: 'Internal and transient. Present only while a deleted service
+
+            account is being brought back, and cleared when that finishes
+
+            either way. It lets the steps that complete or undo a restore tell
+
+            their own attempt from a later one. Not something to depend on.
+
+            '
+        role:
+          type: string
+          enum:
+          - admin
+          - member
+          description: Organization role stored on the user document (`admin` or `member`)
+        address:
+          $ref: '#/components/schemas/Address'
+        dataCollectionConsent:
+          type: boolean
+          description: Whether user has consented to data collection
+        isDeleted:
+          type: boolean
+          description: Soft delete flag
+          default: false
+        deletedBy:
+          type: string
+          description: ID of user who deleted this user
+        profilePicture:
+          type:
+          - string
+          - 'null'
+          description: Base64-encoded data URI of the user's display picture
+        __v:
+          type: integer
+          description: Document version (MongoDB)
+        createdAt:
+          type: string
+          format: date-time
+          description: Creation timestamp (ISO 8601)
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp (ISO 8601)
+        meta:
+          type: object
+          additionalProperties: false
+          description: Operation metadata
+          required:
+          - emailChangeMailStatus
+          properties:
+            emailChangeMailStatus:
+              type: string
+              enum:
+              - notNeeded
+              - sent
+              - failed
+              description: Result of sending the email-change verification mail
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      description: 'Standard error envelope returned by all errors routed through `ErrorMiddleware`.
+
+        Applies to all `BaseError` subclasses including `HttpError`, `ValidationError`, and others.
+
+        The `code` field is a machine-readable string identifying the error type (e.g.
+
+        `HTTP_UNAUTHORIZED`, `HTTP_NOT_FOUND`, `VALIDATION_ERROR`, `INTERNAL_ERROR`).
+
+        '
+      properties:
+        error:
+          type: object
+          additionalProperties: false
+          required:
+          - code
+          - message
+          properties:
+            requestId:
+              type: string
+              description: 'Identifier for this request, echoed so a bug report can quote it.
+
+                Absent when the request never reached the middleware that assigns one.
+
+                '
+            code:
+              type: string
+              description: 'Machine-readable error code. For application errors it takes the form `HTTP_<VARIANT>`
+
+                For unhandled runtime errors (e.g. database unavailable) it is `INTERNAL_ERROR`.
+
+                '
+              example: HTTP_BAD_REQUEST
+            message:
+              type: string
+              description: Human-readable description of the error
+              example: Admin access required
+            metadata:
+              type: object
+              description: Additional context (only present in development environments)
+              additionalProperties: true
+      required:
+      - error
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'JWT Bearer token for authenticated requests.
+
+
+        A personal access token (see the **Personal Access Tokens** tag) is a
+
+        `phpat_`-prefixed variant of this same JWT — e.g. `phpat_eyJhbGci...`.
+
+        The prefix is display-only, added for secret-scanner detectability; the
+
+        gateway strips it before verifying the token, so send it exactly as
+
+        issued, prefix included.
+
+        '
+    scopedToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Scoped JWT token for service-to-service authentication.
+
+        Format: "Bearer {scoped_token}"
+
+        Required scopes vary by endpoint.
+
+        '
+    oauth2:
+      type: oauth2
+      description: 'OAuth 2.0 authentication with fine-grained scopes.
+
+        Supports authorization_code (with PKCE) and client_credentials flows.
+
+        OAuth tokens are Bearer JWTs — use the same Authorization header as regular tokens.
+
+        For **client_credentials**, machine JWTs may use `userId === client_id`; the Node gateway resolves the OAuth app creator — see **OAuth Provider** tag.
+
+        '
+      flows:
+        authorizationCode:
+          authorizationUrl: /api/v1/oauth2/authorize
+          tokenUrl: /api/v1/oauth2/token
+          refreshUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:read: Read semantic search results and history
+            semantic:write: Execute semantic search
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+            crawl:delete: Delete crawling jobs
+        clientCredentials:
+          tokenUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:write: Execute semantic search
+            semantic:read: Read semantic search results and history
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+x-refined-from:
+- pipeshub-openapi.yaml
+- pipeshub-openapi.yml

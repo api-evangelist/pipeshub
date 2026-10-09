@@ -1,0 +1,69 @@
+generated: '2026-10-09'
+method: derived
+source: >-
+  Derived by binding the seven tools in https://docs.pipeshub.com/mcp/tools.md to operationIds in
+  openapi/pipeshub-openapi.yml. The docs state each tool "wraps several lower-level API calls";
+  the live tools/list at https://app.pipeshub.com/mcp is auth-gated (401), so bindings are by name
+  and documented semantics, with confidence set accordingly.
+purpose: Record which REST operations back each PipesHub MCP tool, and what exists on only one surface.
+surfaces:
+  rest_openapi: openapi/pipeshub-openapi.yml
+  graphql: null
+  mcp: https://app.pipeshub.com/mcp
+  mcp_gated: true
+  mcp_local_package: '@pipeshub-ai/mcp'
+crosswalk:
+  - tool: pipeshub_search
+    category: search
+    rest: [search]
+    binding: rest
+    confidence: high
+  - tool: pipeshub_get_record_content
+    category: records
+    rest: [getRecordContent, navigateKnowledgeGraph, lookupRecordByIdentifier]
+    binding: rest
+    confidence: high
+    note: mode=content -> getRecordContent; mode=navigate -> navigateKnowledgeGraph; mode=lookup -> lookupRecordByIdentifier.
+  - tool: pipeshub_chat
+    category: chat
+    rest: [createConversation, streamChat, addMessageStream, streamAgentConversation, streamAgentConversationMessage]
+    binding: composite
+    confidence: medium
+    note: Without agentId maps to the conversations endpoints; with agentId to the agent conversation stream endpoints. Exact calls not published.
+  - tool: pipeshub_download_record
+    category: records
+    rest: [streamRecordBuffer]
+    binding: rest
+    confidence: medium
+    note: Documented as streaming a record's binary content; streamRecordBuffer is the REST op that streams a record.
+  - tool: pipeshub_directory
+    category: directory
+    rest: [getAllUsers, getUserById, getAllUserGroups, getUserTeams]
+    binding: composite
+    confidence: medium
+    note: list_users -> getAllUsers, get_user -> getUserById, list_groups -> getAllUserGroups, list_my_teams -> getUserTeams. No /users/me operation exists for whoami.
+  - tool: pipeshub_sources
+    category: discovery
+    rest: [listActiveConnectors, listKnowledgeBases, getAIModelsProviders]
+    binding: composite
+    confidence: low
+    note: Documented to return connector sources, knowledge bases and llmModels/embeddingModels in one call; backing ops inferred by semantics.
+  - tool: pipeshub_agents
+    category: agents
+    rest: [listAgents]
+    binding: rest
+    confidence: high
+mcp_only:
+  - tool: pipeshub_directory (action whoami)
+    reason: No public REST operation returns the current user profile (only getMyRole); likely resolved from the token.
+rest_only:
+  - note: >-
+      All administrative surfaces (Users/Groups/Teams writes, Connector Instances, Toolsets, Skills,
+      Agents CRUD, OAuth Apps, Configuration Manager, Crawling Jobs, Knowledge Base writes,
+      Personal Access Tokens, SAML/OIDC, etc.) have no MCP tool.
+coverage:
+  mcp_tools_named: 7
+  mcp_bound_to_rest: 7
+  mcp_only: 1
+  rest_operations_total: 381
+  rest_operations_with_mcp_tool: 18

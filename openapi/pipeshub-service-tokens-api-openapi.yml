@@ -1,0 +1,498 @@
+openapi: 3.2.0
+info:
+  title: Pipeshub Service Tokens API
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@pipeshub.com
+  description: 'Operations tagged Service Tokens across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: '{instance_url}/api/v1'
+  description: Base API URL
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL (without /api/v1)
+- url: '{instance_url}'
+  description: Root URL (used for MCP endpoints mounted at /mcp)
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL
+security:
+- bearerAuth: []
+- oauth2: []
+tags:
+- name: Service Tokens
+  description: The credential a service account authenticates with.
+paths:
+  /service-tokens:
+    get:
+      tags:
+      - Service Tokens
+      summary: List a service account's tokens
+      description: 'Active, unexpired, unrevoked tokens held by one service account.
+
+
+        Works while the account is disabled, so an administrator who has just
+
+        switched one off can still see and revoke what it holds.'
+      operationId: listServiceTokens
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - user:read
+      parameters:
+      - name: serviceAccountId
+        in: query
+        required: true
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F]{24}$
+      responses:
+        '200':
+          description: Tokens held by this service account
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  tokens:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ServiceToken'
+        '400':
+          description: Admin access required
+        '401':
+          description: Not authenticated
+        '403':
+          description: Token lacks the required scope
+        '404':
+          description: No such service account in this organisation
+    post:
+      tags:
+      - Service Tokens
+      summary: Mint a token for a service account
+      description: 'Issues a token **to the service account**, not to the administrator
+
+        making the request. What it can read is decided by the service
+
+        account''s place in the permission graph.
+
+
+        The raw token is in this response and nowhere else, ever. Only its hash
+
+        is stored, as with every other OAuth token.
+
+
+        Refused if the service account is disabled: enable it first.'
+      operationId: createServiceToken
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - user:invite
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceTokenCreateRequest'
+      responses:
+        '201':
+          description: Token minted. The only time the raw token is returned.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  token:
+                    $ref: '#/components/schemas/ServiceTokenWithSecret'
+        '400':
+          description: 'No scopes chosen, a scope this instance does not allow,
+
+            `agent:execute` (service tokens are read-only), an expiry over 365
+
+            days, a disabled service account, or admin access required.
+
+            '
+        '401':
+          description: Not authenticated
+        '403':
+          description: Token lacks the required scope
+        '404':
+          description: No such service account in this organisation
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /service-tokens/scopes:
+    get:
+      tags:
+      - Service Tokens
+      summary: Scopes a service token may be given
+      description: 'The scopes this instance allows for MCP, less the ones version one
+
+        refuses. Only `agent:execute` is removed: it is the write surface, in
+
+        that an agent run can reach connector tools that create Jira issues and
+
+        send Slack messages.
+
+
+        `semantic:write` remains, despite its name. It is what running a search
+
+        requires, so removing scopes by the word in their name would take
+
+        reading away and leave writing alone.
+
+
+        Each scope is returned with the description and category held in the
+
+        shared scope catalogue, the same shape
+
+        `GET /personal-access-tokens/scopes` returns. The picker can then say
+
+        what a permission allows instead of showing a bare identifier, and the
+
+        wording for a scope stays the same on every screen that offers it.'
+      operationId: listServiceTokenScopes
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - user:read
+      responses:
+        '200':
+          description: Available scopes, each with its description and category
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - scopes
+                properties:
+                  scopes:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OAuthScopeInfo'
+        '400':
+          description: Admin access required
+        '401':
+          description: Not authenticated
+        '403':
+          description: Token lacks the required scope
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /service-tokens/{tokenId}:
+    delete:
+      tags:
+      - Service Tokens
+      summary: Revoke a service token
+      description: 'Revokes one token. Works while the service account is disabled.
+
+
+        Deleting the service account revokes every token it holds, so this is
+
+        for retiring one credential rather than the whole identity.'
+      operationId: revokeServiceToken
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - user:delete
+      parameters:
+      - name: tokenId
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F]{24}$
+      - name: serviceAccountId
+        in: query
+        required: true
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F]{24}$
+      responses:
+        '204':
+          description: Revoked
+        '400':
+          description: Admin access required
+        '401':
+          description: Not authenticated
+        '403':
+          description: Token lacks the required scope
+        '404':
+          description: No such token for that service account
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+components:
+  schemas:
+    ServiceToken:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          description: What this token is for, shown in the list
+          example: Release digest job
+        serviceAccountId:
+          type: string
+        scopes:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+        lastUsedAt:
+          type: string
+          format: date-time
+    OAuthScopeInfo:
+      type: object
+      description: Information about an OAuth scope
+      properties:
+        name:
+          type: string
+          description: Scope identifier
+          example: openid
+        description:
+          type: string
+          description: Human-readable scope description
+          example: OpenID Connect authentication
+        category:
+          type: string
+          description: Scope category for grouping (matches the key under `scopes` on list responses)
+          example: Identity
+        requiresUserConsent:
+          type: boolean
+          description: Whether end-user consent is required when this scope is requested
+          example: false
+      required:
+      - name
+      - description
+      - category
+      - requiresUserConsent
+    ServiceTokenCreateRequest:
+      type: object
+      additionalProperties: false
+      required:
+      - serviceAccountId
+      - name
+      - scopes
+      properties:
+        serviceAccountId:
+          type: string
+          pattern: ^[0-9a-fA-F]{24}$
+          description: The service account this token authenticates as
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        scopes:
+          type: array
+          minItems: 1
+          items:
+            type: string
+          description: 'Required, and required to be non-empty. Unlike a personal access
+
+            token, omitting scopes is not a shorthand for granting all of them:
+
+            a credential that runs unattended should hold the access someone
+
+            chose for it. `agent:execute` is refused.
+
+            '
+        expiryDays:
+          type: integer
+          minimum: 1
+          maximum: 365
+          default: 90
+          description: 'There is no "never". A credential for an unattended process is the
+
+            one most likely to outlive the reason it was created.
+
+            '
+    ServiceTokenWithSecret:
+      allOf:
+      - $ref: '#/components/schemas/ServiceToken'
+      - type: object
+        properties:
+          accessToken:
+            type: string
+            description: 'The raw token, returned by this call and never retrievable
+
+              again. Carries a `phsvc_` prefix ahead of the JWT, which is
+
+              display-only and stripped before the token is verified.
+
+              '
+            example: phsvc_eyJhbGciOi...
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'JWT Bearer token for authenticated requests.
+
+
+        A personal access token (see the **Personal Access Tokens** tag) is a
+
+        `phpat_`-prefixed variant of this same JWT — e.g. `phpat_eyJhbGci...`.
+
+        The prefix is display-only, added for secret-scanner detectability; the
+
+        gateway strips it before verifying the token, so send it exactly as
+
+        issued, prefix included.
+
+        '
+    scopedToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Scoped JWT token for service-to-service authentication.
+
+        Format: "Bearer {scoped_token}"
+
+        Required scopes vary by endpoint.
+
+        '
+    oauth2:
+      type: oauth2
+      description: 'OAuth 2.0 authentication with fine-grained scopes.
+
+        Supports authorization_code (with PKCE) and client_credentials flows.
+
+        OAuth tokens are Bearer JWTs — use the same Authorization header as regular tokens.
+
+        For **client_credentials**, machine JWTs may use `userId === client_id`; the Node gateway resolves the OAuth app creator — see **OAuth Provider** tag.
+
+        '
+      flows:
+        authorizationCode:
+          authorizationUrl: /api/v1/oauth2/authorize
+          tokenUrl: /api/v1/oauth2/token
+          refreshUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:read: Read semantic search results and history
+            semantic:write: Execute semantic search
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+            crawl:delete: Delete crawling jobs
+        clientCredentials:
+          tokenUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:write: Execute semantic search
+            semantic:read: Read semantic search results and history
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+x-refined-from:
+- pipeshub-openapi.yaml
+- pipeshub-openapi.yml

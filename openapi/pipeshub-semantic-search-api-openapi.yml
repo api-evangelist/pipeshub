@@ -1,0 +1,2665 @@
+openapi: 3.2.0
+info:
+  title: Pipeshub Semantic Search API
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@pipeshub.com
+  description: 'Operations tagged Semantic Search across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: '{instance_url}/api/v1'
+  description: Base API URL
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL (without /api/v1)
+- url: '{instance_url}'
+  description: Root URL (used for MCP endpoints mounted at /mcp)
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL
+security:
+- bearerAuth: []
+- oauth2: []
+tags:
+- name: Semantic Search
+  description: Enterprise semantic search across all indexed knowledge with relevance scoring
+paths:
+  /search:
+    post:
+      tags:
+      - Semantic Search
+      summary: Perform semantic search
+      description: 'Run a semantic search across your organization''s knowledge base.
+
+        Matching is meaning-based, so relevant results surface even when
+
+        the wording differs from the query.
+
+
+        Use optional `filters` to narrow the scope:
+
+
+        - `filters.apps` — restrict to specific connector apps (for
+
+        example Google Drive or Confluence).
+
+        - `filters.kb` — restrict to specific knowledge bases.
+
+
+        The response returns a `searchId` for the persisted search along
+
+        with ranked matches, each carrying a relevance score and the
+
+        source document''s metadata. Past searches can be retrieved via
+
+        `GET /search`.'
+      operationId: search
+      x-pipeshub-sdk: true
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - semantic:write
+      requestBody:
+        required: true
+        description: Request payload
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SemanticSearchRequest'
+            examples:
+              simple:
+                summary: Basic search
+                value:
+                  query: company vacation policy
+                  limit: 10
+      responses:
+        '200':
+          description: Search ID plus retrieval payload (`searchResponse`) from the AI search service
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SemanticSearchExecuteResponse'
+        '400':
+          description: 'Invalid request — `query` is missing, empty, or the request
+
+            body fails validation.
+
+            '
+        '401':
+          description: 'Missing or invalid bearer token.
+
+            '
+        '403':
+          description: 'Bearer token lacks the `semantic:write` scope.
+
+            '
+        '404':
+          description: 'A referenced knowledge base or app filter could not be
+
+            resolved.
+
+            '
+        '500':
+          description: 'Unexpected server error while executing the search, or the
+
+            upstream AI search service was unreachable.
+
+            '
+        '502':
+          description: 'The upstream AI search service returned an invalid response.
+
+            '
+        '503':
+          description: 'The upstream AI search service is temporarily unavailable.
+
+            '
+        '504':
+          description: 'The upstream AI search service timed out before returning a
+
+            response.
+
+            '
+    get:
+      tags:
+      - Semantic Search
+      summary: Get search history
+      description: 'Retrieve the authenticated user''s persisted search history.
+
+
+        Returns searches the user owns along with searches shared with them,
+
+        scoped to the caller''s organization. Archived and deleted entries are
+
+        excluded. Citation references on this endpoint are returned as raw
+
+        identifier strings; use `GET /search/{searchId}` to fetch a single
+
+        search with its citations fully expanded.
+
+
+        Pagination defaults to `page=1, limit=20` (maximum `limit` is 100).
+
+        Results are sorted by most recent activity by default.'
+      operationId: searchHistory
+      x-pipeshub-sdk: true
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - semantic:read
+      parameters:
+      - name: page
+        in: query
+        description: Page number to return. Must be within `[1, 1000]`.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 1000
+          default: 1
+      - name: limit
+        in: query
+        description: Number of items per page. Values are clamped to the range `[1, 100]`.
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+      - name: sortBy
+        in: query
+        description: 'Field used to sort results. Any value other than `createdAt`,
+
+          `lastActivityAt`, or `title` is treated as `lastActivityAt`.
+
+          '
+        schema:
+          type: string
+          enum:
+          - createdAt
+          - lastActivityAt
+          - title
+          default: lastActivityAt
+      - name: sortOrder
+        in: query
+        description: Sort direction applied to `sortBy`.
+        schema:
+          type: string
+          enum:
+          - asc
+          - desc
+          default: desc
+      - name: search
+        in: query
+        description: 'Case-insensitive substring to match against a search''s title and
+
+          message content. Regex metacharacters are escaped automatically.
+
+          Values longer than 1000 characters are rejected with `400`.
+
+          '
+        schema:
+          type: string
+      - name: shared
+        in: query
+        description: 'Filter results by their shared status. Accepted values are
+
+          `''true''` / `''1''` (return only shared searches) and
+
+          `''false''` / `''0''` (exclude shared searches). Matching is
+
+          case-insensitive and surrounding whitespace is trimmed.
+
+          '
+        schema:
+          type: string
+          enum:
+          - 'true'
+          - 'false'
+          - '1'
+          - '0'
+      - name: startDate
+        in: query
+        description: ISO 8601 timestamp used as the lower bound for a search's creation date.
+        schema:
+          type: string
+          format: date-time
+      - name: endDate
+        in: query
+        description: ISO 8601 timestamp used as the upper bound for a search's creation date.
+        schema:
+          type: string
+          format: date-time
+      responses:
+        '200':
+          description: 'Persisted search history plus pagination, applied/available filter
+
+            metadata, and a request-scoped `meta` block.
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SemanticSearchHistoryResponse'
+        '400':
+          description: 'Invalid request, raised when
+
+            a query parameter fails validation — for example a malformed
+
+            `startDate` / `endDate`, a `search` value over 1000 characters,
+
+            or a query value that trips the XSS guard.
+
+            '
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                description: Error envelope for a failed request.
+                properties:
+                  error:
+                    type: object
+                    additionalProperties: false
+                    description: Error payload.
+                    properties:
+                      requestId:
+                        type: string
+                        description: 'Identifier for this request, echoed so a bug report can quote it.
+
+                          Absent when the request never reached the middleware that assigns one.
+
+                          '
+                      code:
+                        type: string
+                        description: 'Machine-readable error code. For this status the
+
+                          value is either `VALIDATION_ERROR` (request failed
+
+                          schema validation) or `HTTP_BAD_REQUEST` (semantic
+
+                          validation failed — malformed date, value over the
+
+                          allowed length, or XSS-guard trip).
+
+                          '
+                      message:
+                        type: string
+                        description: Human-readable description of the failure.
+                    required:
+                    - code
+                    - message
+                required:
+                - error
+        '401':
+          description: 'Missing or invalid bearer token.
+
+            '
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                description: Error envelope for a failed request.
+                properties:
+                  error:
+                    type: object
+                    additionalProperties: false
+                    description: Error payload.
+                    properties:
+                      requestId:
+                        type: string
+                        description: 'Identifier for this request, echoed so a bug report can quote it.
+
+                          Absent when the request never reached the middleware that assigns one.
+
+                          '
+                      code:
+                        type: string
+                        description: 'Machine-readable error code. For this status the
+
+                          value is `HTTP_UNAUTHORIZED` (missing, invalid, or
+
+                          expired bearer token, user no longer exists, or the
+
+                          session has been invalidated).
+
+                          '
+                      message:
+                        type: string
+                        description: Human-readable description of the failure.
+                    required:
+                    - code
+                    - message
+                required:
+                - error
+        '403':
+          description: 'Bearer token lacks the `semantic:read` scope.
+
+            '
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                description: Error envelope for a failed request.
+                properties:
+                  error:
+                    type: object
+                    additionalProperties: false
+                    description: Error payload.
+                    properties:
+                      requestId:
+                        type: string
+                        description: 'Identifier for this request, echoed so a bug report can quote it.
+
+                          Absent when the request never reached the middleware that assigns one.
+
+                          '
+                      code:
+                        type: string
+                        description: 'Machine-readable error code. For this status the
+
+                          value is `HTTP_FORBIDDEN` (the token is valid but
+
+                          does not carry the `semantic:read` scope).
+
+                          '
+                      message:
+                        type: string
+                        description: Human-readable description of the failure.
+                    required:
+                    - code
+                    - message
+                required:
+                - error
+        '500':
+          description: "Server error. Possible causes:\n\n- Explicit `InternalServerError`\n  or any other 500 `BaseError` thrown by the handler.\n- Non-`BaseError` exception caught by the\n  global error middleware.\n- Response serializer fallback.\n"
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                description: Error envelope for a failed request.
+                properties:
+                  error:
+                    type: object
+                    additionalProperties: false
+                    description: Error payload.
+                    properties:
+                      requestId:
+                        type: string
+                        description: 'Identifier for this request, echoed so a bug report can quote it.
+
+                          Absent when the request never reached the middleware that assigns one.
+
+                          '
+                      code:
+                        type: string
+                        description: 'Machine-readable error code. For this status the
+
+                          value is `HTTP_INTERNAL_SERVER_ERROR` for an
+
+                          explicit server-side failure, or `INTERNAL_ERROR`
+
+                          for an unhandled exception coerced by the global
+
+                          error middleware.
+
+                          '
+                      message:
+                        type: string
+                        description: Human-readable description of the failure.
+                    required:
+                    - code
+                    - message
+                required:
+                - error
+    delete:
+      tags:
+      - Semantic Search
+      summary: Clear all search history
+      description: 'Permanently delete every persisted search row owned by, or shared
+
+        with, the authenticated user, along with the citation rows those
+
+        searches reference. The action cannot be undone.
+
+
+        Scoped to the caller''s org and limited to rows where
+
+        `isDeleted: false` and `isArchived: false`. If nothing matches
+
+        (including the case where every row is already archived), the
+
+        endpoint returns `404` rather than a successful no-op.'
+      operationId: deleteSearchHistory
+      x-pipeshub-sdk: true
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - semantic:delete
+      parameters:
+      - name: search
+        in: query
+        description: 'Restrict the deletion to rows whose `title` or `messages.content`
+
+          matches this case-insensitive substring. Special regex characters
+
+          are escaped before the lookup; values over 1000 chars are
+
+          rejected with `400`.
+
+          '
+        schema:
+          type: string
+      - name: shared
+        in: query
+        description: 'Restrict the deletion to rows with this `isShared` value
+
+          (`''true''` / `''false''`).
+
+          '
+        schema:
+          type: string
+          enum:
+          - 'true'
+          - 'false'
+      - name: startDate
+        in: query
+        description: 'ISO 8601 lower bound for `createdAt`. Combined with `endDate`
+
+          to scope which rows are deleted.
+
+          '
+        schema:
+          type: string
+          format: date-time
+      - name: endDate
+        in: query
+        description: ISO 8601 upper bound for `createdAt`.
+        schema:
+          type: string
+          format: date-time
+      responses:
+        '200':
+          description: Search history deleted successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                - message
+                properties:
+                  message:
+                    type: string
+        '400':
+          description: 'Invalid request, raised
+
+            from the shared filter helper when a query parameter fails
+
+            validation — for example a malformed `startDate` / `endDate`,
+
+            a `search` value over 1000 characters, or a `search` value
+
+            that trips the XSS guard.
+
+            '
+        '401':
+          description: 'Missing or invalid bearer token.
+
+            '
+        '403':
+          description: 'Bearer token lacks the `semantic:delete` scope.
+
+            '
+        '404':
+          description: 'No matching rows. Returned when the caller has no owned or
+
+            shared searches that satisfy the filter.
+
+            '
+        '500':
+          description: "Server error. Possible causes:\n\n- Explicit `InternalServerError`\n  or any other 500 `BaseError` thrown by the handler.\n- Non-`BaseError` exception caught by the\n  global error middleware.\n- Response serializer fallback.\n"
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /search/{searchId}:
+    get:
+      tags:
+      - Semantic Search
+      summary: Get search by ID
+      description: 'Retrieve a previously persisted search by its id, scoped to the
+
+        caller''s org.
+
+
+        The response body is always an **array** containing zero or one
+
+        persisted search document. An unknown id returns an empty array
+
+        with a `200` status — callers should check array length rather
+
+        than relying on a `404`.'
+      operationId: getSearchById
+      x-pipeshub-sdk: true
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - semantic:read
+      parameters:
+      - name: searchId
+        in: path
+        required: true
+        description: Unique search identifier
+        schema:
+          type: string
+          format: objectId
+      responses:
+        '200':
+          description: Array containing zero or one persisted search document.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersistedSemanticSearchEnvelope'
+        '400':
+          description: 'Invalid request — `searchId`
+
+            failed Zod validation (not a valid ObjectId).
+
+            '
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                - error
+                properties:
+                  error:
+                    type: object
+                    additionalProperties: false
+                    required:
+                    - code
+                    - message
+                    properties:
+                      requestId:
+                        type: string
+                        description: 'Identifier for this request, echoed so a bug report can quote it.
+
+                          Absent when the request never reached the middleware that assigns one.
+
+                          '
+                      code:
+                        type: string
+                        enum:
+                        - VALIDATION_ERROR
+                        description: 'Machine-readable error code. `VALIDATION_ERROR`
+
+                          is emitted when the request fails Zod
+
+                          validation.
+
+                          '
+                      message:
+                        type: string
+                        description: Human-readable description of the failure.
+        '401':
+          description: 'Missing or invalid bearer token.
+
+            '
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                - error
+                properties:
+                  error:
+                    type: object
+                    additionalProperties: false
+                    required:
+                    - code
+                    - message
+                    properties:
+                      requestId:
+                        type: string
+                        description: 'Identifier for this request, echoed so a bug report can quote it.
+
+                          Absent when the request never reached the middleware that assigns one.
+
+                          '
+                      code:
+                        type: string
+                        enum:
+                        - HTTP_UNAUTHORIZED
+                        description: 'Machine-readable error code. `HTTP_UNAUTHORIZED`
+
+                          is emitted when the bearer token is missing,
+
+                          invalid, or expired.
+
+                          '
+                      message:
+                        type: string
+                        description: Human-readable description of the failure.
+        '403':
+          description: 'Bearer token lacks the `semantic:read` scope.
+
+            '
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                - error
+                properties:
+                  error:
+                    type: object
+                    additionalProperties: false
+                    required:
+                    - code
+                    - message
+                    properties:
+                      requestId:
+                        type: string
+                        description: 'Identifier for this request, echoed so a bug report can quote it.
+
+                          Absent when the request never reached the middleware that assigns one.
+
+                          '
+                      code:
+                        type: string
+                        enum:
+                        - HTTP_FORBIDDEN
+                        description: 'Machine-readable error code. `HTTP_FORBIDDEN`
+
+                          is emitted when the bearer token is valid but
+
+                          lacks the required scope.
+
+                          '
+                      message:
+                        type: string
+                        description: Human-readable description of the failure.
+        '404':
+          description: 'Reserved for parity with sibling routes; this endpoint
+
+            currently returns `200` with an empty array for an unknown
+
+            id rather than emitting `404`.
+
+            '
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                - error
+                properties:
+                  error:
+                    type: object
+                    additionalProperties: false
+                    required:
+                    - code
+                    - message
+                    properties:
+                      requestId:
+                        type: string
+                        description: 'Identifier for this request, echoed so a bug report can quote it.
+
+                          Absent when the request never reached the middleware that assigns one.
+
+                          '
+                      code:
+                        type: string
+                        enum:
+                        - HTTP_NOT_FOUND
+                        description: 'Machine-readable error code. `HTTP_NOT_FOUND`
+
+                          is emitted when the addressed resource does
+
+                          not exist.
+
+                          '
+                      message:
+                        type: string
+                        description: Human-readable description of the failure.
+        '500':
+          description: "Server error. Possible causes:\n\n- Explicit `InternalServerError`\n  or any other 500 `BaseError` thrown by the handler.\n- Non-`BaseError` exception caught by the\n  global error middleware.\n- Response serializer fallback.\n"
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                - error
+                properties:
+                  error:
+                    type: object
+                    additionalProperties: false
+                    required:
+                    - code
+                    - message
+                    properties:
+                      requestId:
+                        type: string
+                        description: 'Identifier for this request, echoed so a bug report can quote it.
+
+                          Absent when the request never reached the middleware that assigns one.
+
+                          '
+                      code:
+                        type: string
+                        enum:
+                        - HTTP_INTERNAL_SERVER_ERROR
+                        - INTERNAL_ERROR
+                        - MIDDLEWARE_ERROR
+                        description: "Machine-readable error code.\n\n- `HTTP_INTERNAL_SERVER_ERROR` — explicit\n  `InternalServerError` raised by the handler.\n- `INTERNAL_ERROR` — unhandled exception\n  caught by the global error middleware.\n- `MIDDLEWARE_ERROR` — the error middleware\n  itself failed while serializing the\n  response.\n"
+                      message:
+                        type: string
+                        description: Human-readable description of the failure.
+    delete:
+      tags:
+      - Semantic Search
+      summary: Delete search by ID
+      description: 'Permanently delete a single persisted search row, plus every
+
+        citation row referenced by its `citationIds`. The caller must
+
+        either own the row or have it shared with them.
+
+
+        Scoped to the caller''s org and limited to rows where
+
+        `isDeleted: false` and `isArchived: false`; archived or
+
+        already-deleted rows surface as `404`.'
+      operationId: deleteSearchById
+      x-pipeshub-sdk: true
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - semantic:delete
+      parameters:
+      - name: searchId
+        in: path
+        required: true
+        description: ObjectId of the persisted search row to delete.
+        schema:
+          type: string
+          format: objectId
+      - name: search
+        in: query
+        description: 'Additional substring filter against `title` / `messages.content`.
+
+          The row is only deleted if the `searchId` row also matches this
+
+          filter; otherwise `404`. Special regex characters are escaped;
+
+          values over 1000 chars or tripping the XSS guard yield `400`.
+
+          '
+        schema:
+          type: string
+      - name: shared
+        in: query
+        description: 'Additional `isShared` filter (`''true''` / `''false''`). The row is
+
+          only deleted if it also matches this value.
+
+          '
+        schema:
+          type: string
+          enum:
+          - 'true'
+          - 'false'
+      - name: startDate
+        in: query
+        description: 'ISO 8601 lower bound for `createdAt`. The row is only deleted
+
+          if its `createdAt` is on or after this value.
+
+          '
+        schema:
+          type: string
+          format: date-time
+      - name: endDate
+        in: query
+        description: 'ISO 8601 upper bound for `createdAt`. The row is only deleted
+
+          if its `createdAt` is on or before this value.
+
+          '
+        schema:
+          type: string
+          format: date-time
+      responses:
+        '200':
+          description: Search deleted successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                - message
+                properties:
+                  message:
+                    type: string
+        '400':
+          description: "Invalid request. Possible causes:\n\n- `searchId` failed Zod validation\n  (not a valid ObjectId).\n- A query parameter passed through to\n  the shared filter helper failed validation, e.g. a\n  malformed `startDate` / `endDate`, or a `search` value\n  over 1000 characters or tripping the XSS guard.\n"
+        '401':
+          description: 'Missing or invalid bearer token.
+
+            '
+        '403':
+          description: 'Bearer token lacks the `semantic:delete` scope.
+
+            '
+        '404':
+          description: 'No search matched. Returned when the id does not exist for
+
+            this caller, or when the row is archived or already deleted.
+
+            '
+        '500':
+          description: "Server error. Possible causes:\n\n- Explicit `InternalServerError`\n  or any other 500 `BaseError` thrown by the handler.\n- Non-`BaseError` exception caught by the\n  global error middleware.\n- Response serializer fallback.\n"
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /search/{searchId}/archive:
+    patch:
+      tags:
+      - Semantic Search
+      summary: Archive a search
+      description: 'Archive a specific search result. Archived searches are hidden
+
+        from the default search history view but remain retrievable via
+
+        the archive-aware listing endpoints.'
+      operationId: archiveSearch
+      x-pipeshub-sdk: true
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - semantic:write
+      parameters:
+      - name: searchId
+        in: path
+        required: true
+        description: Unique search identifier
+        schema:
+          type: string
+          format: objectId
+      responses:
+        '200':
+          description: Search archived successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                - id
+                - status
+                - archivedBy
+                - archivedAt
+                - meta
+                properties:
+                  id:
+                    type: string
+                    format: objectId
+                    description: Unique identifier of the archived search.
+                    example: 65f1c0a4e2b9c4d8f3a1b2c3
+                  status:
+                    type: string
+                    enum:
+                    - archived
+                    description: Resulting status of the search after the operation.
+                    example: archived
+                  archivedBy:
+                    type: string
+                    format: objectId
+                    description: User ID of the user who archived the search.
+                    example: 65f1c0a4e2b9c4d8f3a1b2c4
+                  archivedAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the search was archived.
+                    example: '2026-05-10T12:34:56.789Z'
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    required:
+                    - timestamp
+                    - duration
+                    properties:
+                      requestId:
+                        type: string
+                        description: Server-assigned request identifier for tracing. Omitted when not available.
+                        example: req_8f3a1b2c
+                      timestamp:
+                        type: string
+                        format: date-time
+                        description: Server timestamp when the response was produced.
+                        example: '2026-05-10T12:34:56.789Z'
+                      duration:
+                        type: integer
+                        description: Time taken to process the request, in milliseconds.
+                        example: 42
+        '400':
+          description: "Invalid request. Possible causes:\n\n- `searchId` failed Zod validation\n  (not a valid ObjectId).\n- The target search is already archived.\n"
+        '401':
+          description: 'Missing or invalid bearer token.
+
+            '
+        '403':
+          description: 'Bearer token lacks the `semantic:write` scope.
+
+            '
+        '404':
+          description: 'Search not found, or not owned by the caller''s org.
+
+            '
+        '500':
+          description: 'Persistence layer failed to update the search document.
+
+            '
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /search/{searchId}/unarchive:
+    patch:
+      tags:
+      - Semantic Search
+      summary: Unarchive a search
+      description: Restore a previously archived search result back to the active search history.
+      operationId: unarchiveSearch
+      x-pipeshub-sdk: true
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - semantic:write
+      parameters:
+      - name: searchId
+        in: path
+        required: true
+        description: Unique search identifier
+        schema:
+          type: string
+          format: objectId
+      responses:
+        '200':
+          description: Search unarchived successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                - id
+                - status
+                - unarchivedBy
+                - unarchivedAt
+                - meta
+                properties:
+                  id:
+                    type: string
+                    format: objectId
+                    description: Unique identifier of the unarchived search.
+                    example: 65f1c0a4e2b9c4d8f3a1b2c3
+                  status:
+                    type: string
+                    enum:
+                    - unarchived
+                    description: Resulting status of the search after the operation.
+                    example: unarchived
+                  unarchivedBy:
+                    type: string
+                    format: objectId
+                    description: User ID of the user who unarchived the search.
+                    example: 65f1c0a4e2b9c4d8f3a1b2c4
+                  unarchivedAt:
+                    type: string
+                    format: date-time
+                    description: Timestamp when the search was unarchived.
+                    example: '2026-05-10T12:34:56.789Z'
+                  meta:
+                    type: object
+                    additionalProperties: false
+                    required:
+                    - timestamp
+                    - duration
+                    properties:
+                      requestId:
+                        type: string
+                        description: Server-assigned request identifier for tracing. Omitted when not available.
+                        example: req_8f3a1b2c
+                      timestamp:
+                        type: string
+                        format: date-time
+                        description: Server timestamp when the response was produced.
+                        example: '2026-05-10T12:34:56.789Z'
+                      duration:
+                        type: integer
+                        description: Time taken to process the request, in milliseconds.
+                        example: 42
+        '400':
+          description: "Invalid request. Possible causes:\n\n- `searchId` failed Zod validation\n  (not a valid ObjectId).\n- The target search is not currently\n  archived and therefore cannot be unarchived.\n"
+        '401':
+          description: 'Missing or invalid bearer token.
+
+            '
+        '403':
+          description: 'Bearer token lacks the `semantic:write` scope.
+
+            '
+        '404':
+          description: 'No archived search matches `searchId` within the caller''s
+
+            org, or the row is already active / deleted.
+
+            '
+        '500':
+          description: 'Unexpected server error while unarchiving the search.
+
+            '
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+components:
+  schemas:
+    PersistedSemanticSearch:
+      type: object
+      additionalProperties: false
+      description: 'Persisted search document as returned to clients.
+
+        `records` is a string-valued map: each value is `JSON.stringify(<record>)`,
+
+        keyed by the source record''s `_id` or `_key`. Clients must `JSON.parse`
+
+        each value to recover the underlying record object (whose shape resembles
+
+        `SemanticSearchGraphRecord`). This intentionally differs from the
+
+        `searchResponse.records` array on the POST `/search` response, which is
+
+        passed through from the retrieval service untouched.
+
+        '
+      required:
+      - _id
+      - __v
+      - query
+      - limit
+      - orgId
+      - userId
+      - citationIds
+      - records
+      - isShared
+      - sharedWith
+      - isArchived
+      - createdAt
+      - updatedAt
+      properties:
+        _id:
+          type: string
+          format: objectId
+        __v:
+          type: integer
+        query:
+          type: string
+        limit:
+          type: integer
+        orgId:
+          type: string
+          format: objectId
+        userId:
+          type: string
+          format: objectId
+        citationIds:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersistedSemanticSearchCitation'
+        records:
+          type: object
+          description: 'Map of source-record id (or `_key`) to a JSON-stringified record object.
+
+            Clients must `JSON.parse` each value before reading fields.
+
+            '
+          additionalProperties:
+            type: string
+        isShared:
+          type: boolean
+        shareLink:
+          type: string
+          description: Set once the search has been shared via `/search/{searchId}/share`.
+        sharedWith:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersistedSemanticSearchSharedWithEntry'
+        isArchived:
+          type: boolean
+        archivedBy:
+          type:
+          - string
+          - 'null'
+          format: objectId
+          description: 'User ID of the last user who archived this row, or `null` after
+
+            an unarchive cleared the archive state. Absent on rows that have
+
+            never been archived. Currently-archived rows cannot reach this
+
+            endpoint because `buildFilter` enforces `isArchived: false`.
+
+            '
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    SemanticSearchHistoryFilterToggle:
+      type: object
+      additionalProperties: false
+      description: 'Generic "filter X is available, current value is Y" block used for
+
+        `shared`, `tags`, `minMessages`, `search`, and `messageType`. Either
+
+        `type` (free-form value) or `values` (enum of allowed strings) is
+
+        present, not both. `current` is the caller-supplied value passed
+
+        through from `req.query`, hence string-or-null even when `type` is
+
+        `''number''`.
+
+        '
+      required:
+      - description
+      - current
+      - applied
+      properties:
+        type:
+          type: string
+        values:
+          type: array
+          items:
+            type: string
+        description:
+          type: string
+        current:
+          type:
+          - string
+          - 'null'
+        applied:
+          type: boolean
+    SemanticSearchHistoryAppliedDateRange:
+      type: object
+      additionalProperties: false
+      description: 'Echoed back only when the caller passed `startDate` and/or `endDate`.
+
+        Each bound is an ISO 8601 string when set; the field is absent when
+
+        the corresponding query param was omitted (utils.ts:480-486 reads
+
+        `appliedFilters.createdAt.$gte?.toISOString()` directly, so missing
+
+        bounds become `undefined` and drop out of the JSON).
+
+        '
+      properties:
+        start:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
+    PersistedSemanticSearchEnvelope:
+      type: array
+      description: 'GET `/search/{searchId}` calls `Model.find()` (not `findOne()`) and sends
+
+        the result as-is, so the wire format is an array of zero or one
+
+        persisted search docs. A non-existent id returns `200 []`, **not** `404`.
+
+        '
+      items:
+        $ref: '#/components/schemas/PersistedSemanticSearch'
+    SemanticSearchHistoryPagination:
+      type: object
+      additionalProperties: false
+      description: 'Pagination block emitted by `buildPaginationMetadata` (utils.ts:417).
+
+        `totalPages` is `Math.ceil(totalCount / limit)`, so an empty result
+
+        has `totalPages: 0`, not `1`.
+
+        '
+      required:
+      - page
+      - limit
+      - totalCount
+      - totalPages
+      - hasNextPage
+      - hasPrevPage
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        totalCount:
+          type: integer
+        totalPages:
+          type: integer
+        hasNextPage:
+          type: boolean
+        hasPrevPage:
+          type: boolean
+    Filters:
+      type: object
+      additionalProperties: false
+      description: 'App connector instance ids and knowledge-base / record-group ids that narrow retrieval
+
+        for a turn. For **org assistant** chat streams, send explicit `apps` / `kb` lists.
+
+        For **agent** chat streams, send explicit id lists, or **omit** `filters` (and `tools`)
+
+        to let the service use the agent’s stored knowledge and tool configuration. Sending
+
+        `{ "apps": [], "kb": [] }` on an agent stream means **no** knowledge sources for that
+
+        turn (it is not “full org default”).
+
+        '
+      properties:
+        apps:
+          type: array
+          items:
+            type: string
+          description: 'Connector instance ids to scope retrieval for this turn. Each element
+
+            must be a valid UUID (connector app id, KB app id, record-group id, etc.).
+
+            Gateway validation matches Zod `appOrKbIdSchema`.
+
+            '
+        kb:
+          type: array
+          items:
+            type: string
+          description: 'Knowledge-base app ids to scope retrieval for this turn.
+
+            Each element must be a valid UUID.
+
+            '
+    SemanticSearchBoundingBox:
+      type: object
+      additionalProperties: false
+      description: Normalized bounding region for a chunk (when available).
+      properties:
+        x:
+          type: number
+        y:
+          type: number
+    SemanticSearchHistoryMeta:
+      type: object
+      additionalProperties: false
+      description: '`requestId` comes from `req.context?.requestId` and is omitted from
+
+        the JSON when upstream middleware did not set it.
+
+        '
+      required:
+      - timestamp
+      - duration
+      properties:
+        requestId:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        duration:
+          type: integer
+    SemanticSearchAppliedFilters:
+      type: object
+      additionalProperties: false
+      description: Present when KB filters were applied to the search request.
+      required:
+      - kb
+      - kb_count
+      properties:
+        kb:
+          type: array
+          items:
+            type: string
+        kb_count:
+          type: integer
+    PersistedSemanticSearchCitation:
+      type: object
+      additionalProperties: false
+      description: 'Populated citation document referenced from a persisted search.
+
+        The controller strips `__v` via `populate({ select: ''-__v'' })`.
+
+        '
+      required:
+      - _id
+      - content
+      - chunkIndex
+      - citationType
+      - metadata
+      - createdAt
+      - updatedAt
+      properties:
+        _id:
+          type: string
+          format: objectId
+        content:
+          type: string
+        chunkIndex:
+          type: integer
+        citationType:
+          type: string
+        metadata:
+          $ref: '#/components/schemas/PersistedSemanticSearchCitationMetadata'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    SemanticSearchHit:
+      type: object
+      additionalProperties: false
+      description: 'One search hit returned by the retrieval service. Most hits use string `content`;
+
+        table or grouped blocks may serialize structured payloads as JSON arrays.
+
+        Listed fields are the documented contract; extend this schema when new stable top-level keys are introduced.
+
+        '
+      properties:
+        score:
+          type:
+          - number
+          - 'null'
+        citationType:
+          type:
+          - string
+          - 'null'
+        chunkIndex:
+          type:
+          - integer
+          - 'null'
+        metadata:
+          $ref: '#/components/schemas/SemanticSearchHitMetadata'
+        content:
+          type:
+          - string
+          - 'null'
+        virtual_record_id:
+          type:
+          - string
+          - 'null'
+        block_type:
+          type:
+          - string
+          - 'null'
+          description: 'Block type for this hit. Common values: `text`, `image`, `table_row`, `table`,
+
+            `record_summary` (whole-record semantic summary — `block_index` is `null` for these hits).
+
+            '
+        block_index:
+          type:
+          - integer
+          - 'null'
+    SemanticSearchHistorySortField:
+      type: object
+      additionalProperties: false
+      description: 'Used for `available.sorting.{sortBy,sortOrder}` and
+
+        `available.sortingMessages.{sortBy,sortOrder}`. The `applied` flag
+
+        is present on `sorting.*` and absent on `sortingMessages.*`, so it
+
+        is optional here.
+
+        '
+      required:
+      - values
+      - default
+      - description
+      - current
+      properties:
+        values:
+          type: array
+          items:
+            type: string
+        default:
+          type: string
+        description:
+          type: string
+        current:
+          type: string
+        applied:
+          type: boolean
+    SemanticSearchHistoryPaginationField:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - current
+      - min
+      - max
+      - default
+      - description
+      - applied
+      properties:
+        type:
+          type: string
+        current:
+          type: integer
+        min:
+          type: integer
+        max:
+          type: integer
+        default:
+          type: integer
+        description:
+          type: string
+        applied:
+          type: boolean
+    SemanticSearchHistoryFiltersApplied:
+      type: object
+      additionalProperties: false
+      description: 'Echo of which filters the caller actually supplied, built by
+
+        `buildFiltersMetadata` (utils.ts:430-486). `page` and `limit` always
+
+        appear because they are normalised to defaults before being recorded,
+
+        so `filters` is never empty and `values` always contains at least
+
+        `{ page, limit }`. Other keys appear only when the matching query
+
+        param was non-empty (or, for `dateRange`, when `createdAt` was set
+
+        on the Mongo filter).
+
+
+        `values` keys are scalar strings rather than typed primitives
+
+        (`''true''`/`''false''`, `''5''`, etc.) because they are passed through
+
+        from `req.query` as Express parsed them — only `page` and `limit`
+
+        are coerced to integers via `safeParsePagination`.
+
+        '
+      required:
+      - filters
+      - values
+      properties:
+        filters:
+          type: array
+          items:
+            type: string
+            enum:
+            - page
+            - limit
+            - search
+            - shared
+            - tags
+            - minMessages
+            - sortBy
+            - sortOrder
+            - startDate
+            - endDate
+            - messageType
+            - dateRange
+        values:
+          type: object
+          additionalProperties: false
+          properties:
+            page:
+              type: integer
+            limit:
+              type: integer
+            search:
+              type: string
+            shared:
+              type: string
+            tags:
+              type: string
+            minMessages:
+              type: string
+            sortBy:
+              type: string
+            sortOrder:
+              type: string
+            startDate:
+              type: string
+            endDate:
+              type: string
+            messageType:
+              type: string
+            dateRange:
+              $ref: '#/components/schemas/SemanticSearchHistoryAppliedDateRange'
+    SemanticSearchExecuteResponse:
+      type: object
+      additionalProperties: false
+      description: 'Immediate POST `/search` response: persisted search id plus the raw retrieval payload.
+
+        SDK-oriented modeling: named fields only at this level; dynamic-key maps inside `searchResponse` use
+
+        `additionalProperties` with a `$ref` (e.g. `virtual_to_record_map`) rather than boolean `additionalProperties: true`,
+
+        so generated clients retain typed values where possible.
+
+        '
+      required:
+      - searchId
+      - searchResponse
+      properties:
+        searchId:
+          type: string
+          format: objectId
+        searchResponse:
+          $ref: '#/components/schemas/SemanticSearchAiResponse'
+    SemanticSearchHistoryDateRange:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - description
+      - format
+      - current
+      - applied
+      properties:
+        type:
+          type: string
+        description:
+          type: string
+        format:
+          type: string
+        current:
+          type: object
+          additionalProperties: false
+          required:
+          - start
+          - end
+          properties:
+            start:
+              type:
+              - string
+              - 'null'
+            end:
+              type:
+              - string
+              - 'null'
+        applied:
+          type: boolean
+    SemanticSearchGraphRecord:
+      type: object
+      description: 'Graph record vertex returned in `records` and as values of `virtual_to_record_map`.
+
+        All listed fields are optional in the schema so partial or evolving documents validate; typical Arango documents
+
+        usually include `_key`, `_id`, `_rev`, `orgId`, `recordName`, `externalRecordId`, `recordType`, `origin`,
+
+        `createdAtTimestamp`, and `connectorId`. Extend this schema when new stable fields appear on Record vertices.
+
+        '
+      properties:
+        _key:
+          type:
+          - string
+          - 'null'
+        _id:
+          type:
+          - string
+          - 'null'
+        _rev:
+          type:
+          - string
+          - 'null'
+        recordName:
+          type:
+          - string
+          - 'null'
+        externalRecordId:
+          type:
+          - string
+          - 'null'
+        recordType:
+          type:
+          - string
+          - 'null'
+        origin:
+          type:
+          - string
+          - 'null'
+        createdAtTimestamp:
+          type:
+          - number
+          - 'null'
+        connectorId:
+          type:
+          - string
+          - 'null'
+        orgId:
+          type:
+          - string
+          - 'null'
+        updatedAtTimestamp:
+          type:
+          - number
+          - 'null'
+        externalGroupId:
+          type:
+          - string
+          - 'null'
+        externalParentId:
+          type:
+          - string
+          - 'null'
+        externalRevisionId:
+          type:
+          - string
+          - 'null'
+        externalRootGroupId:
+          type:
+          - string
+          - 'null'
+        recordGroupId:
+          type:
+          - string
+          - 'null'
+        version:
+          type:
+          - number
+          - 'null'
+        connectorName:
+          type:
+          - string
+          - 'null'
+        mimeType:
+          type:
+          - string
+          - 'null'
+        webUrl:
+          type:
+          - string
+          - 'null'
+        lastSyncTimestamp:
+          type:
+          - number
+          - 'null'
+        sourceCreatedAtTimestamp:
+          type:
+          - number
+          - 'null'
+        sourceLastModifiedTimestamp:
+          type:
+          - number
+          - 'null'
+        isDeleted:
+          type:
+          - boolean
+          - 'null'
+        isArchived:
+          type:
+          - boolean
+          - 'null'
+        isVLMOcrProcessed:
+          type:
+          - boolean
+          - 'null'
+        deletedByUserId:
+          type:
+          - string
+          - 'null'
+        processingStartedAt:
+          type:
+          - number
+          - 'null'
+        queuedAtTimestamp:
+          type:
+          - number
+          - 'null'
+        parsingStatus:
+          type:
+          - string
+          - 'null'
+        indexingStatus:
+          type:
+          - string
+          - 'null'
+        extractionStatus:
+          type:
+          - string
+          - 'null'
+        isLatestVersion:
+          type:
+          - boolean
+          - 'null'
+        isDirty:
+          type:
+          - boolean
+          - 'null'
+        reason:
+          type:
+          - string
+          - 'null'
+        lastIndexTimestamp:
+          type:
+          - number
+          - 'null'
+        lastExtractionTimestamp:
+          type:
+          - number
+          - 'null'
+        summaryDocumentId:
+          type:
+          - string
+          - 'null'
+        storageDocumentId:
+          type:
+          - string
+          - 'null'
+        virtualRecordId:
+          type:
+          - string
+          - 'null'
+        previewRenderable:
+          type:
+          - boolean
+          - 'null'
+        isShared:
+          type:
+          - boolean
+          - 'null'
+        isDependentNode:
+          type:
+          - boolean
+          - 'null'
+        parentNodeId:
+          type:
+          - string
+          - 'null'
+        hideWeburl:
+          type:
+          - boolean
+          - 'null'
+        isInternal:
+          type:
+          - boolean
+          - 'null'
+        md5Checksum:
+          type:
+          - string
+          - 'null'
+        sizeInBytes:
+          type:
+          - number
+          - 'null'
+        definition:
+          type:
+          - string
+          - 'null'
+        sourceTables:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+        rowCount:
+          type:
+          - number
+          - 'null'
+    SemanticSearchHistoryFilters:
+      type: object
+      additionalProperties: false
+      required:
+      - applied
+      - available
+      properties:
+        applied:
+          $ref: '#/components/schemas/SemanticSearchHistoryFiltersApplied'
+        available:
+          $ref: '#/components/schemas/SemanticSearchHistoryFiltersAvailable'
+    SemanticSearchHistoryItem:
+      type: object
+      additionalProperties: false
+      description: 'One persisted search row as returned by `GET /search`. Mirrors the
+
+        persisted search document except `citationIds` is an array of
+
+        ObjectId strings (citations are not populated on the list endpoint,
+
+        unlike `GET /search/{searchId}`).
+
+
+        `shareLink` is absent from the JSON when the search has not been
+
+        shared. `archivedBy` is `null` on rows that were previously archived
+
+        and then unarchived, and absent on rows that have never been
+
+        archived. The list endpoint already filters out currently-archived
+
+        rows, so a string user-id value never appears here in practice.
+
+        '
+      required:
+      - _id
+      - __v
+      - query
+      - limit
+      - orgId
+      - userId
+      - citationIds
+      - records
+      - isShared
+      - sharedWith
+      - isArchived
+      - createdAt
+      - updatedAt
+      properties:
+        _id:
+          type: string
+          format: objectId
+        __v:
+          type: integer
+        query:
+          type: string
+        limit:
+          type: integer
+        orgId:
+          type: string
+          format: objectId
+        userId:
+          type: string
+          format: objectId
+        citationIds:
+          type: array
+          items:
+            type: string
+            format: objectId
+        records:
+          type: object
+          description: 'Map of source-record id (or `_key`) to `JSON.stringify(<record>)`.
+
+            Clients must `JSON.parse` each value to recover the underlying
+
+            record object. Populated at write-time in the POST `/search` handler.
+
+            '
+          additionalProperties:
+            type: string
+        isShared:
+          type: boolean
+        shareLink:
+          type: string
+          description: Set once the search has been shared via `/search/{searchId}/share`.
+        sharedWith:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersistedSemanticSearchSharedWithEntry'
+        isArchived:
+          type: boolean
+        archivedBy:
+          type:
+          - string
+          - 'null'
+          format: objectId
+          description: 'User ID of the last user who archived this row, or `null` after
+
+            an unarchive cleared the archive state. Absent on rows that have
+
+            never been archived.
+
+            '
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    SemanticSearchHistoryResponse:
+      type: object
+      additionalProperties: false
+      description: 'Envelope returned by `GET /search`. The handler runs `find()` plus
+
+        `countDocuments()` in parallel and assembles `{ searchHistory,
+
+        pagination, filters, meta }` (es_controller.ts:3925-3973).
+
+        '
+      required:
+      - searchHistory
+      - pagination
+      - filters
+      - meta
+      properties:
+        searchHistory:
+          type: array
+          items:
+            $ref: '#/components/schemas/SemanticSearchHistoryItem'
+        pagination:
+          $ref: '#/components/schemas/SemanticSearchHistoryPagination'
+        filters:
+          $ref: '#/components/schemas/SemanticSearchHistoryFilters'
+        meta:
+          $ref: '#/components/schemas/SemanticSearchHistoryMeta'
+    SemanticSearchAiResponse:
+      type: object
+      additionalProperties: false
+      description: 'Payload returned by the AI retrieval service for a semantic search (embedded in `searchResponse`).
+
+        Optional `virtual_to_record_map` maps each virtual record id (string key) to one resolved graph record document.
+
+        Empty responses from the retrieval layer omit `virtual_to_record_map`; success payloads may include it alongside hits and records.
+
+        '
+      required:
+      - searchResults
+      - records
+      - status
+      - status_code
+      - message
+      properties:
+        searchResults:
+          type: array
+          items:
+            $ref: '#/components/schemas/SemanticSearchHit'
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/SemanticSearchGraphRecord'
+        status:
+          type: string
+        status_code:
+          type: integer
+        message:
+          type: string
+        appliedFilters:
+          $ref: '#/components/schemas/SemanticSearchAppliedFilters'
+        virtual_to_record_map:
+          type: object
+          description: Maps virtual record id (object property name) to the accessible graph record document for that id.
+          additionalProperties:
+            $ref: '#/components/schemas/SemanticSearchGraphRecord'
+    SemanticSearchHitMetadata:
+      type: object
+      additionalProperties: false
+      description: 'Per-hit metadata after retrieval enrichment (record + vector context).
+
+        Listed fields are the documented contract; Qdrant or pipeline updates may add more keys over time—extend this schema when new stable fields appear.
+
+        '
+      properties:
+        orgId:
+          type:
+          - string
+          - 'null'
+        recordId:
+          type:
+          - string
+          - 'null'
+        virtualRecordId:
+          type:
+          - string
+          - 'null'
+        recordName:
+          type:
+          - string
+          - 'null'
+        recordType:
+          type:
+          - string
+          - 'null'
+        recordVersion:
+          oneOf:
+          - type: string
+          - type: number
+        origin:
+          type:
+          - string
+          - 'null'
+        connector:
+          type:
+          - string
+          - 'null'
+        connectorId:
+          type:
+          - string
+          - 'null'
+        connectorName:
+          type:
+          - string
+          - 'null'
+        blockText:
+          type:
+          - string
+          - 'null'
+        blockType:
+          type:
+          - string
+          - 'null'
+          description: 'Block type for this hit. Common values: `text`, `image`, `table_row`, `table`,
+
+            `record_summary` (whole-record semantic summary chunk — no block index).
+
+            '
+        bounding_box:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/SemanticSearchBoundingBox'
+        pageNum:
+          type:
+          - array
+          - 'null'
+          items:
+            type:
+            - integer
+            - 'null'
+        extension:
+          type:
+          - string
+          - 'null'
+        mimeType:
+          type:
+          - string
+          - 'null'
+        blockNum:
+          type:
+          - array
+          - 'null'
+          items:
+            type: number
+        chunkIndex:
+          type:
+          - integer
+          - 'null'
+        sheetName:
+          type:
+          - string
+          - 'null'
+        sheetNum:
+          type:
+          - integer
+          - 'null'
+        webUrl:
+          type:
+          - string
+          - 'null'
+        previewRenderable:
+          type:
+          - boolean
+          - 'null'
+        hideWeburl:
+          type:
+          - boolean
+          - 'null'
+        updatedAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        categories:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+        departments:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+        topics:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+        languages:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+        subcategoryLevel1:
+          type:
+          - string
+          - 'null'
+        subcategoryLevel2:
+          type:
+          - string
+          - 'null'
+        subcategoryLevel3:
+          type:
+          - string
+          - 'null'
+        score:
+          type:
+          - number
+          - 'null'
+        _id:
+          type:
+          - string
+          - 'null'
+        _collection_name:
+          type:
+          - string
+          - 'null'
+        blockIndex:
+          type:
+          - integer
+          - 'null'
+        blockId:
+          type:
+          - string
+          - 'null'
+        isBlock:
+          type:
+          - boolean
+          - 'null'
+        isBlockGroup:
+          type:
+          - boolean
+          - 'null'
+        isRecordSummary:
+          type:
+          - boolean
+          - 'null'
+          description: 'Set to `true` by the indexing pipeline when this vector chunk represents a
+
+            whole-record semantic summary rather than an individual block. When true,
+
+            `blockIndex` is absent and `block_type` on the parent hit is `record_summary`.
+
+            '
+        kbId:
+          type:
+          - string
+          - 'null'
+          description: Knowledge base id merged from graph record during retrieval (when present).
+        point_id:
+          description: Qdrant point identifier attached during vector lookup (shape varies by deployment).
+          oneOf:
+          - type: string
+          - type: integer
+          - type: number
+    SemanticSearchRequest:
+      type: object
+      description: 'Request body for performing semantic search across the enterprise knowledge base.
+
+
+        **How Semantic Search Works:**
+
+
+        1. Query is converted to vector embeddings
+
+        2. Similar content is found using vector similarity
+
+        3. Results are ranked by relevance score
+
+        4. Matching chunks with metadata are returned
+
+
+        **Filtering:**
+
+
+        Use filters to narrow search scope to specific apps or knowledge bases.
+
+        '
+      required:
+      - query
+      properties:
+        query:
+          type: string
+          minLength: 1
+          description: 'Natural language search query. The system understands
+
+            semantic meaning, not just keywords.
+
+            '
+          example: employee onboarding procedures
+        filters:
+          $ref: '#/components/schemas/Filters'
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 10
+          description: Maximum number of results to return
+    SemanticSearchHistoryFiltersAvailable:
+      type: object
+      additionalProperties: false
+      description: 'Catalogue of filters the endpoint supports, plus their current values
+
+        and `applied` flags. Built by `buildFiltersMetadata` (utils.ts:430-624).
+
+        '
+      required:
+      - shared
+      - tags
+      - minMessages
+      - search
+      - pagination
+      - sorting
+      - dateFilters
+      - messageFilters
+      - sortingMessages
+      properties:
+        shared:
+          $ref: '#/components/schemas/SemanticSearchHistoryFilterToggle'
+        tags:
+          $ref: '#/components/schemas/SemanticSearchHistoryFilterToggle'
+        minMessages:
+          $ref: '#/components/schemas/SemanticSearchHistoryFilterToggle'
+        search:
+          $ref: '#/components/schemas/SemanticSearchHistoryFilterToggle'
+        pagination:
+          type: object
+          additionalProperties: false
+          required:
+          - page
+          - limit
+          properties:
+            page:
+              $ref: '#/components/schemas/SemanticSearchHistoryPaginationField'
+            limit:
+              $ref: '#/components/schemas/SemanticSearchHistoryPaginationField'
+        sorting:
+          type: object
+          additionalProperties: false
+          required:
+          - sortBy
+          - sortOrder
+          properties:
+            sortBy:
+              $ref: '#/components/schemas/SemanticSearchHistorySortField'
+            sortOrder:
+              $ref: '#/components/schemas/SemanticSearchHistorySortField'
+        dateFilters:
+          type: object
+          additionalProperties: false
+          required:
+          - dateRange
+          properties:
+            dateRange:
+              $ref: '#/components/schemas/SemanticSearchHistoryDateRange'
+        messageFilters:
+          type: object
+          additionalProperties: false
+          required:
+          - messageType
+          properties:
+            messageType:
+              $ref: '#/components/schemas/SemanticSearchHistoryFilterToggle'
+        sortingMessages:
+          type: object
+          additionalProperties: false
+          required:
+          - sortBy
+          - sortOrder
+          properties:
+            sortBy:
+              $ref: '#/components/schemas/SemanticSearchHistorySortField'
+            sortOrder:
+              $ref: '#/components/schemas/SemanticSearchHistorySortField'
+    PersistedSemanticSearchSharedWithEntry:
+      type: object
+      additionalProperties: false
+      description: 'Entry inside `sharedWith[]`. The schema sets `_id: false` on these
+
+        sub-docs, so no auto-injected `_id` is present.
+
+        '
+      required:
+      - userId
+      - accessLevel
+      properties:
+        userId:
+          type: string
+          format: objectId
+        accessLevel:
+          type: string
+          enum:
+          - read
+          - write
+    PersistedSemanticSearchCitationMetadata:
+      type: object
+      additionalProperties: false
+      description: 'Citation metadata as persisted in MongoDB. Required fields mirror the
+
+        Mongoose schema''s `required: true` flags; the rest are optional and
+
+        may come through as `null` because the AI retrieval service emits
+
+        explicit nulls for absent fields.
+
+        '
+      required:
+      - orgId
+      - mimeType
+      - recordId
+      - recordName
+      - origin
+      properties:
+        orgId:
+          type: string
+        mimeType:
+          type: string
+        recordId:
+          type: string
+        recordName:
+          type: string
+        origin:
+          type: string
+        recordVersion:
+          type:
+          - integer
+          - 'null'
+        extension:
+          type:
+          - string
+          - 'null'
+        webUrl:
+          type:
+          - string
+          - 'null'
+        previewRenderable:
+          type:
+          - boolean
+          - 'null'
+        hideWeburl:
+          type:
+          - boolean
+          - 'null'
+        connector:
+          type:
+          - string
+          - 'null'
+        connectorId:
+          type:
+          - string
+          - 'null'
+          description: 'The connector instance the record came from. `connector` names only
+
+            the kind of source (for example `SLACK`), which several instances can
+
+            share. Absent on citations saved before this field was stored.
+
+            '
+        recordType:
+          type:
+          - string
+          - 'null'
+        blockNum:
+          type:
+          - array
+          - 'null'
+          items:
+            type:
+            - number
+            - 'null'
+        pageNum:
+          type:
+          - array
+          - 'null'
+          items:
+            type:
+            - number
+            - 'null'
+        sheetNum:
+          type:
+          - number
+          - 'null'
+        sheetName:
+          type:
+          - string
+          - 'null'
+        bounding_box:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PersistedSemanticSearchBoundingBox'
+        blockType:
+          type:
+          - string
+          - 'null'
+          description: 'Block type for this citation. Common values: `text`, `image`, `table_row`, `table`,
+
+            `record_summary` (whole-record semantic summary chunk).
+
+            '
+        blockText:
+          type:
+          - string
+          - 'null'
+        departments:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+        languages:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+        topics:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+    PersistedSemanticSearchBoundingBox:
+      type: object
+      additionalProperties: false
+      description: 'Bounding box subdocument embedded in persisted citation metadata.
+
+        `boundingBoxSchema` does not set `_id: false`, so Mongoose auto-injects an `_id`.
+
+        '
+      required:
+      - _id
+      - x
+      - y
+      properties:
+        _id:
+          type: string
+          format: objectId
+        x:
+          type: number
+        y:
+          type: number
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'JWT Bearer token for authenticated requests.
+
+
+        A personal access token (see the **Personal Access Tokens** tag) is a
+
+        `phpat_`-prefixed variant of this same JWT — e.g. `phpat_eyJhbGci...`.
+
+        The prefix is display-only, added for secret-scanner detectability; the
+
+        gateway strips it before verifying the token, so send it exactly as
+
+        issued, prefix included.
+
+        '
+    scopedToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Scoped JWT token for service-to-service authentication.
+
+        Format: "Bearer {scoped_token}"
+
+        Required scopes vary by endpoint.
+
+        '
+    oauth2:
+      type: oauth2
+      description: 'OAuth 2.0 authentication with fine-grained scopes.
+
+        Supports authorization_code (with PKCE) and client_credentials flows.
+
+        OAuth tokens are Bearer JWTs — use the same Authorization header as regular tokens.
+
+        For **client_credentials**, machine JWTs may use `userId === client_id`; the Node gateway resolves the OAuth app creator — see **OAuth Provider** tag.
+
+        '
+      flows:
+        authorizationCode:
+          authorizationUrl: /api/v1/oauth2/authorize
+          tokenUrl: /api/v1/oauth2/token
+          refreshUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:read: Read semantic search results and history
+            semantic:write: Execute semantic search
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+            crawl:delete: Delete crawling jobs
+        clientCredentials:
+          tokenUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:write: Execute semantic search
+            semantic:read: Read semantic search results and history
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+x-refined-from:
+- pipeshub-openapi.yaml
+- pipeshub-openapi.yml

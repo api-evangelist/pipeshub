@@ -1,0 +1,40 @@
+generated: '2026-10-09'
+method: searched
+source: https://docs.pipeshub.com/llms.txt
+note: SDK repos are linked from the docs (sdks_tools topic pages); versions read from registry metadata endpoints on 2026-10-09.
+packages:
+- name: pipeshub-sdk
+  registry: pypi
+  url: https://pypi.org/project/pipeshub-sdk/
+  language: Python
+  official: true
+  version: 1.6.0
+  published: '2026-08-15'
+  source_code: https://github.com/pipeshub-ai/pipeshub-sdk-python
+  install: pip install pipeshub-sdk
+- name: '@pipeshub-ai/sdk'
+  registry: npm
+  url: https://www.npmjs.com/package/@pipeshub-ai/sdk
+  language: TypeScript
+  official: true
+  version: 1.6.0
+  published: '2026-08-15'
+  source_code: https://github.com/pipeshub-ai/pipeshub-sdk-typescript
+  install: yarn add @pipeshub-ai/sdk
+- name: github.com/pipeshub-ai/pipeshub-sdk-go
+  registry: go
+  url: https://pkg.go.dev/github.com/pipeshub-ai/pipeshub-sdk-go
+  language: Go
+  official: true
+  version: v1.6.0
+  published: '2026-08-13'
+  source_code: https://github.com/pipeshub-ai/pipeshub-sdk-go
+  install: go get github.com/pipeshub-ai/pipeshub-sdk-go
+- name: pipeshub
+  registry: npm
+  url: https://www.npmjs.com/package/pipeshub
+  language: TypeScript
+  official: true
+  version: 0.1.0
+  published: '2026-02-15'
+  note: 'Registry description "Model Context Protocol (MCP) Server for the *pipeshub* API."; sole maintainer rishabh@pipeshub.com (company domain). No repository field. Older than the 1.6.0 SDKs; the docs now point MCP clients at the remote {instance_url}/mcp endpoint instead.'

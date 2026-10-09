@@ -1,0 +1,1123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/api-evangelist/pipeshub/main/json-schema/pipeshub-conversation-schema.json",
+  "title": "Conversation",
+  "description": "A conversation represents a chat session between a user and the AI.\nConversations maintain context across multiple messages and can be\nshared, archived, and organized.\n",
+  "x-generated": "2026-10-09",
+  "x-method": "derived",
+  "x-generator": "derive-json-schema.py",
+  "x-source": "openapi/pipeshub-openapi.yml#/components/schemas/Conversation",
+  "type": "object",
+  "properties": {
+    "_id": {
+      "type": "string",
+      "format": "objectId",
+      "description": "Unique conversation identifier"
+    },
+    "userId": {
+      "type": "string",
+      "format": "objectId",
+      "description": "ID of the user who owns this conversation"
+    },
+    "orgId": {
+      "type": "string",
+      "format": "objectId",
+      "description": "Organization this conversation belongs to"
+    },
+    "title": {
+      "type": "string",
+      "description": "Conversation title, auto-generated from first query\nor manually updated\n"
+    },
+    "initiator": {
+      "type": "string",
+      "format": "objectId",
+      "description": "User who started the conversation"
+    },
+    "messages": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Message"
+      },
+      "description": "All messages in this conversation"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "None",
+        "Inprogress",
+        "Complete",
+        "Failed",
+        "Stopped"
+      ],
+      "description": "Current status of the conversation:\n- `None` — no activity yet\n- `Inprogress` — AI is processing\n- `Complete` — response ready\n- `Failed` — error occurred\n- `Stopped` — cancelled, or the client disconnected mid-answer;\n  the last message keeps the partial answer\n"
+    },
+    "failReason": {
+      "type": "string",
+      "description": "Error description, populated only when `status` is `Failed`."
+    },
+    "modelInfo": {
+      "type": "object",
+      "properties": {
+        "modelKey": {
+          "type": "string"
+        },
+        "modelName": {
+          "type": "string"
+        },
+        "modelFriendlyName": {
+          "type": "string",
+          "description": "Friendly display name of the selected model"
+        },
+        "modelProvider": {
+          "type": "string"
+        },
+        "chatMode": {
+          "type": "string"
+        }
+      },
+      "description": "AI model configuration used"
+    },
+    "isShared": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this conversation is shared with others"
+    },
+    "shareLink": {
+      "type": "string",
+      "description": "Shareable link if conversation is shared"
+    },
+    "sharedWith": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "objectId"
+          },
+          "accessLevel": {
+            "type": "string",
+            "enum": [
+              "read",
+              "write"
+            ]
+          }
+        }
+      },
+      "description": "Users this conversation is shared with"
+    },
+    "isArchived": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this conversation is archived"
+    },
+    "archivedBy": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "objectId",
+      "description": "User ID of the last user who archived this row, or `null` after\nunarchive cleared the archive state. Absent on rows that have\nnever been archived.\n"
+    },
+    "isDeleted": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this conversation has been soft-deleted."
+    },
+    "deletedBy": {
+      "type": "string",
+      "format": "objectId",
+      "description": "User who soft-deleted this conversation."
+    },
+    "conversationErrors": {
+      "type": "array",
+      "description": "Errors recorded against this conversation (e.g. failed message generations).",
+      "items": {
+        "type": "object",
+        "required": [
+          "message"
+        ],
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "errorType": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "messageId": {
+            "type": "string",
+            "format": "objectId"
+          },
+          "stack": {
+            "type": "string"
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "Free-form metadata attached to the conversation."
+    },
+    "lastActivityAt": {
+      "type": "integer",
+      "description": "Unix timestamp of last activity"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "isOwner": {
+      "type": "boolean",
+      "description": "Computed per request. `true` when the requesting user is the\nconversation's `initiator`.\n",
+      "readOnly": true
+    },
+    "accessLevel": {
+      "type": "string",
+      "enum": [
+        "read",
+        "write"
+      ],
+      "description": "Computed per request. The requester's effective access level:\ntheir entry in `sharedWith`, or `read` by default.\n",
+      "readOnly": true
+    },
+    "projectId": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "objectId",
+      "description": "The project this conversation is linked to, if any. Set via\n`PUT /conversations/{conversationId}/project` or at creation\ntime; absent on conversations that were never linked.\n"
+    },
+    "projectVisibility": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "private",
+        "project"
+      ],
+      "description": "Only meaningful when `projectId` is set. `private` (default)\nkeeps the conversation visible to its owner only; `project`\nexposes it to every member of the linked project. See\n`PATCH /conversations/{conversationId}/project-visibility`.\n"
+    },
+    "sharedBy": {
+      "$ref": "#/$defs/ConversationSharedBy"
+    }
+  },
+  "$defs": {
+    "AppliedFilterNode": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "A single filter node selected by the user (used for display/persistence of active filters)",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier of the filter node"
+        },
+        "name": {
+          "type": "string",
+          "description": "Display name of the filter node"
+        },
+        "nodeType": {
+          "type": "string",
+          "description": "Type of the node (e.g. app, recordGroup, folder, record)"
+        },
+        "connector": {
+          "type": "string",
+          "description": "Connector identifier associated with this node"
+        }
+      }
+    },
+    "AppliedFilters": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Rich filter state selected by the user, used for display and persistence only.\nThis mirrors the active selection shown in the UI and is distinct from the\nmachine-readable `filters` field used for retrieval scoping.\n",
+      "properties": {
+        "apps": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AppliedFilterNode"
+          },
+          "description": "Applied app/connector filter nodes"
+        },
+        "kb": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AppliedFilterNode"
+          },
+          "description": "Applied knowledge-base filter nodes"
+        }
+      }
+    },
+    "ChatAttachmentRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Reference to an attachment produced by `POST /conversations/attachments/upload`\n(or the equivalent agent route). Include in create/stream/message bodies\nso the turn is sent with uploaded files.\n",
+      "required": [
+        "recordId"
+      ],
+      "properties": {
+        "recordId": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Attachment record id returned from the upload endpoint."
+        },
+        "recordName": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Original display name of the file when known."
+        },
+        "mimeType": {
+          "type": "string",
+          "minLength": 1,
+          "description": "MIME type of the uploaded file."
+        },
+        "extension": {
+          "type": "string",
+          "minLength": 1,
+          "description": "File extension (e.g. `pdf`)."
+        },
+        "virtualRecordId": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Optional synthetic record id used by the graph layer."
+        }
+      }
+    },
+    "Citation": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "A populated citation document. Represents a single chunk of source\ncontent (e.g. a passage from a document or record) referenced by an\nAI response, together with its provenance metadata.\n",
+      "required": [
+        "_id",
+        "content",
+        "chunkIndex",
+        "citationType",
+        "metadata",
+        "createdAt",
+        "updatedAt"
+      ],
+      "properties": {
+        "_id": {
+          "type": "string",
+          "format": "objectId"
+        },
+        "content": {
+          "type": "string",
+          "description": "The cited text chunk"
+        },
+        "chunkIndex": {
+          "type": "integer",
+          "description": "Index of this chunk within the source record"
+        },
+        "citationType": {
+          "type": "string",
+          "description": "Source type identifier (e.g. `vectordb|document`)"
+        },
+        "metadata": {
+          "$ref": "#/$defs/PersistedSemanticSearchCitationMetadata"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "CitationReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Reference to a source document cited in a response",
+      "properties": {
+        "citationId": {
+          "type": "string",
+          "format": "objectId",
+          "description": "ID of the citation record"
+        },
+        "relevanceScore": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "How relevant this citation is to the query (0-1)"
+        },
+        "excerpt": {
+          "type": "string",
+          "description": "Relevant excerpt from the source document"
+        },
+        "context": {
+          "type": "string",
+          "description": "Additional context around the citation"
+        }
+      }
+    },
+    "ConversationModelInfo": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "AI model configuration recorded against a conversation or message.",
+      "properties": {
+        "modelKey": {
+          "type": "string",
+          "description": "Stable identifier of the configured model record"
+        },
+        "modelName": {
+          "type": "string",
+          "description": "Provider-facing model name (e.g. `gpt-5.6-luna`)"
+        },
+        "modelProvider": {
+          "type": "string",
+          "description": "Provider key (e.g. `openai`, `anthropic`)"
+        },
+        "modelFriendlyName": {
+          "type": "string",
+          "description": "Human-readable display name"
+        },
+        "chatMode": {
+          "type": "string",
+          "description": "Chat mode used for this turn (e.g. `quick`, `internal_search`)"
+        }
+      }
+    },
+    "ConversationSharedBy": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Present on conversations the caller received via share. Identifies the\nconversation initiator (the only user who can share a chat).\n",
+      "required": [
+        "userId",
+        "name"
+      ],
+      "properties": {
+        "userId": {
+          "type": "string",
+          "format": "objectId"
+        },
+        "name": {
+          "type": "string",
+          "description": "Display name, falling back to email or the user id"
+        }
+      }
+    },
+    "FollowUpQuestion": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "AI-suggested follow-up question",
+      "properties": {
+        "question": {
+          "type": "string",
+          "description": "The suggested question text"
+        },
+        "confidence": {
+          "type": "string",
+          "description": "Confidence level for this suggestion"
+        },
+        "reasoning": {
+          "type": "string",
+          "description": "Why this question might be relevant"
+        }
+      }
+    },
+    "Message": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "A single message within a conversation. Messages can be user queries,\nAI responses, system messages, or error notifications.\n",
+      "properties": {
+        "_id": {
+          "type": "string",
+          "format": "objectId",
+          "description": "Unique message identifier"
+        },
+        "messageType": {
+          "type": "string",
+          "enum": [
+            "user_query",
+            "bot_response",
+            "error",
+            "feedback",
+            "system",
+            "tool_call"
+          ],
+          "description": "Type of message:\n- `user_query` - User's question or input\n- `bot_response` - AI-generated response\n- `error` - Error message from the system\n- `feedback` - User feedback on a response\n- `system` - System notification or status\n- `tool_call` - Tool invocation turn; details are on `tools`\n"
+        },
+        "content": {
+          "type": "string",
+          "description": "The message text content"
+        },
+        "contentFormat": {
+          "type": "string",
+          "enum": [
+            "MARKDOWN",
+            "JSON",
+            "HTML"
+          ],
+          "description": "Format of the content for rendering",
+          "default": "MARKDOWN"
+        },
+        "citations": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/CitationReference"
+              },
+              {
+                "$ref": "#/$defs/PopulatedCitationReference"
+              }
+            ]
+          },
+          "description": "References to source documents used in the response. Routes that\nreturn the saved conversation after a turn (create, add message)\npopulate each item to `{ citationId, citationData }`.\n"
+        },
+        "confidence": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "AI confidence in the answer. Present only on `bot_response` messages,\nand only when the model emitted a trailing confidence block.\n\nThis field is now optional and nullable; it was previously always present and non-nullable. Treat a missing or `null` value as \"no confidence reported\" and guard before using it. Change effective in SDK v1.3.0 (v1.2.0 and earlier always populated it).\n"
+        },
+        "followUpQuestions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FollowUpQuestion"
+          },
+          "description": "Suggested follow-up questions"
+        },
+        "feedback": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/MessageFeedback"
+          },
+          "description": "User feedback on this message"
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "processingTimeMs": {
+              "type": "number",
+              "description": "Time taken to generate response in milliseconds"
+            },
+            "modelVersion": {
+              "type": "string",
+              "description": "Version of the AI model used"
+            },
+            "aiTransactionId": {
+              "type": "string",
+              "description": "Transaction ID for tracking in AI backend"
+            },
+            "reason": {
+              "type": "string",
+              "description": "Additional context or reasoning"
+            }
+          }
+        },
+        "modelInfo": {
+          "$ref": "#/$defs/ConversationModelInfo"
+        },
+        "appliedFilters": {
+          "$ref": "#/$defs/AppliedFilters"
+        },
+        "referenceData": {
+          "type": "array",
+          "description": "Reference identifiers extracted from tool responses, used to scope\nfollow-up queries (for example Jira project keys or record IDs).\n",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Display name shown to the user."
+              },
+              "id": {
+                "type": "string",
+                "description": "Technical identifier (numeric ID, UUID, etc.)."
+              },
+              "type": {
+                "type": "string",
+                "description": "Item type (e.g. `project`, `issue`, `file`, `notebook`, `page`)."
+              },
+              "app": {
+                "type": "string",
+                "description": "Source application (e.g. `jira`, `confluence`, `sharepoint`,\n`slack`, `drive`, `gmail`).\n"
+              },
+              "webUrl": {
+                "type": "string",
+                "description": "URL to open the item in a browser."
+              },
+              "metadata": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string"
+                },
+                "description": "App-specific fields keyed by name (e.g. `key` for a Jira project,\n`siteId` for a SharePoint document).\n"
+              }
+            }
+          }
+        },
+        "attachments": {
+          "type": "array",
+          "description": "Files uploaded for this message turn (see\n`POST /conversations/attachments/upload`).\n",
+          "items": {
+            "$ref": "#/$defs/ChatAttachmentRef"
+          }
+        },
+        "tools": {
+          "type": "array",
+          "description": "Tool call results invoked during this message turn.",
+          "items": {
+            "$ref": "#/$defs/MessageToolCall"
+          }
+        },
+        "reasoning": {
+          "type": "array",
+          "description": "Persisted chain-of-thought for this turn.",
+          "items": {
+            "$ref": "#/$defs/MessageReasoningTurn"
+          }
+        },
+        "parts": {
+          "type": "array",
+          "description": "Ordered agent-activity transcript for this turn.",
+          "items": {
+            "$ref": "#/$defs/MessagePart"
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "MessageFeedback": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Comprehensive feedback on an AI response. Feedback helps improve\nthe AI's performance and response quality over time.\n",
+      "properties": {
+        "isHelpful": {
+          "type": "boolean",
+          "description": "Overall helpfulness rating"
+        },
+        "ratings": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "accuracy": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 5,
+              "description": "How accurate was the information (1-5)"
+            },
+            "relevance": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 5,
+              "description": "How relevant was the response (1-5)"
+            },
+            "completeness": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 5,
+              "description": "How complete was the answer (1-5)"
+            },
+            "clarity": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 5,
+              "description": "How clear was the explanation (1-5)"
+            }
+          }
+        },
+        "categories": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "incorrect_information",
+              "missing_information",
+              "irrelevant_information",
+              "unclear_explanation",
+              "poor_citations",
+              "excellent_answer",
+              "helpful_citations",
+              "well_explained",
+              "other"
+            ]
+          },
+          "description": "Categories of issues or positive attributes identified"
+        },
+        "comments": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "positive": {
+              "type": "string",
+              "description": "What was good about the response"
+            },
+            "negative": {
+              "type": "string",
+              "description": "What could be improved"
+            },
+            "suggestions": {
+              "type": "string",
+              "description": "Specific suggestions for improvement"
+            }
+          }
+        },
+        "citationFeedback": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "_id": {
+                "type": "string",
+                "format": "objectId",
+                "description": "Auto-generated sub-document identifier"
+              },
+              "citationId": {
+                "type": "string",
+                "format": "objectId"
+              },
+              "isRelevant": {
+                "type": "boolean"
+              },
+              "relevanceScore": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 5
+              },
+              "comment": {
+                "type": "string"
+              }
+            }
+          },
+          "description": "Feedback on individual citations"
+        },
+        "followUpQuestionsHelpful": {
+          "type": "boolean",
+          "description": "Were the suggested follow-up questions helpful"
+        },
+        "unusedFollowUpQuestions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Follow-up questions that were suggested but not used by the user"
+        },
+        "source": {
+          "type": "string",
+          "enum": [
+            "user",
+            "system",
+            "admin",
+            "auto"
+          ],
+          "default": "user",
+          "description": "Origin of the feedback. Always present in responses (server applies the default `user`)."
+        },
+        "feedbackProvider": {
+          "type": "string",
+          "format": "objectId",
+          "description": "User who submitted the feedback"
+        },
+        "timestamp": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Time the feedback was created, stored as a Number (epoch milliseconds)\nwith a server-side default of `Date.now`, so always present in responses.\nNot an ISO 8601 datetime.\n"
+        },
+        "revisions": {
+          "type": "array",
+          "description": "Audit trail of edits to this feedback entry",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "_id": {
+                "type": "string",
+                "format": "objectId",
+                "description": "Auto-generated sub-document identifier"
+              },
+              "updatedFields": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Names of feedback fields modified in this revision"
+              },
+              "previousValues": {
+                "type": "object",
+                "additionalProperties": true,
+                "description": "Map of previously-set values for the fields named in `updatedFields`,\nkeyed by field name. Stored as a Mongoose Map of Mixed values.\n"
+              },
+              "updatedBy": {
+                "type": "string",
+                "format": "objectId"
+              },
+              "updatedAt": {
+                "type": "integer",
+                "format": "int64",
+                "description": "Time the revision was recorded, as epoch milliseconds."
+              }
+            }
+          }
+        },
+        "metrics": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Optional telemetry captured alongside the feedback",
+          "properties": {
+            "timeToFeedback": {
+              "type": "number",
+              "description": "Time from response delivery to feedback submission"
+            },
+            "userInteractionTime": {
+              "type": "number",
+              "description": "Total time the user spent reviewing the response"
+            },
+            "feedbackSessionId": {
+              "type": "string"
+            },
+            "userAgent": {
+              "type": "string"
+            },
+            "platform": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "MessagePart": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "One entry in the ordered agent-activity transcript for a message turn.\nEvery field beyond `type` is optional and depends on the part kind, and\n`sub_agent` nests this same shape recursively under `parts`.\n\nTool results here are always a bounded preview, never the full payload —\n`artifactId` points at the complete result.\n",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "text",
+            "reasoning",
+            "tool_call",
+            "sub_agent"
+          ]
+        },
+        "content": {
+          "type": "string"
+        },
+        "toolCallId": {
+          "type": "string"
+        },
+        "toolName": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "args": {
+          "type": "string"
+        },
+        "argsSummary": {
+          "type": "string",
+          "description": "Human-readable summary of `args`, computed server-side."
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "running",
+            "completed",
+            "failed",
+            "blocked"
+          ]
+        },
+        "resultPreview": {
+          "type": "string"
+        },
+        "resultSummary": {
+          "type": "string",
+          "description": "Human-readable summary of the tool result, computed server-side from\nthe full untruncated output.\n"
+        },
+        "artifactId": {
+          "type": "string",
+          "description": "Blob-backed artifact id for the full tool result."
+        },
+        "runId": {
+          "type": "string"
+        },
+        "roleName": {
+          "type": "string"
+        },
+        "isFinal": {
+          "type": "boolean",
+          "description": "Set on the single root-level `text` part carrying the answer. Every\nother root `text` part is an abandoned preamble turn. Never set on\nchild parts nested under a `sub_agent`.\n"
+        },
+        "parts": {
+          "type": "array",
+          "description": "Nested transcript of a `sub_agent` part.",
+          "items": {
+            "$ref": "#/$defs/MessagePart"
+          }
+        }
+      }
+    },
+    "MessageReasoningTurn": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "One model turn's chain-of-thought. Persisted only when reasoning\npersistence is enabled; the array is empty otherwise.\n",
+      "required": [
+        "content"
+      ],
+      "properties": {
+        "messageId": {
+          "type": "string"
+        },
+        "turnIndex": {
+          "type": "number"
+        },
+        "content": {
+          "type": "string"
+        }
+      }
+    },
+    "MessageToolCall": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "One tool invocation recorded on a message turn.",
+      "properties": {
+        "toolName": {
+          "type": "string"
+        },
+        "toolResult": {}
+      }
+    },
+    "PersistedSemanticSearchBoundingBox": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Bounding box subdocument embedded in persisted citation metadata.\n`boundingBoxSchema` does not set `_id: false`, so Mongoose auto-injects an `_id`.\n",
+      "required": [
+        "_id",
+        "x",
+        "y"
+      ],
+      "properties": {
+        "_id": {
+          "type": "string",
+          "format": "objectId"
+        },
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        }
+      }
+    },
+    "PersistedSemanticSearchCitationMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Citation metadata as persisted in MongoDB. Required fields mirror the\nMongoose schema's `required: true` flags; the rest are optional and\nmay come through as `null` because the AI retrieval service emits\nexplicit nulls for absent fields.\n",
+      "required": [
+        "orgId",
+        "mimeType",
+        "recordId",
+        "recordName",
+        "origin"
+      ],
+      "properties": {
+        "orgId": {
+          "type": "string"
+        },
+        "mimeType": {
+          "type": "string"
+        },
+        "recordId": {
+          "type": "string"
+        },
+        "recordName": {
+          "type": "string"
+        },
+        "origin": {
+          "type": "string"
+        },
+        "recordVersion": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "extension": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "webUrl": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "previewRenderable": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "hideWeburl": {
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "connector": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "connectorId": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "The connector instance the record came from. `connector` names only\nthe kind of source (for example `SLACK`), which several instances can\nshare. Absent on citations saved before this field was stored.\n"
+        },
+        "recordType": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "blockNum": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": [
+              "number",
+              "null"
+            ]
+          }
+        },
+        "pageNum": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": [
+              "number",
+              "null"
+            ]
+          }
+        },
+        "sheetNum": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "sheetName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "bounding_box": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/$defs/PersistedSemanticSearchBoundingBox"
+          }
+        },
+        "blockType": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Block type for this citation. Common values: `text`, `image`, `table_row`, `table`,\n`record_summary` (whole-record semantic summary chunk).\n"
+        },
+        "blockText": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "departments": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "languages": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "topics": {
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "PopulatedCitationReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "A message's citation reference after the handler populates it: the\nstored reference fields, with `citationId` as the id and the cited\ndocument under `citationData`.\n",
+      "properties": {
+        "citationId": {
+          "type": "string",
+          "format": "objectId",
+          "description": "ID of the citation record"
+        },
+        "relevanceScore": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "How relevant this citation is to the query (0-1)"
+        },
+        "excerpt": {
+          "type": "string",
+          "description": "Relevant excerpt from the source document"
+        },
+        "context": {
+          "type": "string",
+          "description": "Additional context around the citation"
+        },
+        "citationData": {
+          "$ref": "#/$defs/Citation"
+        }
+      }
+    }
+  }
+}

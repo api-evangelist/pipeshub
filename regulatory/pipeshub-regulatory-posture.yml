@@ -1,0 +1,108 @@
+generated: '2026-10-09'
+method: searched
+probe: true
+source: https://pipeshub.com/privacy-policy
+sources_checked:
+- {url: https://pipeshub.com/privacy-policy, http_status: 200}
+- {url: https://pipeshub.com/terms, http_status: 200}
+- {url: https://pipeshub.com/security, http_status: 200}
+- {url: https://pipeshub.trust.site/subprocessors, http_status: 200}
+- {url: https://pipeshub.com/trust, http_status: 404}
+- {url: https://pipeshub.com/subprocessors, http_status: 404}
+- {url: https://pipeshub.com/legal/subprocessors, http_status: 404}
+- {url: https://pipeshub.com/dpa, http_status: 404}
+- {url: https://pipeshub.com/legal/dpa, http_status: 404}
+- {url: https://pipeshub.com/accessibility, http_status: 404}
+signals:
+  data_subject_request:
+    url: https://pipeshub.com/privacy-policy
+    section: '3. Right to Access Personal Information'
+    channel: contact@pipeshub.com
+    stated_sla: 'PipesHub will make reasonable efforts to fulfill requests within 30 days or as required by law.'
+    rights_named: [access, correct, suppress, deactivate]
+    evidence:
+    - source: https://pipeshub.com/privacy-policy
+      http_status: 200
+      fetched: '2026-10-09'
+      quote: >-
+        You have the right to access, correct, suppress, or deactivate your personal information. To exercise
+        these rights, email: contact@pipeshub.com PipesHub will make reasonable efforts to fulfill requests
+        within 30 days or as required by law.
+    note: >-
+      A published data-subject request channel (email, no API or form) with a best-efforts 30-day response
+      statement and identity verification ("To safeguard your privacy, identity verification may be requested.").
+      No portability or erasure right is named.
+  data_retention:
+    url: https://pipeshub.com/privacy-policy
+    section: '4. Retention of Personal Information'
+    evidence:
+    - source: https://pipeshub.com/privacy-policy
+      http_status: 200
+      fetched: '2026-10-09'
+      quote: >-
+        PipesHub retains personal data only as long as necessary to meet: Purpose of collection Legal,
+        regulatory, accounting, and reporting requirements Business obligations
+    note: >-
+      A purpose-limited retention statement with listed factors (volume, sensitivity, risk, applicable legal
+      retention periods); no fixed retention period is stated.
+  subprocessors:
+    url: https://pipeshub.trust.site/subprocessors
+    count: 9
+    listed: [MongoDB, Confluence, Google Workspace, Github App, AWS, Qdrant, Cloudflare, Jira, Slack]
+    evidence:
+    - source: https://pipeshub.trust.site/subprocessors
+      http_status: 200
+      fetched: '2026-10-09'
+      quote: 'Here are the subprocessors that PipesHub uses to process data in its infrastructure and business operations.'
+    - source: https://pipeshub.com/security
+      http_status: 200
+      fetched: '2026-10-09'
+      quote: 'Subprocessors Transparency into the infrastructure providers and services that support Pipeshub.'
+    note: >-
+      A public, anonymously readable subprocessor list (9 entries with category) on the PipesHub Trust Center
+      (pipeshub.trust.site, linked from pipeshub.com/security). The list carries no date or change-notice
+      mechanism. pipeshub.com/subprocessors and /legal/subprocessors return 404.
+  ai_transparency:
+    url: https://pipeshub.com/terms
+    section: '10. Inputs, Outputs, and AI Features'
+    evidence:
+    - source: https://pipeshub.com/terms
+      http_status: 200
+      fetched: '2026-10-09'
+      quote: >-
+        Customer acknowledges that AI-enabled features may generate inaccurate, incomplete, inconsistent,
+        insecure, biased, or offensive Outputs and that Outputs may not be unique.
+    - source: https://pipeshub.com/terms
+      http_status: 200
+      fetched: '2026-10-09'
+      quote: >-
+        PipesHub will not use Customer Materials to train shared foundation models or third-party LLMs for
+        general-purpose model training without Customer's explicit written consent.
+    note: >-
+      Contractual AI disclosure in the Terms: outputs are AI-generated and may be inaccurate or biased,
+      human review is the customer's responsibility, and customer data is not used for general-purpose model
+      training without written consent. This is a terms clause, not a dedicated AI transparency page and not a
+      training-data summary.
+  exit_assistance:
+    url: https://pipeshub.com/terms
+    section: '15. Effects of Termination'
+    stated_period: 'within thirty (30) days after termination'
+    evidence:
+    - source: https://pipeshub.com/terms
+      http_status: 200
+      fetched: '2026-10-09'
+      quote: >-
+        For paid Services, Customer may request export of Customer Materials during the period stated in the
+        applicable Order Form or, if none is stated, within thirty (30) days after termination. After that
+        period, PipesHub may delete Customer Materials from production systems, subject to routine backups,
+        legal retention obligations, and technical constraints.
+    note: >-
+      A post-termination data export window for paid services only; the same section states that hosted
+      Community Edition data may be deleted "at any time, including after inactivity". No export format or
+      tooling is named.
+not_found:
+- global_privacy_control: no statement on the privacy policy (no GPC or Do Not Track language)
+- incident_notification: no breach-notification commitment on the privacy policy, terms or security page; the DPA path (/dpa, /legal/dpa) returns 404
+- data_residency: no region or hosting-location statement on the legal pages
+- accessibility_conformance: /accessibility returns 404; no VPAT or WCAG statement found
+- sbom, support_lifetime, age_assurance, notice_and_action, transparency_report, training_data_summary: not addressed on the pages read

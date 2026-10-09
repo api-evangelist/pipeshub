@@ -1,0 +1,53 @@
+generated: '2026-10-09'
+method: searched
+source: https://docs.pipeshub.com/developer/oauth2
+derived_from: openapi/pipeshub-openapi.yml
+auth:
+  style: 'Authorization: Bearer <JWT> — session JWT (24h), personal access token (phpat_-prefixed JWT), or OAuth 2.0 access token; x-session-token header on some routes'
+  see: authentication/pipeshub-authentication.yml
+base_url: '{instance_url}/api/v1 (default https://app.pipeshub.com, or a self-hosted instance)'
+idempotency:
+  coverage: none
+  note: No Idempotency-Key header or replay protection documented in the docs or the contract.
+pagination:
+  style: offset (page/limit); cursor on a few operations
+  params: [page, limit, cursor]
+  sort_params: [sortBy, sortOrder]
+  note: page appears on 35 operations, limit on 37, cursor on 2 (counted from the contract).
+request_id: none documented
+versioning:
+  style: URI path /api/v1
+  see: lifecycle/pipeshub-lifecycle.yml
+errors:
+  envelope: 'ErrorResponse — "Standard error envelope returned by all errors routed through ErrorMiddleware"; machine-readable code field (e.g. HTTP_UNAUTHORIZED, HTTP_NOT_FOUND, VALIDATION_ERROR, INTERNAL_ERROR). OAuth endpoints use OAuthErrorResponse; rate limits use RateLimitErrorResponse.'
+rate_limit_signaling:
+  status: 429
+  headers: [Retry-After]
+  see: rate-limits/pipeshub-rate-limits.yml
+streaming: SSE on conversation stream endpoints; cancel via cancelConversationStream / cancelAgentConversationStream
+dry_run: none documented
+reversibility:
+  status: documented
+  surfaces:
+  - surface: skills
+    operation: rollbackSkill
+    description: Roll back a skill to a prior version
+    window: not stated
+  - surface: OAuth apps
+    operation: activateOAuthApp
+    description: Reverses suspendOAuthApp ("To restore access, click Activate application")
+    window: not stated
+    docs: https://docs.pipeshub.com/developer/oauth2
+  - surface: OAuth app deletion
+    operation: deleteOAuthApp
+    description: '"There is no restore endpoint — deletion is final." (contract)'
+    reversible: false
+  - surface: conversation streams
+    operation: cancelConversationStream
+    description: Cooperatively stop a stream run that is still generating
+    window: while the run is still generating
+  - surface: tokens
+    operation: revokePersonalAccessToken
+    description: Revocation is the reversal of token issuance; tokens "stop authenticating immediately".
+    window: not stated
+  note: No reversal windows are stated in the docs, so no surface is graded verified.

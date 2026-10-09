@@ -1,0 +1,557 @@
+openapi: 3.2.0
+info:
+  title: Pipeshub Connector Filters API
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@pipeshub.com
+  description: 'Operations tagged Connector Filters across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: '{instance_url}/api/v1'
+  description: Base API URL
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL (without /api/v1)
+- url: '{instance_url}'
+  description: Root URL (used for MCP endpoints mounted at /mcp)
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL
+security:
+- bearerAuth: []
+- oauth2: []
+tags:
+- name: Connector Filters
+  description: Dynamic filter options for selecting which data to sync
+paths:
+  /connectors/{connectorId}/filters:
+    get:
+      tags:
+      - Connector Filters
+      summary: Get filter options
+      description: 'Get available filter options for a connector.
+
+
+        Overview:
+
+
+        Returns filter fields that can be used to limit what data is synced.
+
+        For example, a Google Drive connector might offer filters for
+
+        specific folders or file types.
+
+
+        Dynamic Filters:
+
+
+        Some filter fields have dynamic: true (i.e.
+
+        optionSourceType: dynamic), meaning their options are
+
+        loaded separately via the filter options endpoint.
+
+        For such fields, call
+
+        GET /connectors/{connectorId}/filters/{filterKey}/options.
+
+        When scoping options to a specific parent (e.g. GitLab projects within
+
+        a selected group), pass the parent paths via the
+
+        contextGroupPath query parameter on that endpoint.'
+      operationId: getConnectorFilters
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - connector:read
+      parameters:
+      - name: connectorId
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Filter options retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  filterOptions:
+                    $ref: '#/components/schemas/FilterOptions'
+        '401':
+          description: Unauthorized
+        '404':
+          description: Connector not found
+    post:
+      tags:
+      - Connector Filters
+      summary: Save filter selections
+      description: 'Save the user''s filter selections for a connector.
+
+
+        Overview:
+
+
+        After viewing filter options, use this endpoint to save the
+
+        selected values. These determine what data will be synced.'
+      operationId: saveConnectorFilters
+      security:
+      - bearerAuth: []
+      parameters:
+      - name: connectorId
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        description: Request payload
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaveConnectorFiltersRequest'
+      responses:
+        '200':
+          description: Filters saved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+        '401':
+          description: Unauthorized
+        '404':
+          description: Connector not found
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /connectors/{connectorId}/filters/{filterKey}/options:
+    get:
+      tags:
+      - Connector Filters
+      summary: Get dynamic filter options
+      description: 'Get options for a dynamic filter field with pagination.
+
+
+        Overview:
+
+
+        For filters with optionSourceType: dynamic, options are loaded
+
+        from the connected service. This supports pagination and search.
+
+
+        Scoped options (GitLab):
+
+
+        When fetching options for the project_ids filter key, pass
+
+        one or more contextGroupPath query parameters to restrict
+
+        the returned repositories to those that belong to the specified GitLab
+
+        group namespace paths (e.g. myorg/team). This is used to
+
+        populate the project filter after the user has selected groups.
+
+
+        Examples:
+
+
+        Google Drive folders list
+
+
+        Slack channels list
+
+
+        Confluence spaces list
+
+
+        GitLab groups list (filterKey=group_ids)
+
+
+        GitLab projects scoped to groups (filterKey=project_ids&contextGroupPath=myorg/team)'
+      operationId: getFilterFieldOptions
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - connector:read
+      parameters:
+      - name: connectorId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: filterKey
+        in: path
+        required: true
+        description: Filter field key
+        schema:
+          type: string
+        example: folders
+      - name: page
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 20
+      - name: search
+        in: query
+        description: Search term for filtering options
+        schema:
+          type: string
+      - name: cursor
+        in: query
+        description: Cursor for cursor-based pagination
+        schema:
+          type: string
+      - name: contextGroupPath
+        in: query
+        description: 'One or more GitLab group namespace paths (e.g. `myorg/team`).
+
+          When provided for the `project_ids` filter key, the returned
+
+          options are scoped to repositories that belong to those groups.
+
+          Repeat the parameter for multiple groups:
+
+          `?contextGroupPath=groupA&contextGroupPath=groupB`
+
+          '
+        schema:
+          type: array
+          items:
+            type: string
+        style: form
+        explode: true
+      - name: excludeContextGroupPath
+        in: query
+        description: 'One or more GitLab group namespace paths to exclude. When provided
+
+          for the `project_ids` filter key, the returned options omit
+
+          repositories that belong to those groups (used when the
+
+          `group_ids` sync filter is `not_in`). Repeat the parameter for
+
+          multiple groups:
+
+          `?excludeContextGroupPath=groupA&excludeContextGroupPath=groupB`
+
+          '
+        schema:
+          type: array
+          items:
+            type: string
+        style: form
+        explode: true
+      responses:
+        '200':
+          description: Options retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  options:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        value:
+                          type: string
+                        label:
+                          type: string
+                  pagination:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      limit:
+                        type: integer
+                      hasMore:
+                        type: boolean
+                      cursor:
+                        type: string
+        '401':
+          description: Unauthorized
+        '404':
+          description: Connector or filter not found
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+components:
+  schemas:
+    SaveConnectorFiltersRequest:
+      type: object
+      description: Request to save filter selections for a connector
+      required:
+      - filters
+      properties:
+        filters:
+          type: object
+          description: Filter values to save (structure depends on connector's filter schema)
+          additionalProperties: true
+          example:
+            folders:
+            - id: folder_123
+              name: Documents
+            - id: folder_456
+              name: Reports
+            fileTypes:
+            - pdf
+            - docx
+            modifiedAfter: '2024-01-01'
+    FilterOptions:
+      type: object
+      description: Available filter options for a connector
+      properties:
+        filters:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+                description: Filter field key used in API calls
+              displayName:
+                type: string
+                description: Human-readable label shown in the UI
+              description:
+                type: string
+                description: Optional tooltip / help text for the filter
+              filterType:
+                type: string
+                enum:
+                - string
+                - boolean
+                - datetime
+                - list
+                - multiselect
+                - number
+                description: Data type of the filter value
+              category:
+                type: string
+                enum:
+                - sync
+                - indexing
+                description: '`sync` filters control which source records are fetched; `indexing` filters control which content types are indexed.
+
+                  '
+              required:
+                type: boolean
+                description: Whether the user must supply a value for this field
+              defaultValue:
+                description: Pre-filled value rendered in the UI (type varies by filterType)
+              defaultOperator:
+                type:
+                - string
+                - 'null'
+                description: Operator pre-selected in the UI. Null means no operator is pre-selected.
+              noImplicitOperatorDefault:
+                type: boolean
+                description: 'When `true` the frontend must not fall back to the first available operator when `defaultOperator` is null (e.g. date-range fields where an empty state is meaningful). Only present when `true`.
+
+                  '
+              operators:
+                type: array
+                description: Allowed operators for this filter type
+                items:
+                  type: string
+                  example: in
+              optionSourceType:
+                type: string
+                enum:
+                - manual
+                - static
+                - dynamic
+                description: '`static` — options are embedded in the schema; `dynamic` — options must be fetched via `GET /connectors/{connectorId}/filters/{filterKey}/options`.
+
+                  '
+              options:
+                type: array
+                description: Static options (only present when `optionSourceType` is `static`)
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    value:
+                      type: string
+                    label:
+                      type: string
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'JWT Bearer token for authenticated requests.
+
+
+        A personal access token (see the **Personal Access Tokens** tag) is a
+
+        `phpat_`-prefixed variant of this same JWT — e.g. `phpat_eyJhbGci...`.
+
+        The prefix is display-only, added for secret-scanner detectability; the
+
+        gateway strips it before verifying the token, so send it exactly as
+
+        issued, prefix included.
+
+        '
+    scopedToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Scoped JWT token for service-to-service authentication.
+
+        Format: "Bearer {scoped_token}"
+
+        Required scopes vary by endpoint.
+
+        '
+    oauth2:
+      type: oauth2
+      description: 'OAuth 2.0 authentication with fine-grained scopes.
+
+        Supports authorization_code (with PKCE) and client_credentials flows.
+
+        OAuth tokens are Bearer JWTs — use the same Authorization header as regular tokens.
+
+        For **client_credentials**, machine JWTs may use `userId === client_id`; the Node gateway resolves the OAuth app creator — see **OAuth Provider** tag.
+
+        '
+      flows:
+        authorizationCode:
+          authorizationUrl: /api/v1/oauth2/authorize
+          tokenUrl: /api/v1/oauth2/token
+          refreshUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:read: Read semantic search results and history
+            semantic:write: Execute semantic search
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+            crawl:delete: Delete crawling jobs
+        clientCredentials:
+          tokenUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:write: Execute semantic search
+            semantic:read: Read semantic search results and history
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+x-refined-from:
+- pipeshub-openapi.yaml
+- pipeshub-openapi.yml

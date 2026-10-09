@@ -1,0 +1,2273 @@
+generated: '2026-10-09'
+method: derived
+generator: derive-data-model.py
+source:
+- openapi/pipeshub-openapi.yml
+notation: has_one = property $ref; has_many = array of $ref; belongs_to = <entity>_id field
+summary:
+  entities: 387
+  entities_in_spec: 387
+  relationships: 289
+entities:
+- name: AIModelFieldSchema
+  fields: 10
+- name: AIModelProviderAddedDetails
+  fields: 6
+  description: Summary of the provider entry created by addAIModelProvider
+- name: AIModelProviderConfig
+  fields: 8
+- name: AIModelProviderConfiguration
+  fields: 25
+  description: Provider-specific configuration stored on each AI model entry.
+- name: AIModelProviderHealthCheckBackendDetails
+  fields: 14
+  description: Nested diagnostics from the Python query service health-check response
+- name: AIModelProviderHealthCheckBackendPayload
+  fields: 5
+  description: Raw JSON body from `POST /api/v1/health-check/{modelType}` on the Python query
+- name: AIModelProviderHealthCheckErrorEnvelope
+  fields: 1
+  description: Health-check failure from the Python AI backend
+- name: AIModelProviderResponse
+  fields: 3
+  description: Success response from addAIModelProvider
+- name: AIModelProviderSimpleError
+  fields: 2
+  description: Controller validation error returned before the Python health-check
+- name: AIModelRegistryProvider
+  fields: 7
+- name: AIModelsConfig
+  fields: 10
+  description: Must have at least one model type configured
+- name: AccountCreationTemplateData
+  fields: 2
+  description: Template data for organization account creation welcome email
+- name: ActivateOAuthAppResponse
+  fields: 2
+  description: Response body for `POST /oauth-clients/{appId}/activate`
+- name: AddAIModelProviderRequest
+  fields: 7
+  description: Request to add a new AI model provider
+- name: AddMessageRequest
+  fields: 14
+  description: Request body for adding a message to an existing conversation
+- name: AddMessageResponse
+  fields: 3
+  description: Envelope returned by `POST /conversations/{conversationId}/messages`.
+- name: AddWebSearchProviderRequest
+  fields: 3
+  description: Request to add a new web search provider
+- name: Address
+  fields: 6
+- name: AdminPatListItem
+  fields: 0
+  description: A personal access token as seen by an org admin — extends
+- name: AdminPatListResponse
+  fields: 2
+  description: Response body for `GET /personal-access-tokens/admin` (`adminListTokens`).
+- name: Agent
+  fields: 32
+  description: Detailed agent projection returned by agent detail-style endpoints such
+- name: AgentAddMessageRequest
+  fields: 14
+  description: Follow-up turn on an agent conversation. Used as-is by the
+- name: AgentAddMessageStreamRequest
+  fields: 0
+- name: AgentArchivedConversationGroup
+  fields: 3
+  description: Archived conversations for a single agent, sliced to the first page
+- name: AgentArchivedConversationListResponse
+  fields: 5
+  description: Envelope returned by `GET /agents/{agentKey}/conversations/show/archives`.
+- name: AgentArchivedConversationSummary
+  fields: 3
+  description: Archive counts and bounds for the current result page returned by
+- name: AgentArchivedGroupsResponse
+  fields: 3
+  description: Response from `GET /agents/conversations/show/archives` — archived agent
+- name: AgentCapabilities
+  fields: 3
+  description: Per-request agent capability toggles. Only meaningful when `chatMode`
+- name: AgentConversation
+  fields: 14
+  description: A conversation with a specific AI agent. Similar to regular conversations
+- name: AgentConversationArchiveMeta
+  fields: 3
+  description: Request-scoped metadata returned by the archive route. `requestId` is
+- name: AgentConversationArchiveResponse
+  fields: 5
+  description: Envelope returned by `POST /agents/{agentKey}/conversations/{conversationId}/archive`.
+- name: AgentConversationDeleteResponse
+  fields: 2
+  description: Envelope returned by `DELETE /agents/{agentKey}/conversations/{conversationId}`.
+- name: AgentConversationDetail
+  fields: 12
+  description: Reduced conversation view returned by the by-id GET route. This is
+- name: AgentConversationDetailAccess
+  fields: 2
+- name: AgentConversationDetailMessage
+  fields: 18
+  description: Message shape returned by `GET /agents/{agentKey}/conversations/{conversationId}`.
+- name: AgentConversationDetailMessageCitation
+  fields: 2
+  description: Citation entry returned inside a conversation message after the
+- name: AgentConversationDetailMeta
+  fields: 5
+  description: Request-scoped metadata returned by the by-id GET route. `requestId`
+- name: AgentConversationDetailPagination
+  fields: 7
+  description: Message pagination returned inside the `conversation` object. The
+- name: AgentConversationDetailResponse
+  fields: 3
+  description: Envelope returned by `GET /agents/{agentKey}/conversations/{conversationId}`.
+- name: AgentConversationListItem
+  fields: 26
+  description: Conversation summary returned by `GET /agents/{agentKey}/conversations`.
+- name: AgentConversationListResponse
+  fields: 5
+  description: Envelope returned by `GET /agents/{agentKey}/conversations`.
+- name: AgentConversationTitleUpdateResponse
+  fields: 2
+- name: AgentConversationUnarchiveMeta
+  fields: 3
+  description: Request-scoped metadata returned by the unarchive route. `requestId` is
+- name: AgentConversationUnarchiveResponse
+  fields: 5
+  description: Envelope returned by `POST /agents/{agentKey}/conversations/{conversationId}/unarchive`.
+- name: AgentCreateConversationRequest
+  fields: 17
+  description: First turn of an agent conversation. Used as-is by the non-streaming
+- name: AgentCreateKnowledge
+  fields: 2
+- name: AgentCreateRequest
+  fields: 15
+- name: AgentCreateResponse
+  fields: 4
+- name: AgentCreateResponseAgent
+  fields: 22
+- name: AgentCreateResponseKnowledge
+  fields: 3
+- name: AgentCreateResponseMcpServer
+  fields: 4
+- name: AgentCreateResponseMcpServerTool
+  fields: 3
+- name: AgentCreateResponseSkill
+  fields: 1
+  description: A skill linked to the agent at creation time. Creating or updating an
+- name: AgentCreateResponseTool
+  fields: 3
+- name: AgentCreateResponseToolset
+  fields: 4
+- name: AgentCreateToolRef
+  fields: 3
+- name: AgentCreateToolset
+  fields: 6
+- name: AgentCreateWarning
+  fields: 2
+- name: AgentDeleteResponse
+  fields: 3
+- name: AgentKnowledgeFiltersParsed
+  fields: 2
+  description: 'Indexed scope for a knowledge connector: record-group ids and'
+- name: AgentListItem
+  fields: 31
+  description: Agent projection returned by `GET /agents`.
+- name: AgentListPagination
+  fields: 6
+  description: Pagination block returned by `GET /agents`.
+- name: AgentListResponse
+  fields: 3
+  description: Paginated response returned by `GET /agents`.
+- name: AgentMessageStreamSSEEvent
+  fields: 2
+  description: Server-Sent Event envelope for `POST /agents/{agentKey}/conversations/{conversationId}/messages/stream`.
+- name: AgentRegenerateRequest
+  fields: 0
+- name: AgentRegenerateSSEEvent
+  fields: 2
+  description: SSE event envelope for `POST /agents/{agentKey}/conversations/{conversationId}/message/{messageId}/regenerate`.
+- name: AgentSkill
+  fields: 6
+  description: A skill linked to the agent, as returned by the agent detail graph
+- name: AgentSkillAssignment
+  fields: 1
+  description: Reference to an existing skill assigned to an agent.
+- name: AgentStreamCreateConversationRequest
+  fields: 0
+- name: AgentStreamSSEEvent
+  fields: 2
+  description: SSE event envelope for `POST /agents/{agentKey}/conversations/stream`.
+- name: AgentTemplate
+  fields: 10
+  description: Reusable template for creating agents. Templates define the base
+- name: AgentTool
+  fields: 5
+  description: A tool that agents can use to perform actions
+- name: AgentUpdateRequest
+  fields: 15
+  description: Partial update payload for `PUT /agents/{agentKey}`.
+- name: AgentUpdateResponse
+  fields: 2
+- name: AppUserInviteTemplateData
+  fields: 3
+  description: Template data for user invitation email
+- name: ApplicationJsonErrorResponse
+  fields: 1
+  description: Standard JSON error envelope from `ErrorMiddleware` for `BaseError` subclasses (`error.middleware.ts`).
+- name: AppliedFilterNode
+  fields: 4
+  description: A single filter node selected by the user (used for display/persistence of active filters)
+- name: AppliedFilters
+  fields: 2
+  description: Rich filter state selected by the user, used for display and persistence only.
+- name: AtlassianConfig
+  fields: 2
+  description: Atlassian (Confluence/Jira) OAuth configuration
+- name: AuthConfig
+  fields: 1
+  description: Organization authentication configuration. Supports 1-3 authentication steps for multi-factor authentication.
+- name: AuthError
+  fields: 4
+  description: Authentication error response with details for debugging and user feedback.
+- name: AuthMethod
+  fields: 1
+  description: Authentication method configuration
+- name: AuthProviderAzureAdPublicConfig
+  fields: 3
+  description: Public Azure AD OAuth settings returned to clients
+- name: AuthProviderGooglePublicConfig
+  fields: 2
+  description: Public Google OAuth settings returned to clients
+- name: AuthProviderMicrosoftPublicConfig
+  fields: 3
+  description: Public Microsoft OAuth settings returned to clients
+- name: AuthProviderOAuthPublicConfig
+  fields: 8
+  description: Public generic OAuth provider settings returned to clients
+- name: AuthProviders
+  fields: 5
+  description: Configuration for external authentication providers (returned when those methods are allowed)
+- name: AuthStep
+  fields: 2
+  description: A single step in multi-factor authentication flow
+- name: AuthenticateFinalResponse
+  fields: 3
+  description: All authentication steps complete; JWT tokens returned
+- name: AuthenticateMultiStepResponse
+  fields: 4
+  description: Current authentication step succeeded; additional MFA steps remain
+- name: AuthenticateRequest
+  fields: 4
+  description: Request to authenticate using specified method.
+- name: AuthenticatedPasswordResetResponse
+  fields: 2
+  description: Response after authenticated user changes password (new access token issued)
+- name: AzureAdAuthConfig
+  fields: 2
+  description: Azure Active Directory authentication configuration
+- name: BaseScheduleConfig
+  fields: 3
+  description: Base configuration fields common to all schedule types
+- name: ChatAttachmentRef
+  fields: 5
+  description: Reference to an attachment produced by `POST /conversations/attachments/upload`
+- name: ChatAttachmentUploadRef
+  fields: 7
+  description: Concrete attachment metadata returned by `POST /conversations/attachments/upload`
+- name: ChatAttachmentUploadResponse
+  fields: 2
+  description: Success envelope returned by `POST /conversations/attachments/upload`
+- name: Citation
+  fields: 7
+  description: A populated citation document. Represents a single chunk of source
+- name: CitationReference
+  fields: 4
+  description: Reference to a source document cited in a response
+- name: ConnectorAuthConfig
+  fields: 3
+  description: Authentication configuration for a connector instance
+- name: ConnectorConfig
+  fields: 10
+  description: Configuration for a connector instance including auth, sync, and filter settings
+- name: ConnectorFiltersConfig
+  fields: 2
+  description: Filter configuration to control what data is synced (sync filters and indexing filters)
+- name: ConnectorInstance
+  fields: 19
+  description: A configured connector instance. Represents an active or configured
+- name: ConnectorPagination
+  fields: 4
+  description: Pagination information for connector lists
+- name: ConnectorSchema
+  fields: 5
+  description: Schema definition for configuring a connector type
+- name: ConnectorStats
+  fields: 2
+  description: Statistics for a connector's records
+- name: ConnectorSyncConfig
+  fields: 5
+  description: Synchronization configuration for a connector instance
+- name: ConnectorToggleRequest
+  fields: 3
+  description: Request to toggle connector active status
+- name: ConnectorType
+  fields: 13
+  description: A connector type from the registry. Represents an available integration
+- name: Conversation
+  fields: 26
+  description: A conversation represents a chat session between a user and the AI.
+- name: ConversationListItem
+  fields: 25
+  description: Conversation summary returned by list endpoints. Identical to
+- name: ConversationMessageStreamRequest
+  fields: 0
+- name: ConversationMessageStreamSSEEvent
+  fields: 2
+  description: Server-Sent Event envelope for public follow-up streams using `agent`,
+- name: ConversationModelInfo
+  fields: 5
+  description: AI model configuration recorded against a conversation or message.
+- name: ConversationSharedBy
+  fields: 2
+  description: Present on conversations the caller received via share. Identifies the
+- name: ConversationStreamRequest
+  fields: 0
+- name: ConversationStreamSSEEvent
+  fields: 2
+  description: Server-Sent Event envelope for public conversation streams using
+- name: ConversationTitleUpdateRequest
+  fields: 1
+- name: CrawlingJobData
+  fields: 7
+  description: Data payload stored with each crawling job in the queue
+- name: CreateAgentConversationResponse
+  fields: 2
+  description: 'Envelope returned by `POST /agents/{agentKey}/conversations`: the'
+- name: CreateConnectorRequest
+  fields: 7
+  description: Request to create a new connector instance
+- name: CreateConversationRequest
+  fields: 17
+  description: Request body for creating a new AI conversation.
+- name: CreateConversationResponse
+  fields: 2
+  description: Envelope returned by `POST /conversations/create`. Contains the
+- name: CreateOAuthAppRequest
+  fields: 11
+  description: Request to create a new OAuth app (`createAppSchema` in `oauth.validators.ts`).
+- name: CreateOAuthAppResponse
+  fields: 2
+  description: Response body for `POST /oauth-clients` (`oauth.app.controller.ts` `createApp`).
+- name: CreateOAuthConfigRequest
+  fields: 3
+  description: Request to create OAuth configuration (admin only). Stores credentials that users select when setting
+    up connectors.
+- name: CreatePatRequest
+  fields: 3
+  description: Request to create a personal access token (`createPatTokenSchema` in `pat.validators.ts`).
+- name: CreatePatResponse
+  fields: 2
+  description: Response body for `POST /personal-access-tokens` (`pat.controller.ts` `createToken`).
+- name: CreateProjectRequest
+  fields: 8
+- name: CustomScheduleConfig
+  fields: 0
+- name: CustomSystemPrompt
+  fields: 3
+  description: Custom system prompt configuration
+- name: DailyScheduleConfig
+  fields: 0
+- name: DataStringResponse
+  fields: 1
+  description: Generic success payload with a single string field (e.g. password reset email, token reset)
+- name: DateRangeFilter
+  fields: 2
+  description: Date range filter with optional inclusive bounds (epoch ms).
+- name: DeleteAIModelProviderDetails
+  fields: 6
+  description: Metadata about the AI model provider entry removed by deleteAIModelProvider
+- name: DeleteAIModelProviderResponse
+  fields: 3
+  description: Success response from deleteAIModelProvider
+- name: DeleteKnowledgeBaseById
+  fields: 2
+  description: Response returned by DELETE /knowledgeBase/{kbId} (deleteKnowledgeBase).
+- name: DeleteRecordResponseSchema
+  fields: 5
+  description: Response returned by DELETE /knowledgeBase/record/{recordId}.
+- name: DemoDataStatus
+  fields: 6
+- name: Document
+  fields: 23
+  description: Represents a document stored in PipesHub storage system. Documents can be versioned to maintain complete
+    history of changes. Supports multiple storage backends (S3, Azure Blob, Local).
+- name: DocumentVersion
+  fields: 11
+  description: Represents a single version entry in a document's version history
+- name: EmbeddingDownloadProgressPayload
+  fields: 8
+  description: Status snapshot for a single model's load/download, proxied from the
+- name: EmbeddingDownloadProgressSSEEvent
+  fields: 2
+  description: SSE event envelope for
+- name: ErrorResponse
+  fields: 1
+  description: Standard error envelope returned by all errors routed through `ErrorMiddleware`.
+- name: FeatureFlag
+  fields: 4
+  description: Platform feature flag definition
+- name: FilterOption
+  fields: 4
+  description: A single filter option for knowledge hub filters.
+- name: FilterOptions
+  fields: 1
+  description: Available filter options for a connector
+- name: Filters
+  fields: 2
+  description: App connector instance ids and knowledge-base / record-group ids that narrow retrieval
+- name: Folder
+  fields: 8
+- name: FolderCreateResponseSchema
+  fields: 2
+  description: Response returned when a folder is created (root or nested subfolder)
+- name: FolderDeleteResponseSchema
+  fields: 2
+  description: Response returned by DELETE /knowledgeBase/{kbId}/folder/{folderId} (deleteFolder).
+- name: FolderUpdateResponseSchema
+  fields: 2
+  description: Response returned by PUT /knowledgeBase/{kbId}/folder/{folderId} (updateFolder).
+- name: FollowUpQuestion
+  fields: 3
+  description: AI-suggested follow-up question
+- name: ForgotPasswordRequest
+  fields: 2
+  description: Request to send password reset email
+- name: GenericOAuthConfig
+  fields: 8
+  description: Generic OAuth 2.0 provider configuration
+- name: GetAIModelsProvidersResponse
+  fields: 3
+  description: Success response from getAIModelsProviders. Returns the stored models
+- name: GetAgentResponse
+  fields: 3
+  description: Success envelope returned by `GET /agents/{agentKey}`.
+- name: GetAllKnowledgeBaseResponseSchema
+  fields: 3
+  description: Response returned by GET /knowledgeBase (listKnowledgeBases).
+- name: GetKnowledgeBaseById
+  fields: 8
+  description: Response returned by GET /knowledgeBase/{kbId} (getKnowledgeBase).
+- name: GetModelRolesResponse
+  fields: 2
+  description: Current model role assignments for the organisation.
+- name: GetModelsByTypeResponse
+  fields: 3
+  description: Success response from getModelsByType. Returns stored provider entries
+- name: GetRecordByIdResponseSchema
+  fields: 5
+  description: Response returned by GET /knowledgeBase/record/{recordId}.
+- name: GetRecordContentResponseSchema
+  fields: 1
+  description: Response returned by GET /connectors/record/{recordId}/content.
+- name: GetTeamResponse
+  fields: 3
+  description: Success envelope from `GET /teams/{teamId}` (Python forwards through Node).
+- name: GoogleAuthConfig
+  fields: 1
+  description: Google authentication configuration
+- name: GoogleWorkspaceCredentials
+  fields: 2
+  description: Google Workspace service account or OAuth credentials
+- name: GoogleWorkspaceOAuthConfig
+  fields: 4
+  description: Google Workspace OAuth configuration for connectors
+- name: HasPasswordMethodResponse
+  fields: 1
+  description: Whether password authentication is enabled for the organization
+- name: HourlyScheduleConfig
+  fields: 0
+- name: InAppNotification
+  fields: 15
+  description: A user notification record persisted by `NotificationConsumer` in MongoDB
+- name: InitAuthRequest
+  fields: 1
+  description: 'Optional JSON body for `/userAccount/initAuth`. Valid shapes include: omitting the body entirely,
+    sending `{}` (empty object), or `{ "email": "<address>" }`. Neither the body nor `email` is required. '
+- name: InitAuthResponse
+  fields: 5
+  description: Response containing available authentication methods and session info
+- name: IntervalScheduleConfig
+  fields: 0
+- name: JWK
+  fields: 6
+  description: JSON Web Key (RFC 7517).
+- name: JWKS
+  fields: 1
+  description: JSON Web Key Set (RFC 7517).
+- name: JobStatus
+  fields: 11
+  description: Complete status information for a crawling job
+- name: KBPermission
+  fields: 8
+- name: Knowledge
+  fields: 7
+  description: Knowledge connector / indexed scope linked to an agent, as projected by
+- name: KnowledgeBase
+  fields: 8
+- name: KnowledgeBaseCreateResponse
+  fields: 5
+  description: Response returned when a knowledge base is created
+- name: KnowledgeBaseDeleteResponseSchema
+  fields: 3
+  description: Response returned when user or team permissions are removed from a knowledge base
+- name: KnowledgeBaseMoveRecordRequestBody
+  fields: 1
+  description: Request body for PUT /knowledgeBase/{kbId}/record/{recordId}/move (moveRecord).
+- name: KnowledgeBaseMoveRecordResponse
+  fields: 2
+  description: Response returned by PUT /knowledgeBase/{kbId}/record/{recordId}/move (moveRecord).
+- name: KnowledgeBasePermissionCreate
+  fields: 2
+  description: Response returned when permissions are granted on a knowledge base
+- name: KnowledgeBasePermissionList
+  fields: 3
+  description: Response returned when listing permissions on a knowledge base
+- name: KnowledgeGraphLookupMatchSchema
+  fields: 9
+  description: A single record resolved from an identifier.
+- name: KnowledgeGraphNodeRefSchema
+  fields: 5
+  description: Minimal identity reference for a node in the knowledge graph.
+- name: KnowledgeGraphNodeRowSchema
+  fields: 13
+  description: One row in a navigate listing. Carries the identity fields of
+- name: KnowledgeGraphPaginationSchema
+  fields: 5
+  description: Pagination envelope for a navigate listing.
+- name: KnowledgeHubNode
+  fields: 23
+  description: One element of `items`. The live API keeps keys stable and sets
+- name: KnowledgeHubNodesResponse
+  fields: 11
+  description: Response body for the Knowledge Hub nodes API. The deployed service
+- name: KnowledgebaseUpdatePermissionResponse
+  fields: 4
+  description: Response returned when user permission roles are updated on a knowledge base
+- name: ListPatResponse
+  fields: 1
+  description: Response body for `GET /personal-access-tokens` (`listTokens`) — the
+- name: LocalFsDesktopRefusal
+  fields: 4
+  description: 409 body returned when a Local FS connector cannot sync because of its
+- name: LoginWithOTPTemplateData
+  fields: 2
+  description: Template data for OTP login email
+- name: LookupRecordResponseSchema
+  fields: 5
+  description: Response returned by GET /connectors/record/lookup.
+- name: MailBody
+  fields: 9
+  description: Request body for sending transactional emails via pre-defined templates.
+- name: McpServer
+  fields: 6
+  description: MCP server instance linked to an agent, as projected by the graph
+- name: Message
+  fields: 18
+  description: A single message within a conversation. Messages can be user queries,
+- name: MessageFeedback
+  fields: 12
+  description: Comprehensive feedback on an AI response. Feedback helps improve
+- name: MessageFeedbackAppendEntry
+  fields: 6
+  description: The feedback entry just appended to the message. Echoes the fields
+- name: MessageFeedbackAppendMetrics
+  fields: 2
+  description: Telemetry recorded server-side alongside the feedback. Always present
+- name: MessageFeedbackSubmitRequest
+  fields: 3
+  description: Gateway request body for submitting message feedback (Zod
+- name: MessageFeedbackUpdateResponse
+  fields: 4
+  description: Gateway response after appending feedback to a bot-response message.
+- name: MessagePart
+  fields: 15
+  description: One entry in the ordered agent-activity transcript for a message turn.
+- name: MessageReasoningTurn
+  fields: 3
+  description: One model turn's chain-of-thought. Persisted only when reasoning
+- name: MessageToolCall
+  fields: 2
+  description: One tool invocation recorded on a message turn.
+- name: MetricsCollectionConfig
+  fields: 5
+  description: Configuration for application telemetry and metrics collection.
+- name: MicrosoftAuthConfig
+  fields: 2
+  description: Microsoft authentication configuration
+- name: ModelRoleAssignment
+  fields: 2
+  description: Identifies which configured model is assigned to a named role.
+- name: MonthlyScheduleConfig
+  fields: 0
+- name: NavigateKnowledgeGraphResponseSchema
+  fields: 10
+  description: Response returned by GET /connectors/navigate.
+- name: OAuthAppListResponse
+  fields: 2
+  description: Paginated list of OAuth apps
+- name: OAuthAppResponse
+  fields: 17
+  description: OAuth app details (without secret). Fields under `required:` always appear
+- name: OAuthAppTokensListResponse
+  fields: 1
+  description: Response body for `GET /oauth-clients/{appId}/tokens` (`listAppTokens`).
+- name: OAuthAppWithSecret
+  fields: 0
+- name: OAuthClientManagementRateLimitError
+  fields: 1
+  description: JSON body when OAuth client management routes exceed the per-minute rate limit (same limiter as other
+    `/oauth-clients/*` routes).
+- name: OAuthConfig
+  fields: 9
+  description: OAuth configuration for a connector type. Created by admins to enable
+- name: OAuthConsentRequest
+  fields: 7
+  description: Request to submit user consent for OAuth authorization
+- name: OAuthCredentials
+  fields: 2
+  description: Credentials for OAuth authentication (Microsoft, Azure AD, generic OAuth)
+- name: OAuthErrorResponse
+  fields: 4
+  description: OAuth 2.0 Error Response (RFC 6749 Section 5.2).
+- name: OAuthExchangeRequest
+  fields: 3
+  description: Request to exchange OAuth authorization code for tokens
+- name: OAuthExchangeResponse
+  fields: 4
+  description: OAuth token response
+- name: OAuthIntrospectRequest
+  fields: 4
+  description: OAuth 2.0 Token Introspection Request (RFC 7662).
+- name: OAuthIntrospectResponse
+  fields: 12
+  description: OAuth 2.0 Token Introspection Response (RFC 7662).
+- name: OAuthProtectedResourceMetadata
+  fields: 5
+  description: OAuth Protected Resource Metadata (RFC 9728).
+- name: OAuthRevokeRequest
+  fields: 4
+  description: OAuth 2.0 Token Revocation Request (RFC 7009).
+- name: OAuthScopeInfo
+  fields: 4
+  description: Information about an OAuth scope
+- name: OAuthScopesGroupedResponse
+  fields: 1
+  description: OAuth scopes available to the signed-in user for app registration, grouped by category label.
+- name: OAuthTokenListItem
+  fields: 7
+  description: Information about an issued token (one element returned by `listTokensForApp`
+- name: OAuthTokenRequest
+  fields: 8
+  description: OAuth 2.0 Token Request (RFC 6749 Section 4.1.3).
+- name: OAuthTokenResponse
+  fields: 6
+  description: OAuth 2.0 Token Response (RFC 6749 Section 5.1).
+- name: OAuthUserInfoResponse
+  fields: 8
+  description: OpenID Connect UserInfo Response.
+- name: OnceScheduleConfig
+  fields: 0
+- name: OneDriveConfig
+  fields: 4
+  description: OneDrive/Microsoft 365 connector configuration
+- name: OpenIDConfiguration
+  fields: 15
+  description: OpenID Connect Discovery Response (RFC 8414).
+- name: OrgAuthConfigCreateRequest
+  fields: 4
+  description: Request to create initial organization auth configuration
+- name: OrgAuthConfigSetupResponse
+  fields: 1
+  description: Response from setting up organization auth configuration
+- name: Organization
+  fields: 13
+- name: OtpCredentials
+  fields: 1
+  description: Credentials for OTP authentication
+- name: OtpGenerateRequest
+  fields: 2
+  description: Request for a sign-in code (OTP); a code is sent only if that email can sign in with one
+- name: PaginationInfo
+  fields: 4
+- name: PaginationMetadata
+  fields: 6
+  description: Generic pagination block emitted by `buildPaginationMetadata` (utils.ts).
+- name: PasswordCredentials
+  fields: 1
+  description: Credentials for password authentication
+- name: PasswordResetRequest
+  fields: 3
+  description: Request to reset password for authenticated user
+- name: PatListItem
+  fields: 6
+  description: A personal access token as seen by its own creator (one element of
+- name: PatScopesListResponse
+  fields: 1
+  description: Response body for `GET /personal-access-tokens/scopes` (`listScopes`).
+- name: PatWithSecret
+  fields: 0
+- name: PersistedSemanticSearch
+  fields: 15
+  description: Persisted search document as returned to clients.
+- name: PersistedSemanticSearchBoundingBox
+  fields: 3
+  description: Bounding box subdocument embedded in persisted citation metadata.
+- name: PersistedSemanticSearchCitation
+  fields: 7
+  description: Populated citation document referenced from a persisted search.
+- name: PersistedSemanticSearchCitationMetadata
+  fields: 23
+  description: Citation metadata as persisted in MongoDB. Required fields mirror the
+- name: PersistedSemanticSearchSharedWithEntry
+  fields: 2
+  description: 'Entry inside `sharedWith[]`. The schema sets `_id: false` on these'
+- name: PlatformSettings
+  fields: 3
+  description: Platform-wide configuration settings for file uploads and feature toggles
+- name: PopulatedCitationReference
+  fields: 5
+  description: 'A message''s citation reference after the handler populates it: the'
+- name: PrepareEmbeddingModelRequest
+  fields: 2
+- name: Project
+  fields: 24
+  description: A workspace that groups related assistant and agent conversations
+- name: ProjectAppliedFilters
+  fields: 2
+  description: Display-friendly mirror of `knowledgeScope`, for rendering scope chips without a round trip.
+- name: ProjectKnowledgeScope
+  fields: 2
+  description: Retrieval scope (app connector / knowledge-base ids) inherited by
+- name: ProjectListItem
+  fields: 0
+- name: ProjectMember
+  fields: 5
+- name: ProjectMembersUpsertRequest
+  fields: 1
+- name: QueueStats
+  fields: 8
+  description: Aggregate statistics for the crawling job queue
+- name: RateLimitErrorResponse
+  fields: 1
+  description: Rate-limit error payload (shape differs from standard error responses).
+- name: ReIndexRecordGroupResponseSchema
+  fields: 6
+  description: Response returned by POST /knowledgeBase/reindex/record-group/{recordGroupId}.
+- name: Record
+  fields: 32
+  description: A record represents a single document, file, or content item within a knowledge base.
+- name: RefreshTokenResponse
+  fields: 2
+  description: Response with new access token
+- name: RefreshTokenUser
+  fields: 24
+  description: User record returned with a refreshed access token
+- name: RegenerateOAuthAppSecretResponse
+  fields: 3
+  description: Response body for `POST /oauth-clients/{appId}/regenerate-secret` (`regenerateSecret`).
+- name: RegenerateRequest
+  fields: 11
+  description: Request body for regenerating an AI response. All fields are optional;
+- name: ReindexConnectorRequestBody
+  fields: 1
+- name: ReindexRecordGroupRequestBody
+  fields: 3
+  description: Optional body for record-group (folder/KB container) reindex.
+- name: ReindexRecordRequestBody
+  fields: 3
+  description: Optional body for single-record reindex.
+- name: RequestMeta
+  fields: 3
+  description: Basic request metadata returned by the API.
+- name: ResetPasswordTemplateData
+  fields: 2
+  description: Template data for password reset email
+- name: ResyncConnectorRequestBody
+  fields: 2
+- name: RevokePatRequest
+  fields: 1
+  description: Optional request body for `DELETE /personal-access-tokens/{tokenId}`
+- name: RevokePatResponse
+  fields: 1
+- name: SMTPConfig
+  fields: 5
+  description: SMTP email server configuration for sending system emails (invitations, notifications, password resets)
+- name: SSEEvent
+  fields: 2
+  description: Server-Sent Event envelope for streaming chat responses. AG-UI is
+- name: SSOAuthConfig
+  fields: 5
+  description: SAML SSO authentication configuration
+- name: SaveConnectorFiltersRequest
+  fields: 1
+  description: Request to save filter selections for a connector
+- name: SemanticSearchAiResponse
+  fields: 7
+  description: Payload returned by the AI retrieval service for a semantic search (embedded in `searchResponse`).
+- name: SemanticSearchAppliedFilters
+  fields: 2
+  description: Present when KB filters were applied to the search request.
+- name: SemanticSearchBoundingBox
+  fields: 2
+  description: Normalized bounding region for a chunk (when available).
+- name: SemanticSearchExecuteResponse
+  fields: 2
+  description: 'Immediate POST `/search` response: persisted search id plus the raw retrieval payload.'
+- name: SemanticSearchGraphRecord
+  fields: 51
+  description: Graph record vertex returned in `records` and as values of `virtual_to_record_map`.
+- name: SemanticSearchHistoryAppliedDateRange
+  fields: 2
+  description: Echoed back only when the caller passed `startDate` and/or `endDate`.
+- name: SemanticSearchHistoryDateRange
+  fields: 5
+- name: SemanticSearchHistoryFilterToggle
+  fields: 5
+  description: Generic "filter X is available, current value is Y" block used for
+- name: SemanticSearchHistoryFilters
+  fields: 2
+- name: SemanticSearchHistoryFiltersApplied
+  fields: 2
+  description: Echo of which filters the caller actually supplied, built by
+- name: SemanticSearchHistoryFiltersAvailable
+  fields: 9
+  description: Catalogue of filters the endpoint supports, plus their current values
+- name: SemanticSearchHistoryItem
+  fields: 15
+  description: One persisted search row as returned by `GET /search`. Mirrors the
+- name: SemanticSearchHistoryMeta
+  fields: 3
+  description: '`requestId` comes from `req.context?.requestId` and is omitted from'
+- name: SemanticSearchHistoryPagination
+  fields: 6
+  description: Pagination block emitted by `buildPaginationMetadata` (utils.ts:417).
+- name: SemanticSearchHistoryPaginationField
+  fields: 7
+- name: SemanticSearchHistoryResponse
+  fields: 4
+  description: Envelope returned by `GET /search`. The handler runs `find()` plus
+- name: SemanticSearchHistorySortField
+  fields: 5
+  description: Used for `available.sorting.{sortBy,sortOrder}` and
+- name: SemanticSearchHit
+  fields: 8
+  description: One search hit returned by the retrieval service. Most hits use string `content`;
+- name: SemanticSearchHitMetadata
+  fields: 41
+  description: Per-hit metadata after retrieval enrichment (record + vector context).
+- name: SemanticSearchRequest
+  fields: 3
+  description: Request body for performing semantic search across the enterprise knowledge base.
+- name: SemanticSearchShareRequest
+  fields: 2
+  description: Body shape shared by both `PATCH /search/{searchId}/share` and
+- name: SemanticSearchTableRowHit
+  fields: 7
+  description: Single table row child hit produced when a table block is flattened.
+- name: ServiceAccount
+  fields: 8
+  description: A machine identity in this organisation.
+- name: ServiceAccountCreateRequest
+  fields: 3
+  description: Request body for `POST /service-accounts`. Validated by `createServiceAccountSchema` (Zod).
+- name: ServiceAccountUpdateRequest
+  fields: 3
+  description: Request body for `PATCH /service-accounts/{id}`. At least one field is
+- name: ServiceToken
+  fields: 7
+- name: ServiceTokenCreateRequest
+  fields: 4
+- name: ServiceTokenWithSecret
+  fields: 0
+- name: SharePointConfig
+  fields: 5
+  description: SharePoint connector configuration
+- name: ShareRequest
+  fields: 2
+  description: Request to share a conversation or search with other users
+- name: ShareSearchResponse
+  fields: 15
+  description: Persisted search document returned by `PATCH /search/{searchId}/share`.
+- name: SizeRangeFilter
+  fields: 2
+  description: Size range filter with optional inclusive bounds (bytes).
+- name: Skill
+  fields: 0
+  description: Full skill — metadata plus editable body and bundled resource listing.
+- name: SkillDeprecateRequest
+  fields: 2
+- name: SkillFinalizeImportRequest
+  fields: 5
+  description: Persists exactly what a prior `preview_*` call returned — the client round-trips `content`/`resources`
+    verbatim.
+- name: SkillImportPreview
+  fields: 8
+  description: Stateless preview of an npm/URL/upload import source — nothing is persisted until `POST /skills/import/finalize`.
+- name: SkillMetadata
+  fields: 20
+  description: Skill metadata (SKILL.md YAML frontmatter, agentskills.io-compatible, plus
+- name: SkillNpmImportRequest
+  fields: 1
+- name: SkillPatchBodyRequest
+  fields: 2
+  description: Exact-match string replacement against the skill's current body — fails 400 if `old_string` isn't
+    found exactly once.
+- name: SkillResourceWriteRequest
+  fields: 2
+- name: SkillRollbackRequest
+  fields: 1
+- name: SkillUrlImportRequest
+  fields: 1
+- name: SkillUsage
+  fields: 2
+  description: Referential-integrity snapshot used to gate `DELETE /skills/{name}`.
+- name: SkillUsageReference
+  fields: 2
+- name: SkillVersionSummary
+  fields: 4
+- name: SkillWriteRequest
+  fields: 12
+  description: Structured create/update payload. The backend renders this into a full,
+- name: SpeakRequest
+  fields: 4
+- name: SpeechCapabilitiesResponse
+  fields: 2
+  description: Reports whether the server has a TTS/STT provider configured. When a
+- name: SpeechCapabilitySummary
+  fields: 7
+  description: Public summary of an active speech provider. Secrets (api keys,
+- name: StoredAgentConversation
+  fields: 23
+  description: Stored agent conversation document returned by non-list endpoints.
+- name: StreamRecordErrorResponse
+  fields: 1
+  description: Error payload returned by the legacy record-stream proxy when the downstream
+- name: SuspendOAuthAppResponse
+  fields: 2
+  description: Response body for `POST /oauth-clients/{appId}/suspend`
+- name: SuspiciousLoginTemplateData
+  fields: 1
+  description: Template data for suspicious login attempt security alert email
+- name: Team
+  fields: 0
+  description: Deprecated alias for TeamDetail. Prefer TeamDetail or TeamListItem in new integrations.
+- name: TeamCreateRequest
+  fields: 3
+  description: Request body for `POST /teams`. Validated by `createTeamSchema` (Zod).
+- name: TeamCreateResponse
+  fields: 3
+  description: Response from `POST /teams` (Python create team).
+- name: TeamCreatedByUser
+  fields: 5
+  description: Creator profile on team responses.
+- name: TeamDeleteResponse
+  fields: 2
+- name: TeamDetail
+  fields: 12
+  description: Full team projection including members when loaded.
+- name: TeamListItem
+  fields: 12
+  description: Team row returned by `GET /teams/user/teams`.
+- name: TeamListResponse
+  fields: 4
+  description: List envelope from Python entity service, forwarded by the Node gateway.
+- name: TeamMember
+  fields: 8
+  description: Team member as returned by list/detail/users endpoints.
+- name: TeamMemberRoleEntry
+  fields: 2
+  description: Mongo userId and role for create/update/member mutation bodies.
+- name: TeamMutationResponse
+  fields: 3
+  description: Success envelope with updated team (`status`, `message`, `team`).
+- name: TeamPagination
+  fields: 6
+  description: Pagination block for team list responses.
+- name: TeamUpdateRequest
+  fields: 5
+  description: Partial update for `PUT /teams/{teamId}`. Validated by `updateTeamSchema` (Zod).
+- name: TeamUsersListResponse
+  fields: 4
+  description: Response from `GET /teams/{teamId}/users`.
+- name: TeamUsersPagination
+  fields: 6
+  description: Pagination for `GET /teams/{teamId}/users`.
+- name: TokenPasswordResetRequest
+  fields: 1
+  description: Request to reset password using email token
+- name: Toolset
+  fields: 8
+  description: Toolset instance linked to an agent, as projected by the graph store on
+- name: TranscriptionResponse
+  fields: 3
+  description: Result of a successful call to `/chat/transcribe`. The server
+- name: URLConfig
+  fields: 1
+  description: URL configuration for frontend or connector
+- name: UnshareSearchResponse
+  fields: 6
+  description: Envelope returned by `PATCH /search/{searchId}/unshare`. Same
+- name: UpdateAIModelProviderDetails
+  fields: 7
+  description: Summary of the provider entry returned by updateAIModelProvider
+- name: UpdateAIModelProviderRequest
+  fields: 6
+  description: Request to update an existing AI model provider
+- name: UpdateAIModelProviderResponse
+  fields: 3
+  description: Success response from updateAIModelProvider
+- name: UpdateAuthMethodResponse
+  fields: 2
+  description: Response after updating organization authentication methods
+- name: UpdateConnectorAuthRequest
+  fields: 2
+  description: Request to update authentication config (clears OAuth tokens, requires re-auth)
+- name: UpdateConnectorConfigRequest
+  fields: 4
+  description: Request to update connector configuration (partial updates supported)
+- name: UpdateConnectorFiltersSyncRequest
+  fields: 3
+  description: Request to update filters and sync config (connector must be authenticated and inactive)
+- name: UpdateConnectorNameRequest
+  fields: 1
+  description: Request to update connector instance name
+- name: UpdateKnowledgeBaseById
+  fields: 2
+  description: Response returned by PUT /knowledgeBase/{kbId} (updateKnowledgeBase).
+- name: UpdateModelRolesRequest
+  fields: 1
+  description: Replaces the entire model role assignment map. Roles absent from this object are deleted — send an
+    empty `roles` object to clear all role assignments.
+- name: UpdateModelRolesResponse
+  fields: 3
+  description: Updated model role assignments after the write.
+- name: UpdateOAuthAppRequest
+  fields: 10
+  description: Request to update an OAuth app (`updateAppSchema` in `oauth.validators.ts`).
+- name: UpdateOAuthAppResponse
+  fields: 2
+  description: Response body for `PUT /oauth-clients/{appId}` (`oauth.app.controller.ts` `updateApp`).
+- name: UpdateProjectRequest
+  fields: 10
+  description: All fields optional; only supplied fields are updated.
+- name: UpdateRecordEnrichment
+  fields: 5
+  description: Fields merged into successful record-update responses (Node gateway and Local KB connector).
+- name: UpdateUserResponse
+  fields: 25
+  description: Response returned by the updateUser endpoint — all User fields plus operation metadata
+- name: UpdateWebSearchProviderRequest
+  fields: 3
+  description: Request to update an existing web search provider
+- name: UploadDoneSummary
+  fields: 1
+  description: Decoded payload of the terminal `done` stream event.
+- name: UploadFailedFileDetail
+  fields: 7
+  description: Decoded payload of a `file:failed` stream event. A single file that was
+- name: UploadLimitsResponseSchema
+  fields: 2
+  description: Upload constraints returned by GET /knowledgeBase/limits.
+- name: UploadStreamSSEEvent
+  fields: 2
+  description: Server-Sent Event envelope for the KB streaming upload endpoint
+- name: UploadSucceededFileDetail
+  fields: 4
+  description: Decoded payload of a `file:succeeded` stream event. Content indexing continues asynchronously after
+    this event.
+- name: User
+  fields: 24
+  description: User account in an organization
+- name: UserGroup
+  fields: 10
+  description: User group for organizing users within an organization
+- name: UserRole
+  fields: 0
+  description: Deprecated alias for TeamMemberRoleEntry.
+- name: ValidateEmailChangeResponse
+  fields: 1
+  description: Response after validating an email change token
+- name: WebSearchProviderItem
+  fields: 4
+  description: Web search provider configuration item returned by getWebSearchProviders
+- name: WebSearchProvidersResponse
+  fields: 4
+  description: Response for getWebSearchProviders
+- name: WebSearchSettings
+  fields: 2
+  description: Normalized web search global settings returned by getWebSearchProviders
+- name: WebSearchSettingsUpdate
+  fields: 2
+  description: Web search global settings
+- name: WeeklyScheduleConfig
+  fields: 0
+- name: reIndexRecordResponseSchema
+  fields: 8
+  description: Response returned by POST /knowledgeBase/reindex/record/{recordId}.
+relationships:
+- from: AuthStep
+  to: AuthMethod
+  type: has_many
+  via: allowedMethods
+- from: AuthConfig
+  to: AuthStep
+  type: has_many
+  via: authMethods
+- from: UpdateAuthMethodResponse
+  to: AuthStep
+  type: has_many
+  via: authMethod
+- from: InitAuthResponse
+  to: AuthProviders
+  type: has_one
+  via: authProviders
+- from: AuthProviders
+  to: AuthProviderGooglePublicConfig
+  type: has_one
+  via: google
+- from: AuthProviders
+  to: AuthProviderMicrosoftPublicConfig
+  type: has_one
+  via: microsoft
+- from: AuthProviders
+  to: AuthProviderAzureAdPublicConfig
+  type: has_one
+  via: azuread
+- from: AuthProviders
+  to: AuthProviderOAuthPublicConfig
+  type: has_one
+  via: oauth
+- from: AuthenticateRequest
+  to: PasswordCredentials
+  type: has_one
+  via: credentials
+- from: AuthenticateRequest
+  to: OtpCredentials
+  type: has_one
+  via: credentials
+- from: AuthenticateRequest
+  to: OAuthCredentials
+  type: has_one
+  via: credentials
+- from: AuthenticateMultiStepResponse
+  to: AuthProviders
+  type: has_one
+  via: authProviders
+- from: RefreshTokenResponse
+  to: RefreshTokenUser
+  type: has_one
+  via: user
+- from: RefreshTokenUser
+  to: Address
+  type: has_one
+  via: address
+- from: OAuthIntrospectResponse
+  to: User
+  type: belongs_to
+  via: user_id
+- from: OAuthUserInfoResponse
+  to: User
+  type: belongs_to
+  via: user_id
+- from: JWKS
+  to: JWK
+  type: has_many
+  via: keys
+- from: CreateOAuthAppResponse
+  to: OAuthAppWithSecret
+  type: has_one
+  via: app
+- from: UpdateOAuthAppResponse
+  to: OAuthAppResponse
+  type: has_one
+  via: app
+- from: SuspendOAuthAppResponse
+  to: OAuthAppResponse
+  type: has_one
+  via: app
+- from: ActivateOAuthAppResponse
+  to: OAuthAppResponse
+  type: has_one
+  via: app
+- from: OAuthAppListResponse
+  to: OAuthAppResponse
+  type: has_many
+  via: data
+- from: OAuthTokenListItem
+  to: User
+  type: belongs_to
+  via: userId
+- from: OAuthAppTokensListResponse
+  to: OAuthTokenListItem
+  type: has_many
+  via: tokens
+- from: CreatePatResponse
+  to: PatWithSecret
+  type: has_one
+  via: token
+- from: ListPatResponse
+  to: PatListItem
+  type: has_many
+  via: tokens
+- from: PatScopesListResponse
+  to: OAuthScopeInfo
+  type: has_many
+  via: scopes
+- from: AdminPatListItem
+  to: User
+  type: belongs_to
+  via: userId
+- from: AdminPatListResponse
+  to: AdminPatListItem
+  type: has_many
+  via: data
+- from: User
+  to: Address
+  type: has_one
+  via: address
+- from: UpdateUserResponse
+  to: Address
+  type: has_one
+  via: address
+- from: Organization
+  to: Address
+  type: has_one
+  via: permanentAddress
+- from: TeamCreatedByUser
+  to: User
+  type: belongs_to
+  via: userId
+- from: TeamMember
+  to: User
+  type: belongs_to
+  via: userId
+- from: TeamMemberRoleEntry
+  to: User
+  type: belongs_to
+  via: userId
+- from: TeamListItem
+  to: TeamCreatedByUser
+  type: has_one
+  via: createdByUser
+- from: TeamListItem
+  to: TeamMember
+  type: has_many
+  via: members
+- from: TeamDetail
+  to: TeamCreatedByUser
+  type: has_one
+  via: createdByUser
+- from: TeamDetail
+  to: TeamMember
+  type: has_many
+  via: members
+- from: TeamListResponse
+  to: TeamListItem
+  type: has_many
+  via: teams
+- from: TeamListResponse
+  to: TeamPagination
+  type: has_one
+  via: pagination
+- from: GetTeamResponse
+  to: TeamDetail
+  type: has_one
+  via: team
+- from: ServiceToken
+  to: ServiceAccount
+  type: belongs_to
+  via: serviceAccountId
+- from: ServiceTokenCreateRequest
+  to: ServiceAccount
+  type: belongs_to
+  via: serviceAccountId
+- from: TeamCreateRequest
+  to: TeamMemberRoleEntry
+  type: has_many
+  via: userRoles
+- from: TeamCreateResponse
+  to: TeamDetail
+  type: has_one
+  via: data
+- from: TeamUpdateRequest
+  to: TeamMemberRoleEntry
+  type: has_many
+  via: addUserRoles
+- from: TeamUpdateRequest
+  to: TeamMemberRoleEntry
+  type: has_many
+  via: updateUserRoles
+- from: TeamMutationResponse
+  to: TeamDetail
+  type: has_one
+  via: team
+- from: TeamUsersListResponse
+  to: TeamDetail
+  type: has_one
+  via: team
+- from: TeamUsersListResponse
+  to: TeamUsersPagination
+  type: has_one
+  via: pagination
+- from: Document
+  to: DocumentVersion
+  type: has_many
+  via: versionHistory
+- from: KnowledgeBase
+  to: Folder
+  type: has_many
+  via: folders
+- from: Record
+  to: Folder
+  type: belongs_to
+  via: folderId
+- from: NavigateKnowledgeGraphResponseSchema
+  to: KnowledgeGraphNodeRefSchema
+  type: has_one
+  via: current
+- from: NavigateKnowledgeGraphResponseSchema
+  to: KnowledgeGraphNodeRefSchema
+  type: has_many
+  via: breadcrumbs
+- from: NavigateKnowledgeGraphResponseSchema
+  to: KnowledgeGraphNodeRowSchema
+  type: has_many
+  via: rows
+- from: NavigateKnowledgeGraphResponseSchema
+  to: KnowledgeGraphNodeRowSchema
+  type: has_many
+  via: related
+- from: NavigateKnowledgeGraphResponseSchema
+  to: KnowledgeGraphPaginationSchema
+  type: has_one
+  via: pagination
+- from: LookupRecordResponseSchema
+  to: KnowledgeGraphLookupMatchSchema
+  type: has_many
+  via: matches
+- from: DeleteRecordResponseSchema
+  to: Record
+  type: belongs_to
+  via: recordId
+- from: reIndexRecordResponseSchema
+  to: Record
+  type: belongs_to
+  via: recordId
+- from: UploadFailedFileDetail
+  to: Record
+  type: belongs_to
+  via: recordId
+- from: UploadSucceededFileDetail
+  to: Record
+  type: belongs_to
+  via: recordId
+- from: KnowledgeHubNodesResponse
+  to: KnowledgeHubNode
+  type: has_many
+  via: items
+- from: KBPermission
+  to: User
+  type: belongs_to
+  via: userId
+- from: KnowledgebaseUpdatePermissionResponse
+  to: User
+  type: belongs_to
+  via: userIds
+- from: KnowledgebaseUpdatePermissionResponse
+  to: Team
+  type: belongs_to
+  via: teamIds
+- from: KnowledgeBaseDeleteResponseSchema
+  to: User
+  type: belongs_to
+  via: userIds
+- from: KnowledgeBaseDeleteResponseSchema
+  to: Team
+  type: belongs_to
+  via: teamIds
+- from: AppliedFilters
+  to: AppliedFilterNode
+  type: has_many
+  via: apps
+- from: AppliedFilters
+  to: AppliedFilterNode
+  type: has_many
+  via: kb
+- from: ChatAttachmentRef
+  to: Record
+  type: belongs_to
+  via: recordId
+- from: ChatAttachmentUploadRef
+  to: Record
+  type: belongs_to
+  via: recordId
+- from: ChatAttachmentUploadResponse
+  to: Conversation
+  type: belongs_to
+  via: conversationId
+- from: ChatAttachmentUploadResponse
+  to: ChatAttachmentUploadRef
+  type: has_many
+  via: attachments
+- from: CreateConversationRequest
+  to: Record
+  type: belongs_to
+  via: recordIds
+- from: CreateConversationRequest
+  to: Filters
+  type: has_one
+  via: filters
+- from: CreateConversationRequest
+  to: AppliedFilters
+  type: has_one
+  via: appliedFilters
+- from: CreateConversationRequest
+  to: ChatAttachmentRef
+  type: has_many
+  via: attachments
+- from: CreateConversationRequest
+  to: Project
+  type: belongs_to
+  via: projectId
+- from: CreateConversationRequest
+  to: AgentCapabilities
+  type: has_one
+  via: agentCapabilities
+- from: CreateAgentConversationResponse
+  to: AgentConversation
+  type: has_one
+  via: conversation
+- from: CreateConversationResponse
+  to: Conversation
+  type: has_one
+  via: conversation
+- from: AgentCreateConversationRequest
+  to: Record
+  type: belongs_to
+  via: recordIds
+- from: AgentCreateConversationRequest
+  to: Filters
+  type: has_one
+  via: filters
+- from: AgentCreateConversationRequest
+  to: AppliedFilters
+  type: has_one
+  via: appliedFilters
+- from: AgentCreateConversationRequest
+  to: ChatAttachmentRef
+  type: has_many
+  via: attachments
+- from: AgentCreateConversationRequest
+  to: Project
+  type: belongs_to
+  via: projectId
+- from: AgentCreateConversationRequest
+  to: AgentCapabilities
+  type: has_one
+  via: agentCapabilities
+- from: RegenerateRequest
+  to: Filters
+  type: has_one
+  via: filters
+- from: RegenerateRequest
+  to: AgentCapabilities
+  type: has_one
+  via: agentCapabilities
+- from: AddMessageRequest
+  to: Filters
+  type: has_one
+  via: filters
+- from: AddMessageRequest
+  to: AppliedFilters
+  type: has_one
+  via: appliedFilters
+- from: AddMessageRequest
+  to: ChatAttachmentRef
+  type: has_many
+  via: attachments
+- from: AddMessageRequest
+  to: AgentCapabilities
+  type: has_one
+  via: agentCapabilities
+- from: AddMessageResponse
+  to: Conversation
+  type: has_one
+  via: conversation
+- from: AgentAddMessageRequest
+  to: Filters
+  type: has_one
+  via: filters
+- from: AgentAddMessageRequest
+  to: AppliedFilters
+  type: has_one
+  via: appliedFilters
+- from: AgentAddMessageRequest
+  to: ChatAttachmentRef
+  type: has_many
+  via: attachments
+- from: AgentAddMessageRequest
+  to: AgentCapabilities
+  type: has_one
+  via: agentCapabilities
+- from: MessageReasoningTurn
+  to: Message
+  type: belongs_to
+  via: messageId
+- from: Message
+  to: CitationReference
+  type: has_many
+  via: citations
+- from: Message
+  to: PopulatedCitationReference
+  type: has_many
+  via: citations
+- from: Message
+  to: FollowUpQuestion
+  type: has_many
+  via: followUpQuestions
+- from: Message
+  to: MessageFeedback
+  type: has_many
+  via: feedback
+- from: Message
+  to: ConversationModelInfo
+  type: has_one
+  via: modelInfo
+- from: Message
+  to: AppliedFilters
+  type: has_one
+  via: appliedFilters
+- from: Message
+  to: ChatAttachmentRef
+  type: has_many
+  via: attachments
+- from: Message
+  to: MessageToolCall
+  type: has_many
+  via: tools
+- from: Message
+  to: MessageReasoningTurn
+  type: has_many
+  via: reasoning
+- from: Message
+  to: MessagePart
+  type: has_many
+  via: parts
+- from: CitationReference
+  to: Citation
+  type: belongs_to
+  via: citationId
+- from: PopulatedCitationReference
+  to: Citation
+  type: belongs_to
+  via: citationId
+- from: PopulatedCitationReference
+  to: Citation
+  type: has_one
+  via: citationData
+- from: Citation
+  to: PersistedSemanticSearchCitationMetadata
+  type: has_one
+  via: metadata
+- from: MessageFeedbackAppendEntry
+  to: MessageFeedbackAppendMetrics
+  type: has_one
+  via: metrics
+- from: MessageFeedbackUpdateResponse
+  to: Conversation
+  type: belongs_to
+  via: conversationId
+- from: MessageFeedbackUpdateResponse
+  to: Message
+  type: belongs_to
+  via: messageId
+- from: MessageFeedbackUpdateResponse
+  to: MessageFeedbackAppendEntry
+  type: has_one
+  via: feedback
+- from: Conversation
+  to: User
+  type: belongs_to
+  via: userId
+- from: Conversation
+  to: Message
+  type: has_many
+  via: messages
+- from: Conversation
+  to: Project
+  type: belongs_to
+  via: projectId
+- from: Conversation
+  to: ConversationSharedBy
+  type: has_one
+  via: sharedBy
+- from: ConversationSharedBy
+  to: User
+  type: belongs_to
+  via: userId
+- from: ConversationListItem
+  to: User
+  type: belongs_to
+  via: userId
+- from: ConversationListItem
+  to: Project
+  type: belongs_to
+  via: projectId
+- from: ConversationListItem
+  to: ConversationSharedBy
+  type: has_one
+  via: sharedBy
+- from: ProjectAppliedFilters
+  to: AppliedFilterNode
+  type: has_many
+  via: apps
+- from: ProjectAppliedFilters
+  to: AppliedFilterNode
+  type: has_many
+  via: kb
+- from: Project
+  to: User
+  type: belongs_to
+  via: userId
+- from: Project
+  to: ProjectKnowledgeScope
+  type: has_one
+  via: knowledgeScope
+- from: Project
+  to: ProjectAppliedFilters
+  type: has_one
+  via: appliedFilters
+- from: Project
+  to: ProjectMember
+  type: has_many
+  via: members
+- from: CreateProjectRequest
+  to: ProjectKnowledgeScope
+  type: has_one
+  via: knowledgeScope
+- from: CreateProjectRequest
+  to: ProjectAppliedFilters
+  type: has_one
+  via: appliedFilters
+- from: UpdateProjectRequest
+  to: ProjectKnowledgeScope
+  type: has_one
+  via: knowledgeScope
+- from: UpdateProjectRequest
+  to: ProjectAppliedFilters
+  type: has_one
+  via: appliedFilters
+- from: ShareRequest
+  to: User
+  type: belongs_to
+  via: userIds
+- from: SemanticSearchRequest
+  to: Filters
+  type: has_one
+  via: filters
+- from: SemanticSearchHitMetadata
+  to: Record
+  type: belongs_to
+  via: recordId
+- from: SemanticSearchHitMetadata
+  to: SemanticSearchBoundingBox
+  type: has_many
+  via: bounding_box
+- from: SemanticSearchTableRowHit
+  to: SemanticSearchHitMetadata
+  type: has_one
+  via: metadata
+- from: SemanticSearchHit
+  to: SemanticSearchHitMetadata
+  type: has_one
+  via: metadata
+- from: SemanticSearchAiResponse
+  to: SemanticSearchHit
+  type: has_many
+  via: searchResults
+- from: SemanticSearchAiResponse
+  to: SemanticSearchGraphRecord
+  type: has_many
+  via: records
+- from: SemanticSearchAiResponse
+  to: SemanticSearchAppliedFilters
+  type: has_one
+  via: appliedFilters
+- from: SemanticSearchExecuteResponse
+  to: SemanticSearchAiResponse
+  type: has_one
+  via: searchResponse
+- from: PersistedSemanticSearchCitationMetadata
+  to: Record
+  type: belongs_to
+  via: recordId
+- from: PersistedSemanticSearchCitationMetadata
+  to: PersistedSemanticSearchBoundingBox
+  type: has_many
+  via: bounding_box
+- from: PersistedSemanticSearchCitation
+  to: PersistedSemanticSearchCitationMetadata
+  type: has_one
+  via: metadata
+- from: PersistedSemanticSearchSharedWithEntry
+  to: User
+  type: belongs_to
+  via: userId
+- from: PersistedSemanticSearch
+  to: User
+  type: belongs_to
+  via: userId
+- from: PersistedSemanticSearch
+  to: PersistedSemanticSearchCitation
+  type: has_many
+  via: citationIds
+- from: PersistedSemanticSearch
+  to: Citation
+  type: belongs_to
+  via: citationIds
+- from: PersistedSemanticSearch
+  to: PersistedSemanticSearchSharedWithEntry
+  type: has_many
+  via: sharedWith
+- from: SemanticSearchHistoryItem
+  to: User
+  type: belongs_to
+  via: userId
+- from: SemanticSearchHistoryItem
+  to: Citation
+  type: belongs_to
+  via: citationIds
+- from: SemanticSearchHistoryItem
+  to: PersistedSemanticSearchSharedWithEntry
+  type: has_many
+  via: sharedWith
+- from: SemanticSearchHistoryFiltersAvailable
+  to: SemanticSearchHistoryFilterToggle
+  type: has_one
+  via: shared
+- from: SemanticSearchHistoryFiltersAvailable
+  to: SemanticSearchHistoryFilterToggle
+  type: has_one
+  via: tags
+- from: SemanticSearchHistoryFiltersAvailable
+  to: SemanticSearchHistoryFilterToggle
+  type: has_one
+  via: minMessages
+- from: SemanticSearchHistoryFiltersAvailable
+  to: SemanticSearchHistoryFilterToggle
+  type: has_one
+  via: search
+- from: SemanticSearchHistoryFilters
+  to: SemanticSearchHistoryFiltersApplied
+  type: has_one
+  via: applied
+- from: SemanticSearchHistoryFilters
+  to: SemanticSearchHistoryFiltersAvailable
+  type: has_one
+  via: available
+- from: SemanticSearchHistoryResponse
+  to: SemanticSearchHistoryItem
+  type: has_many
+  via: searchHistory
+- from: SemanticSearchHistoryResponse
+  to: SemanticSearchHistoryPagination
+  type: has_one
+  via: pagination
+- from: SemanticSearchHistoryResponse
+  to: SemanticSearchHistoryFilters
+  type: has_one
+  via: filters
+- from: SemanticSearchHistoryResponse
+  to: SemanticSearchHistoryMeta
+  type: has_one
+  via: meta
+- from: SemanticSearchShareRequest
+  to: User
+  type: belongs_to
+  via: userIds
+- from: ShareSearchResponse
+  to: User
+  type: belongs_to
+  via: userId
+- from: ShareSearchResponse
+  to: Citation
+  type: belongs_to
+  via: citationIds
+- from: ShareSearchResponse
+  to: PersistedSemanticSearchSharedWithEntry
+  type: has_many
+  via: sharedWith
+- from: UnshareSearchResponse
+  to: PersistedSemanticSearchSharedWithEntry
+  type: has_many
+  via: sharedWith
+- from: UnshareSearchResponse
+  to: SemanticSearchHistoryMeta
+  type: has_one
+  via: meta
+- from: Knowledge
+  to: AgentKnowledgeFiltersParsed
+  type: has_one
+  via: filtersParsed
+- from: Agent
+  to: Toolset
+  type: has_many
+  via: toolsets
+- from: Agent
+  to: McpServer
+  type: has_many
+  via: mcpServers
+- from: Agent
+  to: Knowledge
+  type: has_many
+  via: knowledge
+- from: Agent
+  to: AgentSkill
+  type: has_many
+  via: skills
+- from: AgentListItem
+  to: Toolset
+  type: has_many
+  via: toolsets
+- from: AgentListItem
+  to: McpServer
+  type: has_many
+  via: mcpServers
+- from: AgentListItem
+  to: Knowledge
+  type: has_many
+  via: knowledge
+- from: AgentListResponse
+  to: AgentListItem
+  type: has_many
+  via: agents
+- from: AgentListResponse
+  to: AgentListPagination
+  type: has_one
+  via: pagination
+- from: GetAgentResponse
+  to: Agent
+  type: has_one
+  via: agent
+- from: AgentCreateToolset
+  to: AgentCreateToolRef
+  type: has_many
+  via: tools
+- from: AgentCreateKnowledge
+  to: AgentKnowledgeFiltersParsed
+  type: has_one
+  via: filters
+- from: AgentCreateRequest
+  to: AgentCreateToolset
+  type: has_many
+  via: toolsets
+- from: AgentCreateRequest
+  to: AgentCreateKnowledge
+  type: has_many
+  via: knowledge
+- from: AgentCreateRequest
+  to: AgentSkillAssignment
+  type: has_many
+  via: skills
+- from: AgentCreateResponseToolset
+  to: AgentCreateResponseTool
+  type: has_many
+  via: tools
+- from: AgentCreateResponseMcpServer
+  to: AgentCreateResponseMcpServerTool
+  type: has_many
+  via: tools
+- from: AgentCreateResponseAgent
+  to: AgentCreateResponseToolset
+  type: has_many
+  via: toolsets
+- from: AgentCreateResponseAgent
+  to: AgentCreateResponseMcpServer
+  type: has_many
+  via: mcpServers
+- from: AgentCreateResponseAgent
+  to: AgentCreateResponseKnowledge
+  type: has_many
+  via: knowledge
+- from: AgentCreateResponseAgent
+  to: AgentCreateResponseSkill
+  type: has_many
+  via: skills
+- from: AgentCreateResponse
+  to: AgentCreateResponseAgent
+  type: has_one
+  via: agent
+- from: AgentCreateResponse
+  to: AgentCreateWarning
+  type: has_many
+  via: warnings
+- from: AgentUpdateRequest
+  to: AgentCreateToolset
+  type: has_many
+  via: toolsets
+- from: AgentUpdateRequest
+  to: AgentCreateKnowledge
+  type: has_many
+  via: knowledge
+- from: AgentUpdateRequest
+  to: AgentSkillAssignment
+  type: has_many
+  via: skills
+- from: AgentConversation
+  to: User
+  type: belongs_to
+  via: userId
+- from: AgentConversation
+  to: Message
+  type: has_many
+  via: messages
+- from: AgentConversation
+  to: Project
+  type: belongs_to
+  via: projectId
+- from: AgentConversationListItem
+  to: User
+  type: belongs_to
+  via: userId
+- from: AgentConversationListItem
+  to: ConversationModelInfo
+  type: has_one
+  via: modelInfo
+- from: AgentConversationListItem
+  to: Project
+  type: belongs_to
+  via: projectId
+- from: AgentConversationListResponse
+  to: AgentConversationListItem
+  type: has_many
+  via: conversations
+- from: AgentConversationListResponse
+  to: AgentConversationListItem
+  type: has_many
+  via: sharedWithMeConversations
+- from: AgentConversationListResponse
+  to: SemanticSearchHistoryPagination
+  type: has_one
+  via: pagination
+- from: AgentConversationListResponse
+  to: SemanticSearchHistoryFilters
+  type: has_one
+  via: filters
+- from: AgentConversationListResponse
+  to: SemanticSearchHistoryMeta
+  type: has_one
+  via: meta
+- from: AgentArchivedConversationGroup
+  to: AgentConversationListItem
+  type: has_many
+  via: conversations
+- from: AgentArchivedConversationGroup
+  to: SemanticSearchHistoryPagination
+  type: has_one
+  via: pagination
+- from: AgentArchivedGroupsResponse
+  to: AgentArchivedConversationGroup
+  type: has_many
+  via: groups
+- from: AgentArchivedGroupsResponse
+  to: SemanticSearchHistoryPagination
+  type: has_one
+  via: agentPagination
+- from: AgentArchivedGroupsResponse
+  to: RequestMeta
+  type: has_one
+  via: meta
+- from: AgentArchivedConversationListResponse
+  to: AgentConversationListItem
+  type: has_many
+  via: conversations
+- from: AgentArchivedConversationListResponse
+  to: SemanticSearchHistoryPagination
+  type: has_one
+  via: pagination
+- from: AgentArchivedConversationListResponse
+  to: SemanticSearchHistoryFilters
+  type: has_one
+  via: filters
+- from: AgentArchivedConversationListResponse
+  to: AgentArchivedConversationSummary
+  type: has_one
+  via: summary
+- from: AgentArchivedConversationListResponse
+  to: SemanticSearchHistoryMeta
+  type: has_one
+  via: meta
+- from: StoredAgentConversation
+  to: User
+  type: belongs_to
+  via: userId
+- from: StoredAgentConversation
+  to: Message
+  type: has_many
+  via: messages
+- from: StoredAgentConversation
+  to: ConversationModelInfo
+  type: has_one
+  via: modelInfo
+- from: AgentConversationTitleUpdateResponse
+  to: StoredAgentConversation
+  type: has_one
+  via: conversation
+- from: AgentConversationTitleUpdateResponse
+  to: RequestMeta
+  type: has_one
+  via: meta
+- from: AgentConversationDeleteResponse
+  to: StoredAgentConversation
+  type: has_one
+  via: conversation
+- from: AgentConversationDetailMessageCitation
+  to: Citation
+  type: belongs_to
+  via: citationId
+- from: AgentConversationDetailMessageCitation
+  to: Citation
+  type: has_one
+  via: citationData
+- from: AgentConversationDetailMessage
+  to: AgentConversationDetailMessageCitation
+  type: has_many
+  via: citations
+- from: AgentConversationDetailMessage
+  to: FollowUpQuestion
+  type: has_many
+  via: followUpQuestions
+- from: AgentConversationDetailMessage
+  to: MessageFeedback
+  type: has_many
+  via: feedback
+- from: AgentConversationDetailMessage
+  to: ChatAttachmentRef
+  type: has_many
+  via: attachments
+- from: AgentConversationDetailMessage
+  to: MessageToolCall
+  type: has_many
+  via: tools
+- from: AgentConversationDetailMessage
+  to: MessageReasoningTurn
+  type: has_many
+  via: reasoning
+- from: AgentConversationDetailMessage
+  to: MessagePart
+  type: has_many
+  via: parts
+- from: AgentConversationDetailMessage
+  to: ConversationModelInfo
+  type: has_one
+  via: modelInfo
+- from: AgentConversationDetailMessage
+  to: AppliedFilters
+  type: has_one
+  via: appliedFilters
+- from: AgentConversationDetail
+  to: AgentConversationDetailMessage
+  type: has_many
+  via: messages
+- from: AgentConversationDetail
+  to: ConversationModelInfo
+  type: has_one
+  via: modelInfo
+- from: AgentConversationDetail
+  to: AgentConversationDetailPagination
+  type: has_one
+  via: pagination
+- from: AgentConversationDetail
+  to: AgentConversationDetailAccess
+  type: has_one
+  via: access
+- from: AgentConversationDetailMeta
+  to: Conversation
+  type: belongs_to
+  via: conversationId
+- from: AgentConversationDetailResponse
+  to: AgentConversationDetail
+  type: has_one
+  via: conversation
+- from: AgentConversationDetailResponse
+  to: SemanticSearchHistoryFilters
+  type: has_one
+  via: filters
+- from: AgentConversationDetailResponse
+  to: AgentConversationDetailMeta
+  type: has_one
+  via: meta
+- from: AgentConversationArchiveResponse
+  to: AgentConversationArchiveMeta
+  type: has_one
+  via: meta
+- from: AgentConversationUnarchiveResponse
+  to: AgentConversationUnarchiveMeta
+  type: has_one
+  via: meta
+- from: SpeechCapabilitiesResponse
+  to: SpeechCapabilitySummary
+  type: has_one
+  via: tts
+- from: SpeechCapabilitiesResponse
+  to: SpeechCapabilitySummary
+  type: has_one
+  via: stt
+- from: ConnectorAuthConfig
+  to: OAuthConfig
+  type: belongs_to
+  via: oauthConfigId
+- from: CreateConnectorRequest
+  to: OAuthConfig
+  type: belongs_to
+  via: oauthConfigId
+- from: UpdateConnectorConfigRequest
+  to: ConnectorAuthConfig
+  type: has_one
+  via: auth
+- from: UpdateConnectorConfigRequest
+  to: ConnectorSyncConfig
+  type: has_one
+  via: sync
+- from: UpdateConnectorConfigRequest
+  to: ConnectorFiltersConfig
+  type: has_one
+  via: filters
+- from: UpdateConnectorAuthRequest
+  to: ConnectorAuthConfig
+  type: has_one
+  via: auth
+- from: UpdateConnectorFiltersSyncRequest
+  to: ConnectorSyncConfig
+  type: has_one
+  via: sync
+- from: UpdateConnectorFiltersSyncRequest
+  to: ConnectorFiltersConfig
+  type: has_one
+  via: filters
+- from: AIModelProviderConfig
+  to: AIModelProviderConfiguration
+  type: has_one
+  via: configuration
+- from: AIModelsConfig
+  to: AIModelProviderConfig
+  type: has_many
+  via: ocr
+- from: AIModelsConfig
+  to: AIModelProviderConfig
+  type: has_many
+  via: embedding
+- from: AIModelsConfig
+  to: AIModelProviderConfig
+  type: has_many
+  via: slm
+- from: AIModelsConfig
+  to: AIModelProviderConfig
+  type: has_many
+  via: llm
+- from: AIModelsConfig
+  to: AIModelProviderConfig
+  type: has_many
+  via: reasoning
+- from: AIModelsConfig
+  to: AIModelProviderConfig
+  type: has_many
+  via: multiModal
+- from: AIModelsConfig
+  to: AIModelProviderConfig
+  type: has_many
+  via: imageGeneration
+- from: AIModelsConfig
+  to: AIModelProviderConfig
+  type: has_many
+  via: tts
+- from: AIModelsConfig
+  to: AIModelProviderConfig
+  type: has_many
+  via: stt
+- from: GetAIModelsProvidersResponse
+  to: AIModelsConfig
+  type: has_one
+  via: models
+- from: GetModelsByTypeResponse
+  to: AIModelProviderConfig
+  type: has_many
+  via: models
+- from: WebSearchProvidersResponse
+  to: WebSearchProviderItem
+  type: has_many
+  via: providers
+- from: WebSearchProvidersResponse
+  to: WebSearchSettings
+  type: has_one
+  via: settings
+- from: SkillUsage
+  to: SkillUsageReference
+  type: has_many
+  via: usedByAgents
+- from: AIModelProviderConfiguration
+  to: Organization
+  type: belongs_to
+  via: organizationId
+- from: AddAIModelProviderRequest
+  to: AIModelProviderConfiguration
+  type: has_one
+  via: configuration
+- from: UpdateAIModelProviderRequest
+  to: AIModelProviderConfiguration
+  type: has_one
+  via: configuration
+- from: AIModelProviderResponse
+  to: AIModelProviderAddedDetails
+  type: has_one
+  via: details
+- from: AIModelProviderHealthCheckBackendPayload
+  to: AIModelProviderHealthCheckBackendDetails
+  type: has_one
+  via: details
+- from: UpdateAIModelProviderResponse
+  to: UpdateAIModelProviderDetails
+  type: has_one
+  via: details
+- from: DeleteAIModelProviderResponse
+  to: DeleteAIModelProviderDetails
+  type: has_one
+  via: details
+- from: CrawlingJobData
+  to: User
+  type: belongs_to
+  via: userId
+- from: JobStatus
+  to: CrawlingJobData
+  type: has_one
+  via: data
+- from: MailBody
+  to: LoginWithOTPTemplateData
+  type: has_one
+  via: templateData
+- from: MailBody
+  to: ResetPasswordTemplateData
+  type: has_one
+  via: templateData
+- from: MailBody
+  to: AccountCreationTemplateData
+  type: has_one
+  via: templateData
+- from: MailBody
+  to: AppUserInviteTemplateData
+  type: has_one
+  via: templateData
+- from: MailBody
+  to: SuspiciousLoginTemplateData
+  type: has_one
+  via: templateData

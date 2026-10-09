@@ -1,0 +1,498 @@
+openapi: 3.2.0
+info:
+  title: Pipeshub SAML API
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@pipeshub.com
+  description: 'Operations tagged SAML across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: '{instance_url}/api/v1'
+  description: Base API URL
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL (without /api/v1)
+- url: '{instance_url}'
+  description: Root URL (used for MCP endpoints mounted at /mcp)
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL
+security:
+- bearerAuth: []
+- oauth2: []
+tags:
+- name: SAML
+  description: SAML 2.0 Single Sign-On integration with enterprise Identity Providers
+paths:
+  /saml/signIn:
+    get:
+      tags:
+      - SAML
+      summary: Initiate SAML sign-in flow
+      description: 'Initiate SAML Single Sign-On authentication by redirecting to the Identity Provider (IDP).
+
+
+        Usage:
+
+
+        1. Call /userAccount/initAuth to get a session token
+
+
+        2. If samlSso is in the allowed methods, redirect the user to this endpoint
+
+
+        3. User authenticates with their IDP
+
+
+        4. IDP redirects back to /saml/signIn/callback with SAML response
+
+
+        5. Callback completes authentication and returns tokens
+
+
+        Note: This is a browser redirect endpoint, not a typical API call.
+
+        The user''s browser should be redirected to this URL.
+
+
+        Prerequisites:
+
+
+        - Organization must have SAML SSO configured via /saml/updateAppConfig
+
+
+        - User must belong to an organization with SAML enabled'
+      operationId: signInViaSAML
+      security: []
+      parameters:
+      - name: email
+        in: query
+        required: true
+        description: User's email address
+        schema:
+          type: string
+          format: email
+      - name: sessionToken
+        in: query
+        required: false
+        description: 'Session token from `/userAccount/initAuth`. Optional but recommended
+
+          for maintaining authentication state across the SAML flow.
+
+          '
+        schema:
+          type: string
+      responses:
+        '302':
+          description: Redirect to SAML Identity Provider login page
+          headers:
+            Location:
+              description: IDP SSO URL
+              schema:
+                type: string
+        '400':
+          description: Invalid request (missing or malformed parameters)
+        '404':
+          description: User not found or SAML not configured for organization
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /saml/signIn/callback:
+    post:
+      tags:
+      - SAML
+      summary: SAML sign-in callback
+      operationId: samlSignInCallback
+      description: 'Handles the callback from the SAML Identity Provider (IDP)
+
+        after successful user authentication.
+
+
+        This endpoint is invoked by the IDP and not directly by clients.
+
+
+        Flow:
+
+        1. IDP posts SAMLResponse and RelayState
+
+        2. Server validates the SAML assertion signature
+
+        3. Server extracts user identity
+
+        4. Server completes authentication
+
+        5. Redirects to frontend with authentication result
+
+
+        RelayState contains the session token or state used to resume
+
+        the authentication process.
+
+
+        **Important:** All outcomes — both success and failure — are delivered
+
+        as `302` redirects. This endpoint does not return JSON error bodies.
+
+        Errors are communicated via a `saml_error` query parameter on the
+
+        redirect URL. Clients should inspect this parameter after landing on
+
+        the frontend login page.'
+      security: []
+      requestBody:
+        description: SAML response from Identity Provider
+        required: false
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                SAMLResponse:
+                  type: string
+                  description: Base64-encoded SAML response
+                RelayState:
+                  type: string
+                  description: Relay state from the original request
+      responses:
+        '302':
+          description: 'Redirect to the frontend. All outcomes use this status code.
+
+
+            **Success:** Redirects to `{frontendUrl}/auth/sign-in/samlSso/success`.
+
+            Access and refresh tokens are delivered as `Secure; SameSite=None` cookies.
+
+
+            **Failure:** Redirects to `{frontendUrl}/login?saml_error=<code>`.
+
+
+            | `saml_error` value  | Meaning                                                                 |
+
+            |---------------------|-------------------------------------------------------------------------|
+
+            | `auth_failed`       | Passport rejected the SAML assertion (invalid signature, expired, etc.) |
+
+            | `saml_sso_disabled` | SAML SSO is not enabled for this organization                           |
+
+            | `jit_disabled`      | User has no account and Just-In-Time provisioning is disabled           |
+
+            | `unknown`           | Unexpected server-side error during callback processing                 |
+
+            | *(raw message)*     | Passport parse error surfaced before the custom callback fired          |
+
+            '
+          headers:
+            Location:
+              description: 'Frontend success URL or `{frontendUrl}/login?saml_error=<code>` on failure.
+
+                '
+              schema:
+                type: string
+              examples:
+                success:
+                  value: https://app.example.com/auth/sign-in/samlSso/success
+                error_sso_disabled:
+                  value: https://app.example.com/login?saml_error=saml_sso_disabled
+                error_jit_disabled:
+                  value: https://app.example.com/login?saml_error=jit_disabled
+                error_auth_failed:
+                  value: https://app.example.com/login?saml_error=auth_failed
+            Set-Cookie:
+              description: 'Set on successful authentication only.
+
+                - `accessToken`: JWT access token, expires in 1 hour (`Secure; SameSite=None`)
+
+                - `refreshToken`: JWT refresh token, expires in 7 days (`Secure; SameSite=None`)
+
+                '
+              schema:
+                type: string
+        '400':
+          description: Invalid or malformed SAML response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthError'
+        '401':
+          description: SAML assertion validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthError'
+        '404':
+          description: Session expired or user not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthError'
+        '500':
+          description: Internal server error during SAML processing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthError'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /saml/updateAppConfig:
+    post:
+      tags:
+      - SAML
+      summary: Reload SAML application configuration (Internal)
+      description: 'Internal endpoint to reload SAML configuration from the configuration manager.
+
+        This is called by other services when SAML settings are updated.
+
+
+        Purpose:
+
+
+        When SAML configuration is updated in the Configuration Manager, this endpoint
+
+        is called to reload the settings into the authentication service without restart.
+
+
+        Effects:
+
+
+        Reloads AppConfig from configuration files
+
+
+        Rebinds authentication controllers with new config
+
+
+        Updates SAML passport strategy settings
+
+
+        Note: This is an internal service-to-service endpoint.'
+      operationId: updateSamlAppConfig
+      security:
+      - scopedToken: []
+      responses:
+        '200':
+          description: Configuration reloaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+        '400':
+          description: Invalid SAML response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+components:
+  schemas:
+    AuthError:
+      type: object
+      description: 'Authentication error response with details for debugging and user feedback.
+
+
+        **Common Error Codes:**
+
+
+        - `INVALID_CREDENTIALS` - Wrong password or OTP
+
+        - `ACCOUNT_BLOCKED` - Account locked after 5 failed attempts
+
+        - `SESSION_EXPIRED` - Session token has expired
+
+        - `OTP_EXPIRED` - OTP code has expired (10 min validity)
+
+        - `USER_NOT_FOUND` - Email not registered
+
+        - `INVALID_TOKEN` - JWT token is invalid or malformed
+
+        - `METHOD_NOT_ALLOWED` - Auth method not enabled for org
+
+        '
+      properties:
+        error:
+          type: string
+          description: Error type identifier
+          example: INVALID_CREDENTIALS
+        message:
+          type: string
+          description: Human-readable error message
+          example: The password you entered is incorrect
+        code:
+          type: string
+          description: Error code for programmatic handling
+          example: AUTH_001
+        statusCode:
+          type: integer
+          description: HTTP status code
+          example: 401
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'JWT Bearer token for authenticated requests.
+
+
+        A personal access token (see the **Personal Access Tokens** tag) is a
+
+        `phpat_`-prefixed variant of this same JWT — e.g. `phpat_eyJhbGci...`.
+
+        The prefix is display-only, added for secret-scanner detectability; the
+
+        gateway strips it before verifying the token, so send it exactly as
+
+        issued, prefix included.
+
+        '
+    scopedToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Scoped JWT token for service-to-service authentication.
+
+        Format: "Bearer {scoped_token}"
+
+        Required scopes vary by endpoint.
+
+        '
+    oauth2:
+      type: oauth2
+      description: 'OAuth 2.0 authentication with fine-grained scopes.
+
+        Supports authorization_code (with PKCE) and client_credentials flows.
+
+        OAuth tokens are Bearer JWTs — use the same Authorization header as regular tokens.
+
+        For **client_credentials**, machine JWTs may use `userId === client_id`; the Node gateway resolves the OAuth app creator — see **OAuth Provider** tag.
+
+        '
+      flows:
+        authorizationCode:
+          authorizationUrl: /api/v1/oauth2/authorize
+          tokenUrl: /api/v1/oauth2/token
+          refreshUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:read: Read semantic search results and history
+            semantic:write: Execute semantic search
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+            crawl:delete: Delete crawling jobs
+        clientCredentials:
+          tokenUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:write: Execute semantic search
+            semantic:read: Read semantic search results and history
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+x-refined-from:
+- pipeshub-openapi.yaml
+- pipeshub-openapi.yml

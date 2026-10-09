@@ -1,0 +1,79 @@
+generated: '2026-10-09'
+method: searched
+source: https://docs.pipeshub.com/developer/oauth2
+summary:
+  types:
+  - http
+  - oauth2
+  oauth2_flows:
+  - authorizationCode
+  - clientCredentials
+schemes:
+- name: bearerAuth
+  type: http
+  scheme: bearer
+  bearerFormat: JWT
+  description: 'JWT Bearer token for authenticated requests.
+
+
+    A personal access token (see the **Personal Access Tokens** tag) is a
+
+    `phpat_`-prefixed variant of this same JWT — e.g. `phpat_eyJhbGci...`.
+
+    The prefix is display-only, added for secret-scanner detectability; the
+
+    gateway strips it before verifying the token, so send it exactly as
+
+    issued, prefix included.'
+  sources:
+  - openapi/pipeshub-openapi.yml
+- name: oauth2
+  type: oauth2
+  flows:
+  - flow: authorizationCode
+    authorizationUrl: /api/v1/oauth2/authorize
+    tokenUrl: /api/v1/oauth2/token
+    scopes: 40
+  - flow: clientCredentials
+    tokenUrl: /api/v1/oauth2/token
+    scopes: 39
+  description: 'OAuth 2.0 authentication with fine-grained scopes.
+
+    Supports authorization_code (with PKCE) and client_credentials flows.
+
+    OAuth tokens are Bearer JWTs — use the same Authorization header as regular tokens.
+
+    For **client_credentials**, machine JWTs may use `userId === client_id`; the Node
+    gateway resolves the OAuth app creator — see **OAuth Provider** tag.'
+  sources:
+  - openapi/pipeshub-openapi.yml
+derived_from: openapi/pipeshub-openapi.yml
+docs: https://docs.pipeshub.com/developer/oauth2
+documented:
+  personal_access_tokens:
+    prefix: phpat_
+    header: 'Authorization: Bearer phpat_YOUR_TOKEN'
+    note: Long-lived, scoped, revocable; the phpat_ prefix is display-only. Refused
+      with 403 on PAT and OAuth app management endpoints.
+    docs: https://docs.pipeshub.com/developer/personal-access-tokens
+  session_tokens:
+    lifetime: 24 hours
+    note: Session tokens skip scope checks entirely; PATs are enforced against granted
+      scopes.
+  oauth2:
+    grants:
+    - authorization_code (PKCE supported)
+    - client_credentials
+    - refresh_token (offline_access scope)
+    access_token_expires_in: 3600
+    authorization_code_validity: 10 minutes
+    endpoints:
+    - /api/v1/oauth2/authorize
+    - /api/v1/oauth2/token
+    - /api/v1/oauth2/revoke
+    - /api/v1/oauth2/introspect
+    - /api/v1/oauth2/userinfo
+    discovery:
+    - /.well-known/openid-configuration
+    - /.well-known/oauth-authorization-server
+    - /.well-known/jwks.json

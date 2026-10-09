@@ -1,23 +1,1754 @@
 aid: pipeshub
+
 name: PipesHub
-description: 'PipesHub is a company surfaced via the API Evangelist harvest backlog (source: spectral-ruleset-github)
-  and added to the network as a stub for full-pipeline profiling.'
+
+description: PipesHub is an open-source, enterprise-ready workplace AI platform positioned as an open-source alternative to Glean. It unifies
+  scattered business data by connecting to business and enterprise apps, provides explainable, permission-aware enterprise search across them,
+  and powers AI agents that get work done. It can be self-hosted from its public GitHub repository (pipeshub-ai/pipeshub-ai) or used as a hosted
+  app, and documents a developer API reference for building on its enterprise context layer.
+
 url: https://raw.githubusercontent.com/api-evangelist/pipeshub/refs/heads/main/apis.yml
+
 x-type: company
+
 x-source: harvest:spectral-ruleset-github
-x-tier: stub
-x-tier-reason: harvest
+
+x-tier: profiled
+x-tier-reason: enrichment pass 2026-10-09 (modular-v1; was harvest)
+
 specificationVersion: '0.20'
+
 created: '2026-10-09'
+
 modified: '2026-10-09'
+
 tags:
 - Company
-apis: []
+- Artificial Intelligence
+- Enterprise Search
+- AI Agents
+- Open Source
+- Knowledge Management
+- Workplace AI
+
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
+
+image: https://framerusercontent.com/images/87N6FTaGQx1IeB0Klbo9hPHAOus.png
+
 common:
+- type: AgenticAccess
+  url: agentic-access/pipeshub-agentic-access.yml
+- type: RateLimits
+  url: rate-limits/pipeshub-rate-limits.yml
+- type: Plans
+  url: plans/pipeshub-plans-pricing.yml
+- type: Spectral
+  url: rules/pipeshub-rules.yml
+- type: Spectral
+  url: rules/pipeshub-pipeshub-ai-spectral-rules.yml
+- type: JSONLD
+  url: json-ld/pipeshub-context.jsonld
+- type: Vocabulary
+  url: vocabulary/pipeshub-vocabulary.yml
+- type: AgentSkill
+  url: skills/_index.yml
+- type: Webhooks
+  url: asyncapi/pipeshub-webhooks.yml
+- type: DataModel
+  url: data-model/pipeshub-data-model.yml
+- type: ChangeLog
+  url: changelog/pipeshub-changelog.yml
+- type: Conventions
+  url: conventions/pipeshub-conventions.yml
+- type: Sandbox
+  url: sandbox/pipeshub-sandbox.yml
+- type: Deprecation
+  url: lifecycle/pipeshub-lifecycle.yml
+- type: Lifecycle
+  url: lifecycle/pipeshub-lifecycle.yml
+- type: ErrorCatalog
+  url: errors/pipeshub-problem-types.yml
+- type: Conformance
+  url: conformance/pipeshub-conformance.yml
+- type: Overlay
+  url: overlays/pipeshub-openapi-overlay.yaml
+- type: LLMsTxt
+  url: llms/pipeshub-llms.txt
+- type: AgentCard
+  url: a2a/pipeshub-a2a.yml
+- type: ToolCrosswalk
+  url: mcp/pipeshub-tool-crosswalk.yml
+- type: MCPServer
+  url: mcp/pipeshub-mcp.yml
+- type: SecurityTxt
+  url: well-known/pipeshub-platform-security.txt
+- type: WellKnown
+  url: well-known/pipeshub-well-known.yml
+- type: Hosts
+  url: hosts/pipeshub-hosts.yml
+- type: Vendors
+  url: vendors/pipeshub-vendors.yml
+- type: SDKs
+  url: packages/pipeshub-packages.yml
+- type: Packages
+  url: packages/pipeshub-packages.yml
+- type: OAuthScopes
+  url: scopes/pipeshub-scopes.yml
+- type: Authentication
+  url: authentication/pipeshub-authentication.yml
+- type: DomainSecurity
+  url: security/pipeshub-domain-security.yml
 - type: Website
   url: https://pipeshub.com/
+- type: SpectralRules
+  url: https://github.com/pipeshub-ai/pipeshub-ai/blob/a883af6d0f5d31f57d07d88dfcb1e9c483343e38/.spectral.yaml
+- type: Documentation
+  url: https://docs.pipeshub.com/introduction
+- type: APIReference
+  url: https://docs.pipeshub.com/developer/api-reference
+- type: GettingStarted
+  url: https://docs.pipeshub.com/quickstart
+- type: ChangeLog
+  url: https://docs.pipeshub.com/additional-resources/changelog
+- type: Blog
+  url: https://pipeshub.com/blog
+- type: GitHubOrganization
+  url: https://github.com/pipeshub-ai
+- type: Pricing
+  url: https://pipeshub.com/pricing
+- type: Login
+  url: https://app.pipeshub.com/
+- type: Sandbox
+  url: https://sandbox.pipeshub.com/
+- type: Security
+  url: https://pipeshub.com/security
+- type: TermsOfService
+  url: https://pipeshub.com/terms
+- type: PrivacyPolicy
+  url: https://pipeshub.com/privacy-policy
+- type: Support
+  url: https://discord.com/invite/K5RskzJBm2
+- type: LinkedIn
+  url: https://www.linkedin.com/company/pipeshub
+- type: X
+  url: https://x.com/PipesHub
+- type: YouTube
+  url: https://www.youtube.com/@PipesHub-GenAI
+
+apis:
+- aid: pipeshub:pipeshub-agents-api
+  name: PipesHub Agents API
+  description: Custom AI agents with specialized capabilities and tool integrations
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - Agents
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-agents-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-ai-models-providers-api
+  name: PipesHub AI Models Providers API
+  description: Manage individual AI model providers - add, update, delete, and set defaults.
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - AI Models Providers
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-ai-models-providers-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-authentication-configuration-api
+  name: PipesHub Authentication Configuration API
+  description: >-
+    Configure authentication providers including Azure AD, Microsoft, Google OAuth, SAML SSO, and custom
+    OAuth 2.0.
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - Authentication Configuration
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-authentication-configuration-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-configuration-manager-api
+  name: PipesHub Configuration Manager API
+  description: >-
+    Manage organization-level configuration including Slack bot integration, AI models, and metrics collection.
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - Configuration Manager
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-configuration-manager-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-connector-api
+  name: PipesHub Connector API
+  description: Connector-related operations
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - Connector
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-connector-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-connector-configuration-api
+  name: PipesHub Connector Configuration API
+  description: Configure authentication, sync settings, and filters for connectors
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - Connector Configuration
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-connector-configuration-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-connector-control-api
+  name: PipesHub Connector Control API
+  description: Enable/disable connectors for sync or agent functionality
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - Connector Control
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-connector-control-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-connector-filters-api
+  name: PipesHub Connector Filters API
+  description: Dynamic filter options for selecting which data to sync
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - Connector Filters
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-connector-filters-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-connector-instances-api
+  name: PipesHub Connector Instances API
+  description: Create, manage, and delete connector instances for your organization
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - Connector Instances
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-connector-instances-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-connector-oauth-api
+  name: PipesHub Connector OAuth API
+  description: OAuth 2.0 authorization flow for connectors requiring user consent
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - Connector OAuth
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-connector-oauth-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-connector-registry-api
+  name: PipesHub Connector Registry API
+  description: Browse available connector types and their configuration schemas
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - Connector Registry
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-connector-registry-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-connectors-api
+  name: PipesHub Connectors API
+  description: The Connectors API from PipesHub — 1 operation(s) for connectors.
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - Connectors
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-connectors-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-conversational-speech-api
+  name: PipesHub Conversational Speech API
+  description: >-
+    Server-backed Speech-to-Text (STT) and Text-to-Speech (TTS) for the chat UI.
+
+
+    These endpoints are used by the chat frontend when an admin has configured a
+
+    TTS/STT provider under the AI Models configuration. When no provider is
+
+    configured the client falls back to the browser's native Web Speech API, so
+
+    callers should treat a `409` response as "unconfigured, use browser APIs"
+
+    rather than as a fatal error.
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - Conversational Speech
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-conversational-speech-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-conversations-api
+  name: PipesHub Conversations API
+  description: AI-powered conversational chat management with citations and follow-up questions
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - Conversations
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-conversations-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-crawling-jobs-api
+  name: PipesHub Crawling Jobs API
+  description: >-
+    Endpoints for scheduling, managing, and monitoring data crawling jobs for enterprise connectors.
+
+
+    The Crawling Manager uses BullMQ (Redis-based queue) to schedule and execute crawling jobs that
+
+    sync data from external connectors (Google Drive, OneDrive, Slack, Jira, etc.) into PipesHub's
+
+    search index.
+
+
+    **Key Features:**
+
+    - Schedule recurring crawls (hourly, daily, weekly, monthly) or one-time crawls
+
+    - Pause and resume crawling jobs without losing configuration
+
+    - Priority-based job execution (1-10 scale)
+
+    - Automatic retry with exponential backoff on failures
+
+    - Per-connector job isolation and tracking
+
+
+    **Access Control:**
+
+    - Team-scoped connectors require admin privileges
+
+    - Personal-scoped connectors can only be managed by the creator
+
+    - All operations require valid JWT authentication
+
+
+    **Schedule Types:**
+
+    - `hourly`: Run every X hours at specified minute
+
+    - `daily`: Run once per day at specified time
+
+    - `weekly`: Run on specified days of the week
+
+    - `monthly`: Run on specified day of the month
+
+    - `custom`: Use cron expression for complex schedules
+
+    - `once`: Run once at a specific future time
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - Crawling Jobs
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-crawling-jobs-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-internal-storage-api
+  name: PipesHub Internal Storage API
+  description: >-
+    Service-to-service storage endpoints, authenticated with the storage
+
+    scoped token rather than a signed-in user's session, so these are **not**
+
+    callable by API clients or the browser. Storage checks only the org, not
+
+    record permissions; read and write files through the Knowledge Base
+
+    routes (for example `GET /knowledgeBase/stream/record/{recordId}`).
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - Internal Storage
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-internal-storage-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-knowledge-base-api
+  name: PipesHub Knowledge Base API
+  description: Knowledge base management operations
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - Knowledge Base
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-knowledge-base-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-knowledge-hub-api
+  name: PipesHub Knowledge Hub API
+  description: >-
+    Unified browse API for root and child nodes (apps, record groups, folders, records) with filtering
+    and search
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - Knowledge Hub
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-knowledge-hub-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-mcp-api
+  name: PipesHub MCP API
+  description: >-
+    Model Context Protocol (MCP) endpoints for AI tool integration.
+
+
+    PipesHub exposes a Streamable HTTP MCP server that allows MCP-compatible clients
+
+    (such as Claude Desktop, Cursor, or custom agents) to interact with PipesHub tools
+
+    including search, conversations, knowledge base management, and connector operations.
+
+
+    **Transport:** Streamable HTTP (JSON-RPC over HTTP)
+
+    **Base Path:** `/mcp` (not under `/api/v1`)
+
+
+    **Authentication:**
+
+    All MCP requests require a valid Bearer token or OAuth 2.0 access token.
+
+
+    **Stateless Mode:**
+
+    The server operates in stateless mode — each request creates an independent MCP session.
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - MCP
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-mcp-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-metrics-collection-api
+  name: PipesHub Metrics Collection API
+  description: >-
+    Configure telemetry and metrics collection for application monitoring and analytics.
+
+
+    PipesHub collects anonymized usage metrics to help improve the product. Metrics are pushed
+
+    to a configurable remote server at regular intervals.
+
+
+    **Collected Metrics:**
+
+    - API request counts and response times
+
+    - User activity patterns (anonymized)
+
+    - Feature usage statistics
+
+    - Error rates and types
+
+
+    **Configuration Options:**
+
+    - Enable/disable metrics collection entirely
+
+    - Configure push interval (minimum 1 second, default 60 seconds)
+
+    - Set custom metrics server URL for self-hosted analytics
+
+
+    **Privacy:**
+
+    - All metrics are anonymized before collection
+
+    - No personally identifiable information (PII) is collected
+
+    - Organization can disable collection at any time
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - Metrics Collection
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-metrics-collection-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-notifications-api
+  name: PipesHub Notifications API
+  description: >-
+    In-app notifications for the signed-in user (connector errors, warnings, and related alerts)
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - Notifications
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-notifications-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-oauth-api
+  name: PipesHub OAuth API
+  description: OAuth 2.0 token exchange for third-party authentication providers
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - OAuth
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-oauth-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-oauth-apps-api
+  name: PipesHub OAuth Apps API
+  description: >-
+    Manage OAuth 2.0 client applications registered with PipesHub.
+
+
+    OAuth apps allow third-party applications to access PipesHub APIs on behalf of users
+
+    or organizations. Each app receives a client ID and secret for authentication.
+
+
+    **Who can see which apps**
+
+    - **Everyone (including org admins)** sees and manages only OAuth apps **they created** (`createdBy`).
+    Other members' apps are hidden (not listed; individual operations return not found).
+
+
+    **Session only**
+
+    - Every `/oauth-clients/*` route requires the user's interactive session JWT. OAuth access tokens
+    and personal access tokens (`phpat_...`) are rejected with `403`, so a token issued to a client can
+    never register, reconfigure, or revoke clients on its own.
+
+
+    **Who authorizes vs. client credentials**
+
+    - **Authorization code:** Any authenticated user in the workspace may complete consent for a valid
+    `client_id`; issued tokens represent **that user**.
+
+    - **Client credentials:** Access tokens represent the **OAuth app creator** (who registered the client),
+    not the caller.
+
+
+    **Scopes**
+
+    - `GET /oauth-clients/scopes` returns scopes grouped by category for the **signed-in user's role**.
+
+    - **Org admins** may register apps that request additional **admin-only** scopes; non-admins cannot
+    select those scopes when creating or updating an app.
+
+
+    **App Types:**
+
+    - **Confidential clients**: Server-side apps that can securely store secrets
+
+    - **Public clients**: Browser/mobile apps that cannot securely store secrets (use PKCE)
+
+
+    **App Lifecycle:**
+
+    - Create apps with name, redirect URIs, allowed scopes, and optional URLs (homepage, privacy, terms)
+
+    - Regenerate secrets if compromised
+
+    - Suspend/activate apps to control access
+
+    - Revoke all tokens for emergency access removal
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - OAuth Apps
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-oauth-apps-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-oauth-configuration-api
+  name: PipesHub OAuth Configuration API
+  description: Admin management of OAuth credentials for connector types
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - OAuth Configuration
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-oauth-configuration-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-oauth-provider-api
+  name: PipesHub OAuth Provider API
+  description: >-
+    PipesHub OAuth 2.0 Authorization Server implementing RFC 6749, RFC 7636 (PKCE), and OpenID Connect.
+
+
+    **Supported Grant Types:**
+
+    - `authorization_code` - Standard OAuth flow with PKCE support
+
+    - `client_credentials` - Machine-to-machine authentication
+
+    - `refresh_token` - Token refresh for long-lived access
+
+
+    **Security Features:**
+
+    - PKCE (Proof Key for Code Exchange) for public clients
+
+    - State parameter for CSRF protection
+
+    - Configurable token lifetimes
+
+    - Token revocation and introspection
+
+
+    **OpenID Connect:**
+
+    - ID tokens with standard claims
+
+    - UserInfo endpoint for profile data
+
+    - Discovery endpoint for automatic configuration
+
+
+    **Machine tokens (`client_credentials`) — gateway and downstream identity:**
+
+    Access tokens may encode **`userId === client_id`**. The **Node.js API gateway** resolves the effective
+    user to the OAuth **app creator**: first using the JWT **`createdBy`** claim when present, otherwise
+    by loading the OAuth app by **`client_id`** from the registry. After verification it sets the authenticated
+    session to that creator.
+
+
+    **Python services:** Validate `Authorization: Bearer` as today and use the JWT payload’s **`userId`**
+    as-is for scopes and user-scoped logic (which may still equal **`client_id`** for machine tokens).
+
+
+    **Operational note:** Prefer tokens whose JWT already carries the creator as **`userId`**; use **`POST
+    /oauth-clients/{appId}/revoke-all-tokens`** and obtain new tokens from **`POST /oauth2/token`** when
+    rotating integrations.
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - OAuth Provider
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-oauth-provider-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-openid-connect-api
+  name: PipesHub OpenID Connect API
+  description: >-
+    OpenID Connect 1.0 endpoints for identity federation and discovery.
+
+
+    **Discovery:**
+
+    - `/.well-known/openid-configuration` - Authorization server metadata
+
+    - `/.well-known/oauth-authorization-server` - Authorization server metadata (RFC 8414)
+
+    - `/.well-known/oauth-protected-resource/mcp` - Protected resource metadata (RFC 9728)
+
+    - `/.well-known/jwks.json` - Public keys for token verification
+
+
+    **UserInfo:**
+
+    - `/oauth2/userinfo` - Get authenticated user's profile information
+
+
+    **Supported Claims:**
+
+    - `user_id` - User identifier
+
+    - `email`, `email_verified` - Email information
+
+    - `name`, `given_name`, `family_name` - Name information
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - OpenID Connect
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-openid-connect-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-organization-auth-config-api
+  name: PipesHub Organization Auth Config API
+  description: Admin configuration of authentication methods including MFA steps and allowed providers
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - Organization Auth Config
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-organization-auth-config-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-organizations-api
+  name: PipesHub Organizations API
+  description: Organization management operations
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - Organizations
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-organizations-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-permissions-api
+  name: PipesHub Permissions API
+  description: Permission management for knowledge bases
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - Permissions
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-permissions-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-personal-access-tokens-api
+  name: PipesHub Personal Access Tokens API
+  description: >-
+    Self-service, long-lived, scoped, revocable credentials that act as their
+
+    creator — unlike an OAuth app's `client_credentials` flow, which acts as
+
+    the app.
+
+
+    **Who can create one**
+
+    - **Any authenticated org member** — unlike OAuth apps, this is
+      deliberately not admin-gated.
+
+    **Session only**
+
+    - Every `/personal-access-tokens/*` route requires the user's interactive
+      session JWT. OAuth access tokens and personal access tokens (`phpat_...`)
+      are rejected with `403`. `scopes` is capped at the instance's `MCP_SCOPES`,
+      not at the caller's own token, so a narrowly scoped token could otherwise
+      mint itself a full-scope, non-expiring PAT.
+
+    **How it's issued**
+
+    - Minted through the same OAuth access-token machinery as `/oauth2/token`,
+      against one lazily-created, per-org synthetic OAuth app
+      (`clientId: pat-system:<orgId>`) that every PAT in that org shares.
+      That app is hidden from `/oauth-clients/*` — it never appears in your
+      own OAuth app list and can't be managed through those routes.
+    - The raw token is prefixed `phpat_` ahead of the underlying JWT (see the
+      `bearerAuth` security scheme) so it's recognizable to secret scanners.
+      It's shown exactly once, at creation.
+
+    **Expiry and scopes**
+
+    - `expiryDays`: `30` (default), `90`, `365`, or `never`.
+
+    - Scopes default to the org's full configured `MCP_SCOPES` set if none
+      are requested; `GET /personal-access-tokens/scopes` lists what's
+      available.
+
+    **Admin visibility**
+
+    - Regular members only ever see and revoke their own tokens.
+
+    - Org admins can list and revoke *any* member's token via
+      `/personal-access-tokens/admin*` — for incident response (a departed
+      employee, a compromised laptop) — without needing the OAuth app CRUD
+      access described above.
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - Personal Access Tokens
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-personal-access-tokens-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-platform-settings-api
+  name: PipesHub Platform Settings API
+  description: >-
+    Platform-wide settings including file upload limits, feature flags, and custom system prompts.
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - Platform Settings
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-platform-settings-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-projects-api
+  name: PipesHub Projects API
+  description: >-
+    Workspaces that group related assistant and agent conversations under a
+
+    shared name, custom instructions, a knowledge scope, and reference
+
+    files. Projects can be shared with teammates; project membership only
+
+    grants read access to conversations explicitly marked
+
+    `projectVisibility: project` — a member never gets access to another
+
+    member's private chats. See `Conversations` for the two fields
+
+    (`projectId`, `projectVisibility`) that link a conversation to a
+
+    project.
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - Projects
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-projects-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-public-urls-api
+  name: PipesHub Public URLs API
+  description: Configure public URLs for frontend application and connector callbacks.
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - Public URLs
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-public-urls-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-records-api
+  name: PipesHub Records API
+  description: Record management and operations
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - Records
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-records-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-saml-api
+  name: PipesHub SAML API
+  description: SAML 2.0 Single Sign-On integration with enterprise Identity Providers
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - SAML
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-saml-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-semantic-search-api
+  name: PipesHub Semantic Search API
+  description: Enterprise semantic search across all indexed knowledge with relevance scoring
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - Semantic Search
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-semantic-search-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-service-accounts-api
+  name: PipesHub Service Accounts API
+  description: >-
+    Machine identities that automation authenticates as, so a script reads with
+
+    its own permissions rather than borrowing a person's.
+
+
+    A service account is an ordinary user record with `kind: "service"`. It
+
+    appears in the permission graph the same way people do, so "what can this
+
+    account see" is answered by the same code that answers it for a colleague.
+
+    It can never sign in, and it is always a member, never an administrator.
+
+
+    Every route is admin-only, and for OAuth tokens and personal access tokens
+
+    the scopes below are enforced as well — creating a service account grants
+
+    access to the organisation's documents, so a narrowly scoped credential
+
+    cannot do it merely because its owner is an admin.
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - Service Accounts
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-service-accounts-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-service-tokens-api
+  name: PipesHub Service Tokens API
+  description: >-
+    The credential a service account authenticates with.
+
+
+    A service token is an OAuth access token, so signing, hashing, revocation
+
+    and the `/mcp` path are the same machinery personal access tokens use.
+
+    What differs is the policy around it: an administrator mints it *for* a
+
+    service account rather than for themselves, scopes must be chosen
+
+    explicitly, `agent:execute` is refused so version one is read-only, and
+
+    it always expires.
+
+
+    The raw token is shown once, in the create response, and never again.
+
+    Only its hash is stored. Service tokens carry a `phsvc_` prefix rather
+
+    than the `phpat_` used by personal access tokens, so a secret scanner and
+
+    anyone reading a log can tell a shared machine credential from one
+
+    person's.
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - Service Tokens
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-service-tokens-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-skills-api
+  name: PipesHub Skills API
+  description: >-
+    Beta: Skills (SKILL.md packages) that agents load on demand — CRUD, versioning,
+
+    resources, import (npm/URL/upload), and learning-loop candidate review. Gated by
+
+    the ENABLE_SKILLS platform feature flag; disabled orgs get 403 on every route.
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - Skills
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-skills-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-smtp-configuration-api
+  name: PipesHub SMTP Configuration API
+  description: Configure SMTP email server for sending notifications and invitations.
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - SMTP Configuration
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-smtp-configuration-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-storage-configuration-api
+  name: PipesHub Storage Configuration API
+  description: >-
+    Configure storage backend for file uploads and documents. Supports AWS S3, Azure Blob Storage, or
+    local filesystem.
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - Storage Configuration
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-storage-configuration-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-teams-api
+  name: PipesHub Teams API
+  description: Team management operations
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - Teams
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-teams-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-toolset-api
+  name: PipesHub Toolset API
+  description: The Toolset API from PipesHub — 1 operation(s) for toolset.
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - Toolset
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-toolset-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-toolset-configuration-api
+  name: PipesHub Toolset Configuration API
+  description: Configure authentication and settings for toolset instances
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - Toolset Configuration
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-toolset-configuration-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-toolset-instances-api
+  name: PipesHub Toolset Instances API
+  description: Create, manage, and configure toolset instances for your organization
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - Toolset Instances
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-toolset-instances-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-toolset-oauth-api
+  name: PipesHub Toolset OAuth API
+  description: OAuth 2.0 authorization flow for toolsets requiring user consent
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - Toolset OAuth
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-toolset-oauth-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-toolset-registry-api
+  name: PipesHub Toolset Registry API
+  description: Browse available toolsets and their configuration schemas for agent integrations
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - Toolset Registry
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-toolset-registry-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-user-account-api
+  name: PipesHub User Account API
+  description: >-
+    User authentication including multi-step MFA, password reset, OTP login, and token management
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - User Account
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-user-account-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-user-groups-api
+  name: PipesHub User Groups API
+  description: User group management operations
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - User Groups
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-user-groups-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-users-api
+  name: PipesHub Users API
+  description: User management operations
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - Users
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-users-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+- aid: pipeshub:pipeshub-web-search-api
+  name: PipesHub Web Search API
+  description: >-
+    Manage web search providers (DuckDuckGo, Serper, Tavily, Exa) and settings for internet search.
+  humanURL: https://docs.pipeshub.com/developer/api-reference
+  baseURL: https://app.pipeshub.com/api/v1
+  tags:
+  - Web Search
+  properties:
+  - type: OpenAPI
+    url: openapi/pipeshub-web-search-api-openapi.yml
+  - type: Documentation
+    url: https://docs.pipeshub.com/developer/api-reference
+  - type: JSONSchema
+    url: json-schema/pipeshub-get-record-by-id-response-schema-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-record-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-knowledge-hub-nodes-response-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-agent-create-conversation-request-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-conversation-schema.json
+  - type: JSONSchema
+    url: json-schema/pipeshub-create-conversation-request-schema.json
+x-coverage-identity:
+  generated: '2026-10-09'
+  evidence:
+  - https://pipeshub.com/ 200 title "PipesHub | The Open Source Glean Alternative"
+  - https://app.pipeshub.com/ 200 -> /login/ "Welcome to PipesHub"
+  - https://sandbox.pipeshub.com/ 200
+  - site_links from preflight dossier 2026-10-09 all 200; social/discord/image links found on homepage, each 200
+x-enrichment:
+  date: '2026-10-09'
+  status: enriched
+  artifacts_added: 51
+  pass: modular-v1
+  engine: identity=anthropic,contract=anthropic,surfaces=anthropic,docs=anthropic,regulatory=anthropic

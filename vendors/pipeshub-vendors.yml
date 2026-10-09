@@ -1,0 +1,65 @@
+generated: '2026-10-09'
+method: probed
+source: pre-flight dossier (docs platform, portal detections) + CNAME chains and response headers of the hosts apis.yml names
+registry: all/0-working/vendors.yml
+areas_vocabulary:
+- documentation
+- developer-portal
+- api-gateway
+- cdn
+- hosting
+- sdk-generation
+- api-collections
+- status-page
+- support
+- community
+- identity
+- mcp-hosting
+vendors:
+- vendor: cloudflare
+  name: Cloudflare
+  area: cdn
+  host: docs.pipeshub.com
+  evidence: header:cf-ray
+  signal: header
+  confidence: high
+  kin_score:
+  - https_enforced
+  - hsts
+- vendor: discord
+  name: Discord
+  area: community
+  host: discord.com
+  evidence: https://discord.com/invite/K5RskzJBm2
+  signal: url:discord.com/invite
+  confidence: high
+  kin_score:
+  - community_present
+- vendor: vercel
+  name: Vercel
+  area: hosting
+  host: docs.pipeshub.com
+  evidence: cname:vercel-dns.com
+  signal: cname
+  confidence: high
+  kin_score: []
+reliance:
+  areas_vendor_served:
+  - cdn
+  - community
+  - hosting
+  vendor_count: 3
+  areas_observed: 12
+  share_of_observable_areas: 0.25
+  note: areas where a third party was DETECTED serving this provider; an area absent here was either self-run or not observed, and this script
+    cannot tell those apart
+checked:
+- 'docs-platform: no-docs-host'
+- pipeshub.com (Website)
+- docs.pipeshub.com (Documentation)
+- docs.pipeshub.com (APIReference)
+- docs.pipeshub.com (GettingStarted)
+- app.pipeshub.com (Login)
+- discord.com (Support)
+- app.pipeshub.com (baseURL)
+- app.pipeshub.com (mcp)

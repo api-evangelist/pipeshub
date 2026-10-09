@@ -1,0 +1,1189 @@
+openapi: 3.2.0
+info:
+  title: Pipeshub Organizations API
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@pipeshub.com
+  description: 'Operations tagged Organizations across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: '{instance_url}/api/v1'
+  description: Base API URL
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL (without /api/v1)
+- url: '{instance_url}'
+  description: Root URL (used for MCP endpoints mounted at /mcp)
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL
+security:
+- bearerAuth: []
+- oauth2: []
+tags:
+- name: Organizations
+  description: Organization management operations
+paths:
+  /org/exists:
+    get:
+      tags:
+      - Organizations
+      summary: Check if organization exists
+      description: 'Check if any organization has been created in the system. This is typically the first API call made during initial setup.
+
+
+        **Overview:**
+
+
+        This public endpoint determines whether the system has been initialized with an organization. Used by the frontend to decide whether to show the setup wizard or the login screen.
+
+
+        **Use Cases:**
+
+
+        - First-time setup detection
+
+        - Onboarding flow decisions
+
+        - System initialization checks
+
+
+        **Response:**
+
+
+        - `exists: true` — Organization exists, show login
+
+        - `exists: false` — No organization, show setup wizard
+
+
+        **Note:** This endpoint requires no authentication and is publicly accessible.'
+      operationId: checkOrgExists
+      security: []
+      responses:
+        '200':
+          description: Organization existence check completed
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  exists:
+                    type: boolean
+                    description: Whether an organization has been created
+                    example: true
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /org/health:
+    get:
+      tags:
+      - Organizations
+      summary: Organization module health check
+      description: Returns the health status of the organization module. No authentication required.
+      operationId: getOrgHealth
+      security: []
+      responses:
+        '200':
+          description: Service healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                - status
+                - timestamp
+                properties:
+                  status:
+                    type: string
+                    enum:
+                    - healthy
+                  timestamp:
+                    type: string
+                    format: date-time
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /org:
+    post:
+      tags:
+      - Organizations
+      summary: Create organization
+      description: 'Create a new organization and its first admin user. This is the initial setup endpoint for new PipesHub installations.
+
+
+        **Overview:**
+
+
+        This endpoint performs the complete initial setup of a PipesHub instance, including creating the organization entity and its first administrator account. Should only be called once during initial setup.
+
+
+        **Setup Flow:**
+
+
+        1. Frontend calls `/org/exists` to check if setup is needed
+
+        2. If no organization exists, show setup wizard
+
+        3. Collect organization and admin details
+
+        4. Call this endpoint to create organization
+
+
+        **What Gets Created:**
+
+
+        - Organization entity with provided details
+
+        - Admin user account with provided credentials
+
+        - Default user groups (admin, everyone, standard)
+
+        - Initial authentication configuration (password-based)
+
+
+        **Account Types:**
+
+
+        - `individual`: Single-user account, limited team features
+
+        - `business`: Multi-user organization with full features
+
+
+        **Security:**
+
+
+        - This endpoint only works if no organization exists
+
+        - Password must meet complexity requirements (min 8 characters, uppercase, lowercase, number, and special character)'
+      operationId: createOrganization
+      security: []
+      requestBody:
+        required: true
+        description: Request payload
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                accountType:
+                  type: string
+                  enum:
+                  - individual
+                  - business
+                  description: Type of organization account
+                  example: business
+                shortName:
+                  type: string
+                  description: Short display name for the organization
+                  example: Acme
+                registeredName:
+                  type: string
+                  description: Official registered name (for business accounts)
+                  example: Acme Corporation Inc.
+                contactEmail:
+                  type: string
+                  format: email
+                  description: Primary contact email (also used as admin email)
+                  example: admin@acme.com
+                adminFullName:
+                  type: string
+                  description: Full name of the first admin user
+                  example: John Smith
+                password:
+                  type: string
+                  format: password
+                  minLength: 8
+                  description: Password for the admin account (min 8 chars)
+                  example: SecurePassword123!
+              required:
+              - accountType
+              - contactEmail
+              - adminFullName
+              - password
+      responses:
+        '200':
+          description: Organization created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Organization'
+        '400':
+          description: 'Request validation failed, or the request was well-formed but rejected. Possible reasons:
+
+
+            - Missing required fields (accountType, contactEmail, adminFullName, password)
+
+            - accountType is not one of: individual, business
+
+            - contactEmail is not a valid email address
+
+            - password is shorter than 8 characters
+
+            - registeredName is required when accountType is business
+
+            - Password does not meet complexity requirements (requires uppercase, lowercase, number, and special character)
+
+            - Organization already exists
+
+            - contactEmail does not contain a valid domain (e.g. emailname@example.com)
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: 'Internal server error. Possible reasons:
+
+
+            - Database save failure
+
+            - Event service error
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      tags:
+      - Organizations
+      summary: Get current organization
+      description: 'Retrieve details about the authenticated user''s organization.
+
+
+        **Overview:**
+
+
+        This endpoint returns the organization document for the current user''s org, including profile data and configuration.
+
+
+        **Response Includes:**
+
+
+        - Organization profile (registeredName, shortName, contactEmail, domain)
+
+        - Account type
+
+        - Onboarding status
+
+        - Permanent address
+
+        - Creation and modification timestamps
+
+
+        **Use Cases:**
+
+
+        - Organization profile pages
+
+        - Settings and configuration screens'
+      operationId: getCurrentOrganization
+      x-pipeshub-sdk: true
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - org:read
+      responses:
+        '200':
+          description: Organization details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Organization'
+        '401':
+          description: Unauthorized - Valid bearer token required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Organization not found - User's organization does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error - Database query failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+      - Organizations
+      summary: Update organization
+      description: 'Update organization profile and settings information.
+
+
+        **Overview:**
+
+
+        This endpoint allows administrators to update the organization''s profile information and contact details.
+
+
+        **Updatable Fields:**
+
+
+        - `contactEmail`: Primary contact email for the organization
+
+        - `registeredName`: Official registered/legal name of the organization
+
+        - `shortName`: Short display name used in UI
+
+        - `permanentAddress`: Full address object with street, city, state, country, postal code
+
+
+        **Request validation** (Zod at route layer): `contactEmail` must be a valid email when
+
+        provided; `registeredName`, `shortName`, and `permanentAddress` are optional. Address
+
+        sub-fields (`addressLine1`, `city`, `state`, `country`, `postCode`) are optional strings.
+
+        An empty JSON object `{}` is valid (no-op partial update).
+
+
+        **Restrictions:**
+
+
+        - Only organization admins can perform updates
+
+        - Account type cannot be changed after creation
+
+
+        **Side Effects:**
+
+
+        - Organization updated event is published'
+      operationId: updateOrganization
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - org:write
+      requestBody:
+        required: true
+        description: Request payload
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                contactEmail:
+                  type: string
+                  format: email
+                  description: Primary contact email for the organization
+                  example: admin@acme.com
+                registeredName:
+                  type: string
+                  description: Official registered/legal name
+                  example: Acme Corporation Inc.
+                shortName:
+                  type: string
+                  description: Short display name for UI
+                  example: Acme Corp
+                permanentAddress:
+                  $ref: '#/components/schemas/Address'
+      responses:
+        '200':
+          description: Organization updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  message:
+                    type: string
+                    example: Organization updated successfully
+                  data:
+                    $ref: '#/components/schemas/Organization'
+        '400':
+          description: 'Invalid request. Possible reasons:
+
+
+            - Invalid request body (Zod validation — malformed `contactEmail`, wrong types, invalid `permanentAddress` shape)
+
+            - Requester does not have admin privileges (`userAdminCheck`)
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Valid bearer token required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Organization not found or user account not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+      - Organizations
+      summary: Delete organization
+      description: 'Soft-delete the current organization by marking it as deleted.
+
+
+        **Note:** This is a soft delete — the organization record is retained in the
+
+        database with `isDeleted: true`. The organization is no longer accessible after
+
+        this operation.
+
+
+        **Requirements:**
+
+
+        - Must be authenticated
+
+        - Must be an organization admin'
+      operationId: deleteOrganization
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - org:admin
+      responses:
+        '200':
+          description: Organization marked as deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  message:
+                    type: string
+                    example: Organization marked as deleted successfully
+                  data:
+                    $ref: '#/components/schemas/Organization'
+        '400':
+          description: Requester does not have admin privileges
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Valid bearer token required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 'Resource not found. Possible reasons:
+
+
+            - Organization not found or already deleted
+
+            - Requester account not found (missing userId or orgId in token)
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error - Database save failure or event service error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /org/logo:
+    put:
+      tags:
+      - Organizations
+      summary: Upload organization logo
+      description: 'Upload or update the organization''s logo image.
+
+
+        **Supported Formats:**
+
+
+        - PNG
+
+        - JPG/JPEG
+
+        - SVG
+
+        - WebP
+
+        - GIF
+
+
+        **Requirements:**
+
+
+        - Maximum file size: 2MB
+
+        - Must be an organization admin
+
+        - SVG files are validated — script tags, event handlers, javascript: protocols, and embedded iframes are rejected'
+      operationId: uploadOrganizationLogo
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - org:write
+      requestBody:
+        required: true
+        description: Request payload
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Logo image file
+              required:
+              - file
+      responses:
+        '201':
+          description: Logo uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                - message
+                - mimeType
+                properties:
+                  message:
+                    type: string
+                    example: Logo updated successfully
+                  mimeType:
+                    type: string
+                    enum:
+                    - image/jpeg
+                    - image/svg+xml
+        '400':
+          description: 'Invalid request. Possible reasons:
+
+
+            - No file provided
+
+            - File type not allowed (must be PNG, JPEG, WebP, GIF, or SVG)
+
+            - File exceeds 2MB size limit
+
+            - SVG contains dangerous content (script tags, event handlers, javascript: protocols, iframe/object/embed tags)
+
+            - Requester does not have admin privileges
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Valid bearer token required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Requester account not found (missing userId or orgId in token)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error - Database save failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    get:
+      tags:
+      - Organizations
+      summary: Get organization logo
+      description: 'Retrieve the organization''s logo as a raw binary image.
+
+
+        Returns the image buffer directly with the appropriate `Content-Type` header
+
+        (`image/jpeg` or `image/svg+xml`). If no logo has been uploaded, responds with
+
+        `204 No Content`.'
+      operationId: getOrganizationLogo
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - org:read
+      responses:
+        '200':
+          description: Logo image returned as binary data
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+            image/svg+xml:
+              schema:
+                type: string
+                format: binary
+        '204':
+          description: No logo has been uploaded for this organization
+        '401':
+          description: Unauthorized - Valid bearer token required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error - Database query failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      tags:
+      - Organizations
+      summary: Delete organization logo
+      description: 'Remove the organization''s custom logo.
+
+
+        **Behavior:**
+
+
+        - Logo file is permanently deleted from storage
+
+        - Organization reverts to default/placeholder logo'
+      operationId: deleteOrganizationLogo
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - org:write
+      responses:
+        '200':
+          description: Logo removed — returns updated logo record
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                - logo
+                - mimeType
+                - _id
+                - orgId
+                - __v
+                properties:
+                  logo: {}
+                  mimeType: {}
+                  _id:
+                    type: string
+                    format: ObjectId
+                  orgId:
+                    type: string
+                    format: ObjectId
+                  __v:
+                    type: integer
+        '400':
+          description: user is not an admin
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Valid bearer token required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Organisation logo not found or user account not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /org/onboarding-status:
+    get:
+      tags:
+      - Organizations
+      summary: Get onboarding status
+      description: 'Retrieve the organization''s current onboarding status.
+
+
+        Returns a single status value indicating where the organization is in
+
+        the onboarding flow. Defaults to `notConfigured` if no status has been set.'
+      operationId: getOnboardingStatus
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Onboarding status retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                - status
+                properties:
+                  status:
+                    type: string
+                    enum:
+                    - configured
+                    - notConfigured
+                    - skipped
+                    description: Current onboarding status
+        '401':
+          description: Unauthorized - Valid bearer token required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Organization not found or has been deleted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error - Database query failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    put:
+      tags:
+      - Organizations
+      summary: Update onboarding status
+      description: 'Set the organization''s onboarding status.
+
+
+        Accepts one of three values: `configured`, `notConfigured`, or `skipped`.
+
+        Only organization admins can update this field.'
+      operationId: updateOnboardingStatus
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        description: Request payload
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                status:
+                  type: string
+                  enum:
+                  - configured
+                  - notConfigured
+                  - skipped
+                  description: New onboarding status value
+              required:
+              - status
+      responses:
+        '200':
+          description: Onboarding status updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required:
+                - message
+                - status
+                properties:
+                  message:
+                    type: string
+                    example: Onboarding status updated successfully
+                  status:
+                    type: string
+                    enum:
+                    - configured
+                    - notConfigured
+                    - skipped
+        '400':
+          description: 'Invalid request. Possible reasons:
+
+
+            - Missing or invalid status value (must be one of: configured, notConfigured, skipped)
+
+            - Requester does not have admin privileges
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized - Valid bearer token required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: 'Resource not found. Possible reasons:
+
+
+            - Organization not found or has been deleted
+
+            - Requester account not found (missing userId or orgId in token)
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error - Database save failure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+components:
+  schemas:
+    Organization:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ObjectId
+          description: Unique organization identifier
+        slug:
+          type: string
+          description: Unique slug for the organization
+        registeredName:
+          type: string
+          description: Registered name
+        shortName:
+          type: string
+          description: Short name or display name
+        domain:
+          type: string
+          description: Organization domain
+        contactEmail:
+          type: string
+          format: email
+          description: Contact email address
+        accountType:
+          type: string
+          enum:
+          - individual
+          - business
+          description: Type of account
+        permanentAddress:
+          $ref: '#/components/schemas/Address'
+        onBoardingStatus:
+          type: string
+          enum:
+          - configured
+          - notConfigured
+          - skipped
+          description: Onboarding status
+        isDeleted:
+          type: boolean
+          description: Soft delete flag
+          default: false
+        __v:
+          type: integer
+          description: Document version (MongoDB)
+        createdAt:
+          type: string
+          format: date-time
+          description: Creation timestamp (ISO 8601)
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp (ISO 8601)
+      required:
+      - _id
+      - slug
+      - registeredName
+      - domain
+      - contactEmail
+      - accountType
+      - onBoardingStatus
+      - isDeleted
+      - createdAt
+      - updatedAt
+      - __v
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      description: 'Standard error envelope returned by all errors routed through `ErrorMiddleware`.
+
+        Applies to all `BaseError` subclasses including `HttpError`, `ValidationError`, and others.
+
+        The `code` field is a machine-readable string identifying the error type (e.g.
+
+        `HTTP_UNAUTHORIZED`, `HTTP_NOT_FOUND`, `VALIDATION_ERROR`, `INTERNAL_ERROR`).
+
+        '
+      properties:
+        error:
+          type: object
+          additionalProperties: false
+          required:
+          - code
+          - message
+          properties:
+            requestId:
+              type: string
+              description: 'Identifier for this request, echoed so a bug report can quote it.
+
+                Absent when the request never reached the middleware that assigns one.
+
+                '
+            code:
+              type: string
+              description: 'Machine-readable error code. For application errors it takes the form `HTTP_<VARIANT>`
+
+                For unhandled runtime errors (e.g. database unavailable) it is `INTERNAL_ERROR`.
+
+                '
+              example: HTTP_BAD_REQUEST
+            message:
+              type: string
+              description: Human-readable description of the error
+              example: Admin access required
+            metadata:
+              type: object
+              description: Additional context (only present in development environments)
+              additionalProperties: true
+      required:
+      - error
+    Address:
+      type: object
+      additionalProperties: false
+      properties:
+        _id:
+          type: string
+          format: ObjectId
+          description: Optional address document id
+        addressLine1:
+          type: string
+          description: Address line 1
+        city:
+          type: string
+          description: City
+        state:
+          type: string
+          description: State/Province
+        postCode:
+          type: string
+          description: Postal/ZIP code
+        country:
+          type: string
+          description: Country
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'JWT Bearer token for authenticated requests.
+
+
+        A personal access token (see the **Personal Access Tokens** tag) is a
+
+        `phpat_`-prefixed variant of this same JWT — e.g. `phpat_eyJhbGci...`.
+
+        The prefix is display-only, added for secret-scanner detectability; the
+
+        gateway strips it before verifying the token, so send it exactly as
+
+        issued, prefix included.
+
+        '
+    scopedToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Scoped JWT token for service-to-service authentication.
+
+        Format: "Bearer {scoped_token}"
+
+        Required scopes vary by endpoint.
+
+        '
+    oauth2:
+      type: oauth2
+      description: 'OAuth 2.0 authentication with fine-grained scopes.
+
+        Supports authorization_code (with PKCE) and client_credentials flows.
+
+        OAuth tokens are Bearer JWTs — use the same Authorization header as regular tokens.
+
+        For **client_credentials**, machine JWTs may use `userId === client_id`; the Node gateway resolves the OAuth app creator — see **OAuth Provider** tag.
+
+        '
+      flows:
+        authorizationCode:
+          authorizationUrl: /api/v1/oauth2/authorize
+          tokenUrl: /api/v1/oauth2/token
+          refreshUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:read: Read semantic search results and history
+            semantic:write: Execute semantic search
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+            crawl:delete: Delete crawling jobs
+        clientCredentials:
+          tokenUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:write: Execute semantic search
+            semantic:read: Read semantic search results and history
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+x-refined-from:
+- pipeshub-openapi.yaml
+- pipeshub-openapi.yml

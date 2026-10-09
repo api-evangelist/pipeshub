@@ -1,0 +1,415 @@
+openapi: 3.2.0
+info:
+  title: Pipeshub Storage Configuration API
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@pipeshub.com
+  description: 'Operations tagged Storage Configuration across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: '{instance_url}/api/v1'
+  description: Base API URL
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL (without /api/v1)
+- url: '{instance_url}'
+  description: Root URL (used for MCP endpoints mounted at /mcp)
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL
+security:
+- bearerAuth: []
+- oauth2: []
+tags:
+- name: Storage Configuration
+  description: Configure storage backend for file uploads and documents. Supports AWS S3, Azure Blob Storage, or local filesystem.
+paths:
+  /configurationManager/storageConfig:
+    get:
+      tags:
+      - Storage Configuration
+      summary: Get current storage configuration
+      description: Retrieve the current storage backend configuration. Returns the configuration for whichever storage type is currently active (Local, S3, or Azure Blob).
+      operationId: getStorageConfig
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - config:read
+      responses:
+        '200':
+          description: Storage configuration retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  storageType:
+                    type: string
+                    enum:
+                    - local
+                    - s3
+                    - azureBlob
+                    description: Currently configured storage type
+                  mountName:
+                    type: string
+                    description: Mount point name (Local)
+                  baseUrl:
+                    type: string
+                    description: Base URL for files (Local)
+                  accessKeyId:
+                    type: string
+                    description: AWS access key ID (S3). Omitted when useIamRole is true.
+                  secretAccessKey:
+                    type: string
+                    description: AWS secret access key (S3). Omitted when useIamRole is true.
+                  useIamRole:
+                    type: boolean
+                    description: True when S3 is configured to use the EC2/ECS IAM role (via the AWS default credential chain) instead of explicit IAM user credentials.
+                  region:
+                    type: string
+                    description: AWS region (S3)
+                  bucketName:
+                    type: string
+                    description: S3 bucket name (S3)
+                  containerName:
+                    type: string
+                    description: Container name (Azure Blob)
+                  accountName:
+                    type: string
+                    description: Storage account name (Azure Blob)
+                  accountKey:
+                    type: string
+                    description: Storage account key (Azure Blob)
+                  endpointProtocol:
+                    type: string
+                    enum:
+                    - http
+                    - https
+                    description: Endpoint protocol (Azure Blob)
+                  endpointSuffix:
+                    type: string
+                    description: Endpoint suffix (Azure Blob)
+        '400':
+          description: Storage type not found in stored configuration
+        '401':
+          description: Unauthorized
+    post:
+      tags:
+      - Storage Configuration
+      summary: Create or update storage configuration
+      description: 'Save the storage backend configuration. Supported types: Local, S3, Azure Blob.
+
+
+        For S3 storage, a live health check is performed before saving. The health check
+
+        validates bucket access, upload, read, presigned URL generation (GET and PUT).
+
+        If any capability check fails, the request is rejected with a 400 error containing
+
+        detailed diagnostics per capability.'
+      operationId: createStorageConfig
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - config:write
+      requestBody:
+        required: true
+        description: Storage configuration payload (discriminated by storageType)
+        content:
+          application/json:
+            schema:
+              oneOf:
+              - type: object
+                required:
+                - storageType
+                - s3Region
+                - s3BucketName
+                properties:
+                  storageType:
+                    type: string
+                    enum:
+                    - s3
+                  s3AccessKeyId:
+                    type: string
+                    description: AWS access key ID. Optional - omit both this and s3SecretAccessKey to use the EC2/ECS IAM role credentials via the AWS default credential chain. Supplying only one of the pair is rejected.
+                  s3SecretAccessKey:
+                    type: string
+                    description: AWS secret access key. Optional - omit both this and s3AccessKeyId to use the EC2/ECS IAM role credentials via the AWS default credential chain. Supplying only one of the pair is rejected.
+                  s3Region:
+                    type: string
+                    description: AWS region (e.g. us-east-1)
+                  s3BucketName:
+                    type: string
+                    description: S3 bucket name
+              - type: object
+                required:
+                - storageType
+                - containerName
+                properties:
+                  storageType:
+                    type: string
+                    enum:
+                    - azureBlob
+                  azureBlobConnectionString:
+                    type: string
+                    description: Full connection string (alternative to individual fields)
+                  endpointProtocol:
+                    type: string
+                    enum:
+                    - http
+                    - https
+                    default: https
+                  accountName:
+                    type: string
+                  accountKey:
+                    type: string
+                  endpointSuffix:
+                    type: string
+                    default: core.windows.net
+                  containerName:
+                    type: string
+              - type: object
+                required:
+                - storageType
+                properties:
+                  storageType:
+                    type: string
+                    enum:
+                    - local
+                  mountName:
+                    type: string
+                  baseUrl:
+                    type: string
+                    format: uri
+            examples:
+              s3:
+                summary: Amazon S3 (explicit IAM user credentials)
+                value:
+                  storageType: s3
+                  s3AccessKeyId: REDACTED_AWS_ACCESS_KEY_ID
+                  s3SecretAccessKey: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+                  s3Region: us-east-1
+                  s3BucketName: my-pipeshub-bucket
+              s3IamRole:
+                summary: Amazon S3 (EC2/ECS IAM role, no explicit credentials)
+                value:
+                  storageType: s3
+                  s3Region: us-east-1
+                  s3BucketName: my-pipeshub-bucket
+              azureBlob:
+                summary: Azure Blob Storage
+                value:
+                  storageType: azureBlob
+                  accountName: mystorageaccount
+                  accountKey: base64-encoded-key
+                  containerName: pipeshub
+              local:
+                summary: Local Storage
+                value:
+                  storageType: local
+                  mountName: PipesHub
+      responses:
+        '200':
+          description: Storage configuration saved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Storage configuration saved successfully
+        '400':
+          description: 'Validation error or S3 health-check failure. When storageType is s3, a live
+
+            capability check runs before saving. If any check fails, the response includes
+
+            per-capability diagnostics.
+
+            '
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: object
+                    properties:
+                      code:
+                        type: string
+                        example: HTTP_BAD_REQUEST
+                      message:
+                        type: string
+                        example: 'S3 health check failed. Verify credentials, bucket name, region, and IAM permissions (s3:PutObject, s3:GetObject, s3:DeleteObject). upload: AccessDenied'
+                      metadata:
+                        type: object
+                        description: Present in non-production environments
+                        properties:
+                          s3HealthCheck:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                capability:
+                                  type: string
+                                  enum:
+                                  - bucketAccess
+                                  - upload
+                                  - read
+                                  - signedUrlGet
+                                  - signedUrlPut
+                                passed:
+                                  type: boolean
+                                error:
+                                  type: string
+                                  description: Error message when passed is false
+        '401':
+          description: Unauthorized
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'JWT Bearer token for authenticated requests.
+
+
+        A personal access token (see the **Personal Access Tokens** tag) is a
+
+        `phpat_`-prefixed variant of this same JWT — e.g. `phpat_eyJhbGci...`.
+
+        The prefix is display-only, added for secret-scanner detectability; the
+
+        gateway strips it before verifying the token, so send it exactly as
+
+        issued, prefix included.
+
+        '
+    scopedToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Scoped JWT token for service-to-service authentication.
+
+        Format: "Bearer {scoped_token}"
+
+        Required scopes vary by endpoint.
+
+        '
+    oauth2:
+      type: oauth2
+      description: 'OAuth 2.0 authentication with fine-grained scopes.
+
+        Supports authorization_code (with PKCE) and client_credentials flows.
+
+        OAuth tokens are Bearer JWTs — use the same Authorization header as regular tokens.
+
+        For **client_credentials**, machine JWTs may use `userId === client_id`; the Node gateway resolves the OAuth app creator — see **OAuth Provider** tag.
+
+        '
+      flows:
+        authorizationCode:
+          authorizationUrl: /api/v1/oauth2/authorize
+          tokenUrl: /api/v1/oauth2/token
+          refreshUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:read: Read semantic search results and history
+            semantic:write: Execute semantic search
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+            crawl:delete: Delete crawling jobs
+        clientCredentials:
+          tokenUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:write: Execute semantic search
+            semantic:read: Read semantic search results and history
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+x-refined-from:
+- pipeshub-openapi.yaml
+- pipeshub-openapi.yml

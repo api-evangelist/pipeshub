@@ -1,0 +1,51 @@
+name: PipesHub Plans and Pricing
+generated: '2026-10-09'
+method: searched
+source: https://pipeshub.com/pricing
+audience: business-product
+pricing_basis: negotiated
+published: true
+plan_count: 2
+delivery:
+  delivery: open-core
+  evidence: 'COMMUNITY EDITION $0/Forever Self-Hosted • Open Source Full self-hosted deployment (Docker)'
+  free_edition: COMMUNITY EDITION
+  managed_tier: ENTERPRISE EDITION
+note: The page does not name a license; the pipeshub-ai/pipeshub-ai GitHub repo LICENSE file is Apache License 2.0 (not stated on the pricing page, so open_source_license is omitted).
+plans:
+- name: Community Edition
+  description: Self-hosted, open-source deployment.
+  price: 0
+  price_text: $0/Forever
+  features:
+  - Full self-hosted deployment (Docker)
+  - Core indexing + search + explainability
+  - Bring your own LLMs & embeddings
+  - No-code agent builder
+  - Skills creation & artifacts
+  - Standard permission-aware ingestion
+  - REST APIs, SDKs & MCP support
+  - Community support
+  limits:
+  - 'Admin console: 1 ADMIN'
+  - 'Connectors: CORE SET'
+- name: Enterprise Edition
+  description: Cloud SaaS or fully on-premise deployment with enterprise governance.
+  price: Talk to Us
+  price_text: Talk to Us
+  features:
+  - All community features
+  - Cloud SaaS, Hybrid BYOC, On-Premise VPC & Air-gapped deployment
+  - Multi-tenancy
+  - SSO + SCIM
+  - 50+ connectors
+  - RBAC + granular access controls
+  - Admin console, usage controls, audit logs & observability
+  - Governance for agents, connectors, skills & artifacts
+  - White-labelling & custom connectors
+  - Dedicated 24×7 support
+  - Enterprise SLA
+  - Webhooks
+  limits:
+  - 'Connectors: 50+'
+  - Configurable usage limits

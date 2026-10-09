@@ -1,0 +1,1232 @@
+{
+  "@context": {
+    "@vocab": "https://pipeshub.com/schema#",
+    "schema": "https://schema.org/",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "dcterms": "http://purl.org/dc/terms/",
+    "pipeshub": "https://pipeshub.com/schema#",
+    "AuthMethod": "pipeshub:AuthMethod",
+    "type": {
+      "@id": "pipeshub:type",
+      "@type": "xsd:string"
+    },
+    "AuthStep": "pipeshub:AuthStep",
+    "order": {
+      "@id": "pipeshub:order",
+      "@type": "xsd:integer"
+    },
+    "allowedMethods": {
+      "@id": "pipeshub:allowedMethods",
+      "@container": "@list"
+    },
+    "AuthConfig": "pipeshub:AuthConfig",
+    "authMethods": {
+      "@id": "pipeshub:authMethods",
+      "@container": "@list"
+    },
+    "UpdateAuthMethodResponse": "pipeshub:UpdateAuthMethodResponse",
+    "message": {
+      "@id": "pipeshub:message",
+      "@type": "xsd:string"
+    },
+    "authMethod": {
+      "@id": "pipeshub:authMethod",
+      "@container": "@list"
+    },
+    "OrgAuthConfigSetupResponse": "pipeshub:OrgAuthConfigSetupResponse",
+    "InitAuthRequest": "pipeshub:InitAuthRequest",
+    "email": {
+      "@id": "pipeshub:email",
+      "@type": "xsd:string"
+    },
+    "InitAuthResponse": "pipeshub:InitAuthResponse",
+    "currentStep": {
+      "@id": "pipeshub:currentStep",
+      "@type": "xsd:integer"
+    },
+    "authProviders": {
+      "@id": "pipeshub:authProviders",
+      "@type": "@id"
+    },
+    "jitEnabled": {
+      "@id": "pipeshub:jitEnabled",
+      "@type": "xsd:boolean"
+    },
+    "AuthProviderGooglePublicConfig": "pipeshub:AuthProviderGooglePublicConfig",
+    "clientId": {
+      "@id": "pipeshub:clientId",
+      "@type": "xsd:string"
+    },
+    "enableJit": {
+      "@id": "pipeshub:enableJit",
+      "@type": "xsd:boolean"
+    },
+    "AuthProviderMicrosoftPublicConfig": "pipeshub:AuthProviderMicrosoftPublicConfig",
+    "tenantId": {
+      "@id": "pipeshub:tenantId",
+      "@type": "xsd:string"
+    },
+    "AuthProviderAzureAdPublicConfig": "pipeshub:AuthProviderAzureAdPublicConfig",
+    "AuthProviderOAuthPublicConfig": "pipeshub:AuthProviderOAuthPublicConfig",
+    "providerName": {
+      "@id": "pipeshub:providerName",
+      "@type": "xsd:string"
+    },
+    "tokenEndpoint": {
+      "@id": "pipeshub:tokenEndpoint",
+      "@type": "xsd:string"
+    },
+    "authorizationUrl": {
+      "@id": "pipeshub:authorizationUrl",
+      "@type": "xsd:string"
+    },
+    "clientSecret": {
+      "@id": "pipeshub:clientSecret",
+      "@type": "xsd:string"
+    },
+    "userInfoEndpoint": {
+      "@id": "pipeshub:userInfoEndpoint",
+      "@type": "xsd:string"
+    },
+    "scope": {
+      "@id": "pipeshub:scope",
+      "@type": "xsd:string"
+    },
+    "AuthProviders": "pipeshub:AuthProviders",
+    "google": {
+      "@id": "pipeshub:google",
+      "@type": "@id"
+    },
+    "microsoft": {
+      "@id": "pipeshub:microsoft",
+      "@type": "@id"
+    },
+    "azuread": {
+      "@id": "pipeshub:azuread",
+      "@type": "@id"
+    },
+    "oauth": {
+      "@id": "pipeshub:oauth",
+      "@type": "@id"
+    },
+    "saml": {
+      "@id": "pipeshub:saml"
+    },
+    "AuthenticateRequest": "pipeshub:AuthenticateRequest",
+    "method": {
+      "@id": "pipeshub:method",
+      "@type": "xsd:string"
+    },
+    "credentials": {
+      "@id": "pipeshub:credentials"
+    },
+    "cf-turnstile-response": {
+      "@id": "pipeshub:cf-turnstile-response",
+      "@type": "xsd:string"
+    },
+    "PasswordCredentials": "pipeshub:PasswordCredentials",
+    "password": {
+      "@id": "pipeshub:password",
+      "@type": "xsd:string"
+    },
+    "OtpCredentials": "pipeshub:OtpCredentials",
+    "otp": {
+      "@id": "pipeshub:otp",
+      "@type": "xsd:string"
+    },
+    "OAuthCredentials": "pipeshub:OAuthCredentials",
+    "accessToken": {
+      "@id": "pipeshub:accessToken",
+      "@type": "xsd:string"
+    },
+    "idToken": {
+      "@id": "pipeshub:idToken",
+      "@type": "xsd:string"
+    },
+    "AuthenticateMultiStepResponse": "pipeshub:AuthenticateMultiStepResponse",
+    "status": {
+      "@id": "pipeshub:status",
+      "@type": "xsd:string"
+    },
+    "nextStep": {
+      "@id": "pipeshub:nextStep",
+      "@type": "xsd:integer"
+    },
+    "AuthenticateFinalResponse": "pipeshub:AuthenticateFinalResponse",
+    "refreshToken": {
+      "@id": "pipeshub:refreshToken",
+      "@type": "xsd:string"
+    },
+    "OtpGenerateRequest": "pipeshub:OtpGenerateRequest",
+    "PasswordResetRequest": "pipeshub:PasswordResetRequest",
+    "currentPassword": {
+      "@id": "pipeshub:currentPassword",
+      "@type": "xsd:string"
+    },
+    "newPassword": {
+      "@id": "pipeshub:newPassword",
+      "@type": "xsd:string"
+    },
+    "DataStringResponse": "pipeshub:DataStringResponse",
+    "data": {
+      "@id": "pipeshub:data",
+      "@type": "xsd:string"
+    },
+    "AuthenticatedPasswordResetResponse": "pipeshub:AuthenticatedPasswordResetResponse",
+    "ForgotPasswordRequest": "pipeshub:ForgotPasswordRequest",
+    "TokenPasswordResetRequest": "pipeshub:TokenPasswordResetRequest",
+    "RefreshTokenResponse": "pipeshub:RefreshTokenResponse",
+    "user": {
+      "@id": "pipeshub:user",
+      "@type": "@id"
+    },
+    "RefreshTokenUser": "pipeshub:RefreshTokenUser",
+    "_id": {
+      "@id": "pipeshub:_id",
+      "@type": "xsd:string"
+    },
+    "orgId": {
+      "@id": "pipeshub:orgId",
+      "@type": "xsd:string"
+    },
+    "fullName": {
+      "@id": "pipeshub:fullName",
+      "@type": "xsd:string"
+    },
+    "firstName": {
+      "@id": "pipeshub:firstName",
+      "@type": "xsd:string"
+    },
+    "lastName": {
+      "@id": "pipeshub:lastName",
+      "@type": "xsd:string"
+    },
+    "middleName": {
+      "@id": "pipeshub:middleName",
+      "@type": "xsd:string"
+    },
+    "mobile": {
+      "@id": "pipeshub:mobile",
+      "@type": "xsd:string"
+    },
+    "designation": {
+      "@id": "pipeshub:designation",
+      "@type": "xsd:string"
+    },
+    "kind": {
+      "@id": "pipeshub:kind",
+      "@type": "xsd:string"
+    },
+    "description": {
+      "@id": "pipeshub:description",
+      "@type": "xsd:string"
+    },
+    "isDisabled": {
+      "@id": "pipeshub:isDisabled",
+      "@type": "xsd:boolean"
+    },
+    "restoreOpId": {
+      "@id": "pipeshub:restoreOpId",
+      "@type": "xsd:string"
+    },
+    "role": {
+      "@id": "pipeshub:role",
+      "@type": "xsd:string"
+    },
+    "address": {
+      "@id": "pipeshub:address",
+      "@type": "@id"
+    },
+    "dataCollectionConsent": {
+      "@id": "pipeshub:dataCollectionConsent",
+      "@type": "xsd:boolean"
+    },
+    "hasLoggedIn": {
+      "@id": "pipeshub:hasLoggedIn",
+      "@type": "xsd:boolean"
+    },
+    "isDeleted": {
+      "@id": "pipeshub:isDeleted",
+      "@type": "xsd:boolean"
+    },
+    "deletedBy": {
+      "@id": "pipeshub:deletedBy",
+      "@type": "xsd:string"
+    },
+    "profilePicture": {
+      "@id": "pipeshub:profilePicture",
+      "@type": "xsd:string"
+    },
+    "slug": {
+      "@id": "pipeshub:slug",
+      "@type": "xsd:string"
+    },
+    "createdAt": {
+      "@id": "pipeshub:createdAt",
+      "@type": "xsd:string"
+    },
+    "updatedAt": {
+      "@id": "pipeshub:updatedAt",
+      "@type": "xsd:string"
+    },
+    "__v": {
+      "@id": "pipeshub:__v",
+      "@type": "xsd:integer"
+    },
+    "OAuthExchangeRequest": "pipeshub:OAuthExchangeRequest",
+    "code": {
+      "@id": "pipeshub:code",
+      "@type": "xsd:string"
+    },
+    "provider": {
+      "@id": "pipeshub:provider",
+      "@type": "xsd:string"
+    },
+    "redirectUri": {
+      "@id": "pipeshub:redirectUri",
+      "@type": "@id"
+    },
+    "OAuthExchangeResponse": "pipeshub:OAuthExchangeResponse",
+    "access_token": {
+      "@id": "pipeshub:access_token",
+      "@type": "xsd:string"
+    },
+    "id_token": {
+      "@id": "pipeshub:id_token",
+      "@type": "xsd:string"
+    },
+    "token_type": {
+      "@id": "pipeshub:token_type",
+      "@type": "xsd:string"
+    },
+    "expires_in": {
+      "@id": "pipeshub:expires_in",
+      "@type": "xsd:integer"
+    },
+    "HasPasswordMethodResponse": "pipeshub:HasPasswordMethodResponse",
+    "isPasswordAuthEnabled": {
+      "@id": "pipeshub:isPasswordAuthEnabled",
+      "@type": "xsd:boolean"
+    },
+    "ValidateEmailChangeResponse": "pipeshub:ValidateEmailChangeResponse",
+    "OrgAuthConfigCreateRequest": "pipeshub:OrgAuthConfigCreateRequest",
+    "contactEmail": {
+      "@id": "pipeshub:contactEmail",
+      "@type": "xsd:string"
+    },
+    "registeredName": {
+      "@id": "pipeshub:registeredName",
+      "@type": "xsd:string"
+    },
+    "adminFullName": {
+      "@id": "pipeshub:adminFullName",
+      "@type": "xsd:string"
+    },
+    "sendEmail": {
+      "@id": "pipeshub:sendEmail",
+      "@type": "xsd:boolean"
+    },
+    "ErrorResponse": "pipeshub:ErrorResponse",
+    "error": {
+      "@id": "pipeshub:error"
+    },
+    "StreamRecordErrorResponse": "pipeshub:StreamRecordErrorResponse",
+    "AuthError": "pipeshub:AuthError",
+    "statusCode": {
+      "@id": "pipeshub:statusCode",
+      "@type": "xsd:integer"
+    },
+    "OAuthConsentRequest": "pipeshub:OAuthConsentRequest",
+    "client_id": {
+      "@id": "pipeshub:client_id",
+      "@type": "xsd:string"
+    },
+    "redirect_uri": {
+      "@id": "pipeshub:redirect_uri",
+      "@type": "@id"
+    },
+    "state": {
+      "@id": "pipeshub:state",
+      "@type": "xsd:string"
+    },
+    "consent": {
+      "@id": "pipeshub:consent",
+      "@type": "xsd:string"
+    },
+    "code_challenge": {
+      "@id": "pipeshub:code_challenge",
+      "@type": "xsd:string"
+    },
+    "code_challenge_method": {
+      "@id": "pipeshub:code_challenge_method",
+      "@type": "xsd:string"
+    },
+    "OAuthTokenRequest": "pipeshub:OAuthTokenRequest",
+    "grant_type": {
+      "@id": "pipeshub:grant_type",
+      "@type": "xsd:string"
+    },
+    "client_secret": {
+      "@id": "pipeshub:client_secret",
+      "@type": "xsd:string"
+    },
+    "refresh_token": {
+      "@id": "pipeshub:refresh_token",
+      "@type": "xsd:string"
+    },
+    "code_verifier": {
+      "@id": "pipeshub:code_verifier",
+      "@type": "xsd:string"
+    },
+    "OAuthTokenResponse": "pipeshub:OAuthTokenResponse",
+    "OAuthRevokeRequest": "pipeshub:OAuthRevokeRequest",
+    "token": {
+      "@id": "pipeshub:token",
+      "@type": "xsd:string"
+    },
+    "token_type_hint": {
+      "@id": "pipeshub:token_type_hint",
+      "@type": "xsd:string"
+    },
+    "OAuthIntrospectRequest": "pipeshub:OAuthIntrospectRequest",
+    "OAuthIntrospectResponse": "pipeshub:OAuthIntrospectResponse",
+    "active": {
+      "@id": "pipeshub:active",
+      "@type": "xsd:boolean"
+    },
+    "username": {
+      "@id": "pipeshub:username",
+      "@type": "xsd:string"
+    },
+    "exp": {
+      "@id": "pipeshub:exp",
+      "@type": "xsd:integer"
+    },
+    "iat": {
+      "@id": "pipeshub:iat",
+      "@type": "xsd:integer"
+    },
+    "nbf": {
+      "@id": "pipeshub:nbf",
+      "@type": "xsd:integer"
+    },
+    "user_id": {
+      "@id": "pipeshub:user_id",
+      "@type": "xsd:string"
+    },
+    "aud": {
+      "@id": "pipeshub:aud",
+      "@type": "xsd:string"
+    },
+    "iss": {
+      "@id": "pipeshub:iss",
+      "@type": "xsd:string"
+    },
+    "jti": {
+      "@id": "pipeshub:jti",
+      "@type": "xsd:string"
+    },
+    "OAuthErrorResponse": "pipeshub:OAuthErrorResponse",
+    "error_description": {
+      "@id": "pipeshub:error_description",
+      "@type": "xsd:string"
+    },
+    "error_uri": {
+      "@id": "pipeshub:error_uri",
+      "@type": "@id"
+    },
+    "OAuthUserInfoResponse": "pipeshub:OAuthUserInfoResponse",
+    "name": {
+      "@id": "pipeshub:name",
+      "@type": "xsd:string"
+    },
+    "given_name": {
+      "@id": "pipeshub:given_name",
+      "@type": "xsd:string"
+    },
+    "family_name": {
+      "@id": "pipeshub:family_name",
+      "@type": "xsd:string"
+    },
+    "email_verified": {
+      "@id": "pipeshub:email_verified",
+      "@type": "xsd:boolean"
+    },
+    "picture": {
+      "@id": "pipeshub:picture",
+      "@type": "@id"
+    },
+    "updated_at": {
+      "@id": "pipeshub:updated_at",
+      "@type": "xsd:integer"
+    },
+    "OpenIDConfiguration": "pipeshub:OpenIDConfiguration",
+    "issuer": {
+      "@id": "pipeshub:issuer",
+      "@type": "@id"
+    },
+    "authorization_endpoint": {
+      "@id": "pipeshub:authorization_endpoint",
+      "@type": "@id"
+    },
+    "token_endpoint": {
+      "@id": "pipeshub:token_endpoint",
+      "@type": "@id"
+    },
+    "userinfo_endpoint": {
+      "@id": "pipeshub:userinfo_endpoint",
+      "@type": "@id"
+    },
+    "revocation_endpoint": {
+      "@id": "pipeshub:revocation_endpoint",
+      "@type": "@id"
+    },
+    "introspection_endpoint": {
+      "@id": "pipeshub:introspection_endpoint",
+      "@type": "@id"
+    },
+    "jwks_uri": {
+      "@id": "pipeshub:jwks_uri",
+      "@type": "@id"
+    },
+    "scopes_supported": {
+      "@id": "pipeshub:scopes_supported",
+      "@container": "@list"
+    },
+    "response_types_supported": {
+      "@id": "pipeshub:response_types_supported",
+      "@container": "@list"
+    },
+    "grant_types_supported": {
+      "@id": "pipeshub:grant_types_supported",
+      "@container": "@list"
+    },
+    "token_endpoint_auth_methods_supported": {
+      "@id": "pipeshub:token_endpoint_auth_methods_supported",
+      "@container": "@list"
+    },
+    "subject_types_supported": {
+      "@id": "pipeshub:subject_types_supported",
+      "@container": "@list"
+    },
+    "id_token_signing_alg_values_supported": {
+      "@id": "pipeshub:id_token_signing_alg_values_supported",
+      "@container": "@list"
+    },
+    "claims_supported": {
+      "@id": "pipeshub:claims_supported",
+      "@container": "@list"
+    },
+    "code_challenge_methods_supported": {
+      "@id": "pipeshub:code_challenge_methods_supported",
+      "@container": "@list"
+    },
+    "OAuthProtectedResourceMetadata": "pipeshub:OAuthProtectedResourceMetadata",
+    "resource": {
+      "@id": "pipeshub:resource",
+      "@type": "@id"
+    },
+    "authorization_servers": {
+      "@id": "pipeshub:authorization_servers",
+      "@container": "@list"
+    },
+    "bearer_methods_supported": {
+      "@id": "pipeshub:bearer_methods_supported",
+      "@container": "@list"
+    },
+    "resource_documentation": {
+      "@id": "pipeshub:resource_documentation",
+      "@type": "@id"
+    },
+    "JWKS": "pipeshub:JWKS",
+    "keys": {
+      "@id": "pipeshub:keys",
+      "@container": "@list"
+    },
+    "JWK": "pipeshub:JWK",
+    "kty": {
+      "@id": "pipeshub:kty",
+      "@type": "xsd:string"
+    },
+    "use": {
+      "@id": "pipeshub:use",
+      "@type": "xsd:string"
+    },
+    "alg": {
+      "@id": "pipeshub:alg",
+      "@type": "xsd:string"
+    },
+    "kid": {
+      "@id": "pipeshub:kid",
+      "@type": "xsd:string"
+    },
+    "n": {
+      "@id": "pipeshub:n",
+      "@type": "xsd:string"
+    },
+    "e": {
+      "@id": "pipeshub:e",
+      "@type": "xsd:string"
+    },
+    "CreateOAuthAppRequest": "pipeshub:CreateOAuthAppRequest",
+    "redirectUris": {
+      "@id": "pipeshub:redirectUris",
+      "@container": "@list"
+    },
+    "allowedGrantTypes": {
+      "@id": "pipeshub:allowedGrantTypes",
+      "@container": "@list"
+    },
+    "allowedScopes": {
+      "@id": "pipeshub:allowedScopes",
+      "@container": "@list"
+    },
+    "homepageUrl": {
+      "@id": "pipeshub:homepageUrl",
+      "@type": "@id"
+    },
+    "privacyPolicyUrl": {
+      "@id": "pipeshub:privacyPolicyUrl",
+      "@type": "@id"
+    },
+    "termsOfServiceUrl": {
+      "@id": "pipeshub:termsOfServiceUrl",
+      "@type": "@id"
+    },
+    "isConfidential": {
+      "@id": "pipeshub:isConfidential",
+      "@type": "xsd:boolean"
+    },
+    "accessTokenLifetime": {
+      "@id": "pipeshub:accessTokenLifetime",
+      "@type": "xsd:integer"
+    },
+    "refreshTokenLifetime": {
+      "@id": "pipeshub:refreshTokenLifetime",
+      "@type": "xsd:integer"
+    },
+    "UpdateOAuthAppRequest": "pipeshub:UpdateOAuthAppRequest",
+    "OAuthAppResponse": "pipeshub:OAuthAppResponse",
+    "id": {
+      "@id": "pipeshub:id",
+      "@type": "xsd:string"
+    },
+    "CreateOAuthAppResponse": "pipeshub:CreateOAuthAppResponse",
+    "app": {
+      "@id": "pipeshub:app",
+      "@type": "@id"
+    },
+    "RegenerateOAuthAppSecretResponse": "pipeshub:RegenerateOAuthAppSecretResponse",
+    "UpdateOAuthAppResponse": "pipeshub:UpdateOAuthAppResponse",
+    "SuspendOAuthAppResponse": "pipeshub:SuspendOAuthAppResponse",
+    "ActivateOAuthAppResponse": "pipeshub:ActivateOAuthAppResponse",
+    "OAuthAppListResponse": "pipeshub:OAuthAppListResponse",
+    "pagination": {
+      "@id": "pipeshub:pagination"
+    },
+    "OAuthScopeInfo": "pipeshub:OAuthScopeInfo",
+    "category": {
+      "@id": "pipeshub:category",
+      "@type": "xsd:string"
+    },
+    "requiresUserConsent": {
+      "@id": "pipeshub:requiresUserConsent",
+      "@type": "xsd:boolean"
+    },
+    "OAuthScopesGroupedResponse": "pipeshub:OAuthScopesGroupedResponse",
+    "scopes": {
+      "@id": "pipeshub:scopes"
+    },
+    "OAuthClientManagementRateLimitError": "pipeshub:OAuthClientManagementRateLimitError",
+    "ApplicationJsonErrorResponse": "pipeshub:ApplicationJsonErrorResponse",
+    "RateLimitErrorResponse": "pipeshub:RateLimitErrorResponse",
+    "OAuthTokenListItem": "pipeshub:OAuthTokenListItem",
+    "tokenType": {
+      "@id": "pipeshub:tokenType",
+      "@type": "xsd:string"
+    },
+    "userId": {
+      "@id": "pipeshub:userId",
+      "@type": "xsd:string"
+    },
+    "expiresAt": {
+      "@id": "pipeshub:expiresAt",
+      "@type": "xsd:dateTime"
+    },
+    "isRevoked": {
+      "@id": "pipeshub:isRevoked",
+      "@type": "xsd:boolean"
+    },
+    "OAuthAppTokensListResponse": "pipeshub:OAuthAppTokensListResponse",
+    "tokens": {
+      "@id": "pipeshub:tokens",
+      "@container": "@list"
+    },
+    "CreatePatRequest": "pipeshub:CreatePatRequest",
+    "expiryDays": {
+      "@id": "pipeshub:expiryDays"
+    },
+    "PatListItem": "pipeshub:PatListItem",
+    "lastUsedAt": {
+      "@id": "pipeshub:lastUsedAt",
+      "@type": "xsd:dateTime"
+    },
+    "CreatePatResponse": "pipeshub:CreatePatResponse",
+    "ListPatResponse": "pipeshub:ListPatResponse",
+    "RevokePatRequest": "pipeshub:RevokePatRequest",
+    "reason": {
+      "@id": "pipeshub:reason",
+      "@type": "xsd:string"
+    },
+    "RevokePatResponse": "pipeshub:RevokePatResponse",
+    "PatScopesListResponse": "pipeshub:PatScopesListResponse",
+    "AdminPatListResponse": "pipeshub:AdminPatListResponse",
+    "User": "pipeshub:User",
+    "UpdateUserResponse": "pipeshub:UpdateUserResponse",
+    "meta": {
+      "@id": "pipeshub:meta"
+    },
+    "Address": "pipeshub:Address",
+    "addressLine1": {
+      "@id": "pipeshub:addressLine1",
+      "@type": "xsd:string"
+    },
+    "city": {
+      "@id": "pipeshub:city",
+      "@type": "xsd:string"
+    },
+    "postCode": {
+      "@id": "pipeshub:postCode",
+      "@type": "xsd:string"
+    },
+    "country": {
+      "@id": "pipeshub:country",
+      "@type": "xsd:string"
+    },
+    "Organization": "pipeshub:Organization",
+    "shortName": {
+      "@id": "pipeshub:shortName",
+      "@type": "xsd:string"
+    },
+    "domain": {
+      "@id": "pipeshub:domain",
+      "@type": "xsd:string"
+    },
+    "accountType": {
+      "@id": "pipeshub:accountType",
+      "@type": "xsd:string"
+    },
+    "permanentAddress": {
+      "@id": "pipeshub:permanentAddress",
+      "@type": "@id"
+    },
+    "onBoardingStatus": {
+      "@id": "pipeshub:onBoardingStatus",
+      "@type": "xsd:string"
+    },
+    "TeamCreatedByUser": "pipeshub:TeamCreatedByUser",
+    "TeamMember": "pipeshub:TeamMember",
+    "userName": {
+      "@id": "pipeshub:userName",
+      "@type": "xsd:string"
+    },
+    "userEmail": {
+      "@id": "pipeshub:userEmail",
+      "@type": "xsd:string"
+    },
+    "joinedAt": {
+      "@id": "pipeshub:joinedAt",
+      "@type": "xsd:integer"
+    },
+    "isOwner": {
+      "@id": "pipeshub:isOwner",
+      "@type": "xsd:boolean"
+    },
+    "TeamMemberRoleEntry": "pipeshub:TeamMemberRoleEntry",
+    "TeamListItem": "pipeshub:TeamListItem",
+    "createdByUser": {
+      "@id": "pipeshub:createdByUser",
+      "@type": "@id"
+    },
+    "memberCount": {
+      "@id": "pipeshub:memberCount",
+      "@type": "xsd:integer"
+    },
+    "createdAtTimestamp": {
+      "@id": "pipeshub:createdAtTimestamp",
+      "@type": "xsd:integer"
+    },
+    "updatedAtTimestamp": {
+      "@id": "pipeshub:updatedAtTimestamp",
+      "@type": "xsd:integer"
+    },
+    "members": {
+      "@id": "pipeshub:members",
+      "@container": "@list"
+    },
+    "canEdit": {
+      "@id": "pipeshub:canEdit",
+      "@type": "xsd:boolean"
+    },
+    "canDelete": {
+      "@id": "pipeshub:canDelete",
+      "@type": "xsd:boolean"
+    },
+    "canManageMembers": {
+      "@id": "pipeshub:canManageMembers",
+      "@type": "xsd:boolean"
+    },
+    "TeamDetail": "pipeshub:TeamDetail",
+    "TeamPagination": "pipeshub:TeamPagination",
+    "page": {
+      "@id": "pipeshub:page",
+      "@type": "xsd:integer"
+    },
+    "limit": {
+      "@id": "pipeshub:limit",
+      "@type": "xsd:integer"
+    },
+    "total": {
+      "@id": "pipeshub:total",
+      "@type": "xsd:integer"
+    },
+    "pages": {
+      "@id": "pipeshub:pages",
+      "@type": "xsd:integer"
+    },
+    "hasNext": {
+      "@id": "pipeshub:hasNext",
+      "@type": "xsd:boolean"
+    },
+    "hasPrev": {
+      "@id": "pipeshub:hasPrev",
+      "@type": "xsd:boolean"
+    },
+    "TeamUsersPagination": "pipeshub:TeamUsersPagination",
+    "totalCount": {
+      "@id": "pipeshub:totalCount",
+      "@type": "xsd:integer"
+    },
+    "totalPages": {
+      "@id": "pipeshub:totalPages",
+      "@type": "xsd:integer"
+    },
+    "hasNextPage": {
+      "@id": "pipeshub:hasNextPage",
+      "@type": "xsd:boolean"
+    },
+    "hasPrevPage": {
+      "@id": "pipeshub:hasPrevPage",
+      "@type": "xsd:boolean"
+    },
+    "TeamListResponse": "pipeshub:TeamListResponse",
+    "teams": {
+      "@id": "pipeshub:teams",
+      "@container": "@list"
+    },
+    "GetTeamResponse": "pipeshub:GetTeamResponse",
+    "team": {
+      "@id": "pipeshub:team",
+      "@type": "@id"
+    },
+    "ServiceAccount": "pipeshub:ServiceAccount",
+    "ServiceAccountCreateRequest": "pipeshub:ServiceAccountCreateRequest",
+    "ServiceAccountUpdateRequest": "pipeshub:ServiceAccountUpdateRequest",
+    "ServiceToken": "pipeshub:ServiceToken",
+    "serviceAccountId": {
+      "@id": "pipeshub:serviceAccountId",
+      "@type": "xsd:string"
+    },
+    "ServiceTokenCreateRequest": "pipeshub:ServiceTokenCreateRequest",
+    "TeamCreateRequest": "pipeshub:TeamCreateRequest",
+    "userRoles": {
+      "@id": "pipeshub:userRoles",
+      "@container": "@list"
+    },
+    "TeamCreateResponse": "pipeshub:TeamCreateResponse",
+    "TeamUpdateRequest": "pipeshub:TeamUpdateRequest",
+    "addUserRoles": {
+      "@id": "pipeshub:addUserRoles",
+      "@container": "@list"
+    },
+    "removeUserIds": {
+      "@id": "pipeshub:removeUserIds",
+      "@container": "@list"
+    },
+    "updateUserRoles": {
+      "@id": "pipeshub:updateUserRoles",
+      "@container": "@list"
+    },
+    "TeamMutationResponse": "pipeshub:TeamMutationResponse",
+    "TeamDeleteResponse": "pipeshub:TeamDeleteResponse",
+    "TeamUsersListResponse": "pipeshub:TeamUsersListResponse",
+    "UserGroup": "pipeshub:UserGroup",
+    "users": {
+      "@id": "pipeshub:users",
+      "@container": "@list"
+    },
+    "Document": "pipeshub:Document",
+    "documentName": {
+      "@id": "pipeshub:documentName",
+      "@type": "xsd:string"
+    },
+    "alternateDocumentName": {
+      "@id": "pipeshub:alternateDocumentName",
+      "@type": "xsd:string"
+    },
+    "documentPath": {
+      "@id": "pipeshub:documentPath",
+      "@type": "xsd:string"
+    },
+    "isVersionedFile": {
+      "@id": "pipeshub:isVersionedFile",
+      "@type": "xsd:boolean"
+    },
+    "permissions": {
+      "@id": "pipeshub:permissions",
+      "@type": "xsd:string"
+    },
+    "initiatorUserId": {
+      "@id": "pipeshub:initiatorUserId",
+      "@type": "xsd:string"
+    },
+    "sizeInBytes": {
+      "@id": "pipeshub:sizeInBytes",
+      "@type": "xsd:integer"
+    },
+    "mimeType": {
+      "@id": "pipeshub:mimeType",
+      "@type": "xsd:string"
+    },
+    "extension": {
+      "@id": "pipeshub:extension",
+      "@type": "xsd:string"
+    },
+    "mutationCount": {
+      "@id": "pipeshub:mutationCount",
+      "@type": "xsd:integer"
+    },
+    "versionHistory": {
+      "@id": "pipeshub:versionHistory",
+      "@container": "@list"
+    },
+    "customMetadata": {
+      "@id": "pipeshub:customMetadata",
+      "@container": "@list"
+    },
+    "tags": {
+      "@id": "pipeshub:tags",
+      "@container": "@list"
+    },
+    "storageVendor": {
+      "@id": "pipeshub:storageVendor",
+      "@type": "xsd:string"
+    },
+    "s3": {
+      "@id": "pipeshub:s3"
+    },
+    "azureBlob": {
+      "@id": "pipeshub:azureBlob"
+    },
+    "local": {
+      "@id": "pipeshub:local"
+    },
+    "deletedByUserId": {
+      "@id": "pipeshub:deletedByUserId",
+      "@type": "xsd:string"
+    },
+    "DocumentVersion": "pipeshub:DocumentVersion",
+    "version": {
+      "@id": "pipeshub:version",
+      "@type": "xsd:integer"
+    },
+    "userAssignedVersionLabel": {
+      "@id": "pipeshub:userAssignedVersionLabel",
+      "@type": "xsd:string"
+    },
+    "note": {
+      "@id": "pipeshub:note",
+      "@type": "xsd:string"
+    },
+    "size": {
+      "@id": "pipeshub:size",
+      "@type": "xsd:integer"
+    },
+    "initiatedByUserId": {
+      "@id": "pipeshub:initiatedByUserId",
+      "@type": "xsd:string"
+    },
+    "KnowledgeBase": "pipeshub:KnowledgeBase",
+    "connectorId": {
+      "@id": "pipeshub:connectorId",
+      "@type": "xsd:string"
+    },
+    "createdBy": {
+      "@id": "pipeshub:createdBy",
+      "@type": "xsd:string"
+    },
+    "userRole": {
+      "@id": "pipeshub:userRole",
+      "@type": "xsd:string"
+    },
+    "folders": {
+      "@id": "pipeshub:folders",
+      "@container": "@list"
+    },
+    "KnowledgeBaseCreateResponse": "pipeshub:KnowledgeBaseCreateResponse",
+    "FolderCreateResponseSchema": "pipeshub:FolderCreateResponseSchema",
+    "FolderUpdateResponseSchema": "pipeshub:FolderUpdateResponseSchema",
+    "success": {
+      "@id": "pipeshub:success",
+      "@type": "xsd:boolean"
+    },
+    "FolderDeleteResponseSchema": "pipeshub:FolderDeleteResponseSchema",
+    "KnowledgeBaseMoveRecordRequestBody": "pipeshub:KnowledgeBaseMoveRecordRequestBody",
+    "newParentId": {
+      "@id": "pipeshub:newParentId",
+      "@type": "xsd:string"
+    },
+    "KnowledgeBaseMoveRecordResponse": "pipeshub:KnowledgeBaseMoveRecordResponse",
+    "GetAllKnowledgeBaseResponseSchema": "pipeshub:GetAllKnowledgeBaseResponseSchema",
+    "knowledgeBases": {
+      "@id": "pipeshub:knowledgeBases",
+      "@container": "@list"
+    },
+    "filters": {
+      "@id": "pipeshub:filters"
+    },
+    "GetKnowledgeBaseById": "pipeshub:GetKnowledgeBaseById",
+    "UpdateKnowledgeBaseById": "pipeshub:UpdateKnowledgeBaseById",
+    "DeleteKnowledgeBaseById": "pipeshub:DeleteKnowledgeBaseById",
+    "Folder": "pipeshub:Folder",
+    "parentId": {
+      "@id": "pipeshub:parentId",
+      "@type": "xsd:string"
+    },
+    "kbId": {
+      "@id": "pipeshub:kbId",
+      "@type": "xsd:string"
+    },
+    "RecordTypeEnum": "pipeshub:RecordTypeEnum",
+    "ConnectorNameEnum": "pipeshub:ConnectorNameEnum",
+    "Record": "pipeshub:Record",
+    "recordName": {
+      "@id": "pipeshub:recordName",
+      "@type": "xsd:string"
+    },
+    "externalRecordId": {
+      "@id": "pipeshub:externalRecordId",
+      "@type": "xsd:string"
+    },
+    "recordType": {
+      "@id": "pipeshub:recordType",
+      "@type": "@id"
+    },
+    "origin": {
+      "@id": "pipeshub:origin",
+      "@type": "xsd:string"
+    },
+    "connectorName": {
+      "@id": "pipeshub:connectorName",
+      "@type": "@id"
+    },
+    "folderId": {
+      "@id": "pipeshub:folderId",
+      "@type": "xsd:string"
+    },
+    "isLatestVersion": {
+      "@id": "pipeshub:isLatestVersion",
+      "@type": "xsd:boolean"
+    },
+    "sourceCreatedAtTimestamp": {
+      "@id": "pipeshub:sourceCreatedAtTimestamp",
+      "@type": "xsd:integer"
+    },
+    "sourceLastModifiedTimestamp": {
+      "@id": "pipeshub:sourceLastModifiedTimestamp",
+      "@type": "xsd:integer"
+    },
+    "processingStartedAt": {
+      "@id": "pipeshub:processingStartedAt",
+      "@type": "xsd:integer"
+    },
+    "queuedAtTimestamp": {
+      "@id": "pipeshub:queuedAtTimestamp",
+      "@type": "xsd:integer"
+    },
+    "parsingStatus": {
+      "@id": "pipeshub:parsingStatus",
+      "@type": "xsd:string"
+    },
+    "indexingStatus": {
+      "@id": "pipeshub:indexingStatus",
+      "@type": "xsd:string"
+    },
+    "isArchived": {
+      "@id": "pipeshub:isArchived",
+      "@type": "xsd:boolean"
+    },
+    "webUrl": {
+      "@id": "pipeshub:webUrl",
+      "@type": "@id"
+    },
+    "sha256Hash": {
+      "@id": "pipeshub:sha256Hash",
+      "@type": "xsd:string"
+    },
+    "fileRecord": {
+      "@id": "pipeshub:fileRecord"
+    },
+    "mailRecord": {
+      "@id": "pipeshub:mailRecord"
+    },
+    "ticketRecord": {
+      "@id": "pipeshub:ticketRecord"
+    },
+    "UpdateRecordEnrichment": "pipeshub:UpdateRecordEnrichment",
+    "timestamp": {
+      "@id": "pipeshub:timestamp",
+      "@type": "xsd:integer"
+    },
+    "fileUpdated": {
+      "@id": "pipeshub:fileUpdated",
+      "@type": "xsd:boolean"
+    },
+    "location": {
+      "@id": "pipeshub:location",
+      "@type": "xsd:string"
+    },
+    "kb": {
+      "@id": "pipeshub:kb"
+    },
+    "userPermission": {
+      "@id": "pipeshub:userPermission",
+      "@type": "xsd:string"
+    },
+    "GetRecordByIdResponseSchema": "pipeshub:GetRecordByIdResponseSchema",
+    "record": {
+      "@id": "pipeshub:record"
+    },
+    "knowledgeBase": {
+      "@id": "pipeshub:knowledgeBase"
+    },
+    "folder": {
+      "@id": "pipeshub:folder"
+    },
+    "metadata": {
+      "@id": "pipeshub:metadata"
+    },
+    "GetRecordContentResponseSchema": "pipeshub:GetRecordContentResponseSchema",
+    "content": {
+      "@id": "pipeshub:content",
+      "@type": "xsd:string"
+    },
+    "KnowledgeGraphNodeRefSchema": "pipeshub:KnowledgeGraphNodeRefSchema",
+    "node_type": {
+      "@id": "pipeshub:node_type",
+      "@type": "xsd:string"
+    },
+    "sub_type": {
+      "@id": "pipeshub:sub_type",
+      "@type": "xsd:string"
+    },
+    "is_record": {
+      "@id": "pipeshub:is_record",
+      "@type": "xsd:boolean"
+    },
+    "KnowledgeGraphNodeRowSchema": "pipeshub:KnowledgeGraphNodeRowSchema",
+    "has_children": {
+      "@id": "pipeshub:has_children",
+      "@type": "xsd:boolean"
+    },
+    "detail": {
+      "@id": "pipeshub:detail",
+      "@type": "xsd:string"
+    },
+    "web_url": {
+      "@id": "pipeshub:web_url",
+      "@type": "xsd:string"
+    },
+    "indexing_status": {
+      "@id": "pipeshub:indexing_status",
+      "@type": "xsd:string"
+    },
+    "source_created_at": {
+      "@id": "pipeshub:source_created_at",
+      "@type": "xsd:integer"
+    },
+    "source_modified_at": {
+      "@id": "pipeshub:source_modified_at",
+      "@type": "xsd:integer"
+    },
+    "level": {
+      "@id": "pipeshub:level",
+      "@type": "xsd:integer"
+    },
+    "context_summary": {
+      "@id": "pipeshub:context_summary",
+      "@type": "xsd:string"
+    },
+    "KnowledgeGraphPaginationSchema": "pipeshub:KnowledgeGraphPaginationSchema",
+    "has_next": {
+      "@id": "pipeshub:has_next",
+      "@type": "xsd:boolean"
+    },
+    "has_prev": {
+      "@id": "pipeshub:has_prev",
+      "@type": "xsd:boolean"
+    },
+    "NavigateKnowledgeGraphResponseSchema": "pipeshub:NavigateKnowledgeGraphResponseSchema",
+    "current": {
+      "@id": "pipeshub:current"
+    },
+    "breadcrumbs": {
+      "@id": "pipeshub:breadcrumbs",
+      "@container": "@list"
+    },
+    "rows": {
+      "@id": "pipeshub:rows",
+      "@container": "@list"
+    },
+    "related": {
+      "@id": "pipeshub:related",
+      "@container": "@list"
+    },
+    "connector": {
+      "@id": "pipeshub:connector",
+      "@type": "xsd:string"
+    },
+    "context_block": {
+      "@id": "pipeshub:context_block",
+      "@type": "xsd:string"
+    },
+    "text": {
+      "@id": "pipeshub:text",
+      "@type": "xsd:string"
+    },
+    "KnowledgeGraphLookupMatchSchema": "pipeshub:KnowledgeGraphLookupMatchSchema",
+    "record_type": {
+      "@id": "pipeshub:record_type",
+      "@type": "xsd:string"
+    },
+    "connector_name": {
+      "@id": "pipeshub:connector_name",
+      "@type": "xsd:string"
+    },
+    "identifier_used": {
+      "@id": "pipeshub:identifier_used",
+      "@type": "xsd:string"
+    },
+    "external_id": {
+      "@id": "pipeshub:external_id",
+      "@type": "xsd:string"
+    }
+  },
+  "@type": "schema:Dataset",
+  "schema:name": "PipesHub API JSON-LD context",
+  "schema:description": "A JSON-LD @context for the objects PipesHub's own API contract declares: one class per component schema, one property per declared field, typed from the contract. Derived by script (derive-json-ld.py, 2026-10-09) from openapi/pipeshub-openapi.yml.",
+  "dcterms:created": "2026-10-09",
+  "dcterms:source": [
+    "openapi/pipeshub-openapi.yml"
+  ]
+}

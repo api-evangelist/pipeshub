@@ -1,0 +1,83 @@
+generated: '2026-10-09'
+method: searched
+status: published
+source: https://docs.pipeshub.com/mcp/overview.md
+tools_source: https://docs.pipeshub.com/mcp/tools.md
+upstream_tools_source: https://github.com/pipeshub-ai/mcp-server/blob/main/TOOLS.md
+name: PipesHub MCP Server
+description: >-
+  PipesHub exposes a remote MCP endpoint over Streamable HTTP at {PIPESHUB_INSTANCE_URL}/mcp
+  ("no local npm packages or stdio processes needed"), plus an optional local stdio bridge
+  published as the npm package @pipeshub-ai/mcp. PipesHub is self-hosted, so the endpoint is
+  per-instance; the hosted instance is https://app.pipeshub.com.
+deployment:
+  mode: both
+  endpoint: https://app.pipeshub.com/mcp
+  endpoint_template: '{PIPESHUB_INSTANCE_URL}/mcp'
+  transport: streamable-http
+  install: npx -y @pipeshub-ai/mcp start
+  package: https://www.npmjs.com/package/@pipeshub-ai/mcp
+  package_version: 2.4.2
+  package_published: '2026-09-15'
+  repository: https://github.com/pipeshub-ai/mcp-server
+  auth: oauth
+  auth_alternatives: [personal-access-token-bearer]
+  verified: probed
+probes:
+  - url: https://app.pipeshub.com/mcp
+    request: POST tools/list (anonymous)
+    status: 401
+    body: '{"error":{"code":"HTTP_UNAUTHORIZED","message":"No token provided"}}'
+    control: unknown path on same host returned 404 (preflight), so /mcp is a real gated route
+  - url: https://sandbox.pipeshub.com/mcp
+    status: 401
+    note: from preflight contract_discovery.gated
+  - url: https://app.pipeshub.com/.well-known/oauth-protected-resource/mcp
+    status: 200
+    resource: https://app.pipeshub.com/mcp
+    authorization_servers: [https://app.pipeshub.com]
+    bearer_methods_supported: [header]
+  - url: https://registry.npmjs.org/@pipeshub-ai/mcp
+    status: 200
+    latest: 2.4.2
+auth:
+  methods: [oauth2, bearer-pat]
+  oauth2:
+    discovery: https://app.pipeshub.com/.well-known/oauth-protected-resource/mcp
+    authorization_server: https://app.pipeshub.com
+    scopes_supported: [openid, profile, email, offline_access, 'semantic:write', 'conversation:write', 'conversation:chat', 'kb:read', 'team:read', 'user:read', 'config:read', 'agent:read', 'agent:execute', 'connector:read']
+    note: Scopes exposed are configurable per instance via the MCP_SCOPES environment variable.
+  bearer-pat:
+    note: Personal Access Token (Developer Settings > Personal Access Tokens) sent as Authorization Bearer; used by Claude Code, Omnigent and the local stdio bridge (--bearer-auth).
+tool_count: 7
+tools_evidence: documented
+tools_note: >-
+  Tool names and arguments are taken from the provider's published Tools Reference (a real
+  argument table per tool). The live tools/list is auth-gated (401) and was NOT called, so
+  inputSchemas below are the documented arguments, not introspected ones.
+tools:
+  - name: pipeshub_chat
+    description: Ask a question and get an answer grounded in the org's indexed sources, with citations.
+    arguments: [query, conversationId, filters, modelKey, agentId, chatMode]
+  - name: pipeshub_search
+    description: Vector / semantic search across the org's indexed documents; locates a document and resolves it to a recordId.
+    arguments: [query, limit, apps]
+  - name: pipeshub_get_record_content
+    description: Three operations on records, selected by mode (content, navigate, lookup).
+    arguments: [mode, recordId, nodeId, page, limit, depth, identifiers]
+  - name: pipeshub_download_record
+    description: Stream the binary content of a single record.
+    arguments: [recordId, convertTo]
+  - name: pipeshub_directory
+    description: Look up people, groups, and teams (actions whoami, list_users, get_user, list_groups, list_my_teams).
+    arguments: [action, userId, page, limit, search]
+  - name: pipeshub_sources
+    description: Discover available chat sources and AI models in one call.
+    arguments: [include]
+  - name: pipeshub_agents
+    description: List the PipesHub agents configured for this org; pass an agentId to pipeshub_chat to converse with one.
+    arguments: []
+clients_documented: [Cursor, Claude Code, Claude Desktop, Claude.ai, Gemini CLI, LibreChat, Omnigent]
+rest_mount:
+  openapi: openapi/pipeshub-openapi.yml
+  operations: [handleMCPRequest, handleMCPStreamingRequest]

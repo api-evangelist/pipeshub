@@ -1,0 +1,348 @@
+openapi: 3.2.0
+info:
+  title: Pipeshub Metrics Collection API
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@pipeshub.com
+  description: 'Operations tagged Metrics Collection across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: '{instance_url}/api/v1'
+  description: Base API URL
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL (without /api/v1)
+- url: '{instance_url}'
+  description: Root URL (used for MCP endpoints mounted at /mcp)
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL
+security:
+- bearerAuth: []
+- oauth2: []
+tags:
+- name: Metrics Collection
+  description: Configure telemetry and metrics collection for application monitoring and analytics.
+paths:
+  /configurationManager/metricsCollection:
+    get:
+      tags:
+      - Metrics Collection
+      summary: Get metrics collection configuration
+      description: 'Retrieve the current metrics collection configuration including:
+
+        - Whether collection is enabled
+
+        - Push interval settings
+
+        - Server URL configuration
+
+        - Instance identification
+
+
+        **Admin Access Required:** This endpoint requires administrator privileges.'
+      operationId: getMetricsCollection
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - config:read
+      responses:
+        '200':
+          description: Metrics configuration retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetricsCollectionConfig'
+              example:
+                enableMetricCollection: 'true'
+                pushIntervalMs: '60000'
+                serverUrl: https://metrics-collector.example.com/collect-metrics
+                apiKey: 54523f794e23d96e
+                appVersion: 1.0.0
+        '401':
+          description: Unauthorized - Valid authentication required
+        '403':
+          description: Forbidden - Admin access required
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /configurationManager/metricsCollection/toggle:
+    put:
+      tags:
+      - Metrics Collection
+      summary: Enable or disable metrics collection
+      description: 'Toggle the master switch for metrics collection.
+
+
+        **When Enabled:**
+
+        - Application metrics are collected in the background
+
+        - Metrics are pushed to the configured server at regular intervals
+
+        - Activity counters track API usage patterns
+
+
+        **When Disabled:**
+
+        - No metrics are collected or stored
+
+        - No data is sent to the metrics server
+
+        - Existing scheduled push jobs are stopped
+
+
+        **Admin Access Required:** This endpoint requires administrator privileges.'
+      operationId: toggleMetricsCollection
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - config:write
+      requestBody:
+        required: true
+        description: Request payload
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - enableMetricCollection
+              properties:
+                enableMetricCollection:
+                  type: boolean
+                  description: Set to true to enable metrics collection, false to disable
+                  example: true
+            examples:
+              enable:
+                summary: Enable metrics collection
+                value:
+                  enableMetricCollection: true
+              disable:
+                summary: Disable metrics collection
+                value:
+                  enableMetricCollection: false
+      responses:
+        '200':
+          description: Metrics collection toggled successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Metrics collection toggled successfully
+        '400':
+          description: Bad Request - Invalid request body
+        '401':
+          description: Unauthorized - Valid authentication required
+        '403':
+          description: Forbidden - Admin access required
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+components:
+  schemas:
+    MetricsCollectionConfig:
+      type: object
+      description: 'Configuration for application telemetry and metrics collection.
+
+        Metrics are collected anonymously and pushed to a remote server for analytics.
+
+        '
+      properties:
+        enableMetricCollection:
+          type: string
+          description: 'Master switch for metrics collection. When disabled, no metrics are collected or pushed.
+
+            Default: "true"
+
+            '
+          example: 'true'
+        pushIntervalMs:
+          type: string
+          description: 'Interval in milliseconds between metrics pushes to the remote server.
+
+            Minimum: 1000ms (1 second), Default: 60000ms (1 minute)
+
+            '
+          example: '60000'
+        serverUrl:
+          type: string
+          format: uri
+          description: 'URL of the metrics collection server. For self-hosted analytics, point this
+
+            to your own Prometheus-compatible endpoint.
+
+            '
+          example: https://metrics-collector.example.com/collect-metrics
+        apiKey:
+          type: string
+          description: 'API key for authenticating with the metrics server. Auto-generated if not provided.
+
+            '
+          example: 54523f794e23d96e
+        appVersion:
+          type: string
+          description: Current application version for metrics tagging.
+          example: 1.0.0
+      example:
+        enableMetricCollection: 'true'
+        pushIntervalMs: '60000'
+        serverUrl: https://metrics-collector.example.com/collect-metrics
+        apiKey: 54523f794e23d96e
+        appVersion: 1.0.0
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'JWT Bearer token for authenticated requests.
+
+
+        A personal access token (see the **Personal Access Tokens** tag) is a
+
+        `phpat_`-prefixed variant of this same JWT — e.g. `phpat_eyJhbGci...`.
+
+        The prefix is display-only, added for secret-scanner detectability; the
+
+        gateway strips it before verifying the token, so send it exactly as
+
+        issued, prefix included.
+
+        '
+    scopedToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Scoped JWT token for service-to-service authentication.
+
+        Format: "Bearer {scoped_token}"
+
+        Required scopes vary by endpoint.
+
+        '
+    oauth2:
+      type: oauth2
+      description: 'OAuth 2.0 authentication with fine-grained scopes.
+
+        Supports authorization_code (with PKCE) and client_credentials flows.
+
+        OAuth tokens are Bearer JWTs — use the same Authorization header as regular tokens.
+
+        For **client_credentials**, machine JWTs may use `userId === client_id`; the Node gateway resolves the OAuth app creator — see **OAuth Provider** tag.
+
+        '
+      flows:
+        authorizationCode:
+          authorizationUrl: /api/v1/oauth2/authorize
+          tokenUrl: /api/v1/oauth2/token
+          refreshUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:read: Read semantic search results and history
+            semantic:write: Execute semantic search
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+            crawl:delete: Delete crawling jobs
+        clientCredentials:
+          tokenUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:write: Execute semantic search
+            semantic:read: Read semantic search results and history
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+x-refined-from:
+- pipeshub-openapi.yaml
+- pipeshub-openapi.yml

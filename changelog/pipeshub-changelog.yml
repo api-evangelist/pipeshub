@@ -1,0 +1,34 @@
+generated: '2026-10-09'
+method: searched
+source: https://github.com/pipeshub-ai/pipeshub-ai/releases
+scheme: semver (GitHub release tags vX.Y.Z)
+current_version: 0.9.1
+note: The docs changelog page https://docs.pipeshub.com/additional-resources/changelog reads "Coming Soon" (checked 2026-10-09). Entries below are from the open-source repo's GitHub releases feed; dates are the feed's updated timestamps.
+entries:
+- version: 0.9.1
+  date: '2026-09-28'
+  breaking: false
+  highlights:
+  - 'fix(storage): match the S3 bucket name literally when reading a file URL'
+  - 'fix(agents): answer as the workspace''s data when the Acme Corp demo is its only knowledge'
+- version: 0.9.0
+  date: '2026-09-28'
+  breaking: false
+  highlights:
+  - 'test(connectors): hold every registered connector to the BaseConnector contract'
+- version: 0.8.0
+  date: '2026-09-14'
+  breaking: false
+  highlights:
+  - 'feat: add OSS permission stubs and move Groups out of People'
+- version: 0.7.0
+  date: '2026-08-26'
+  breaking: false
+  highlights:
+  - 'feat: personal access tokens for MCP and API access'
+  - 'docs(api): document Personal Access Tokens in the OpenAPI spec'
+- version: 0.6.0
+  date: '2026-08-10'
+  breaking: false
+  highlights:
+  - Fixed deep agent stale tasks

@@ -1,0 +1,32 @@
+name: PipesHub Rate Limits
+generated: '2026-10-09'
+method: derived
+source: openapi/pipeshub-openapi.yml
+limit_count: 0
+note: No numeric API rate limits are published in the docs (docs.pipeshub.com, llms-full.txt searched 2026-10-09; the only numbers there are limits the connectors apply to third-party APIs). The OpenAPI contract documents 429 responses on the operations below without numbers; limits are configurable per self-hosted instance and the pricing page lists "Configurable usage limits" for Enterprise.
+signaling:
+  status_code: 429
+  headers:
+  - Retry-After
+  body: 'RateLimitErrorResponse: {error: {code, message, retryAfter}} — "Rate-limit error payload (shape differs from standard error responses)."'
+limits:
+- name: Global per-user/IP limiter
+  scope: per-user/IP
+  limit_text: Rate limit exceeded — global per-user/IP limiter
+  endpoint: /notifications (listInAppNotifications, getNotificationStats and the notification read/archive/dismiss operations)
+- name: OAuth and OAuth client management limiter
+  scope: route group
+  limit_text: Rate limit exceeded for OAuth client management routes
+  endpoint: /oauth2/token, /oauth2/revoke, /oauth2/introspect, /oauth-clients/*
+- name: Personal access token routes limiter
+  scope: route group
+  limit_text: Rate limit exceeded
+  endpoint: /personal-access-tokens/*
+- name: Upload limiter
+  scope: per-user
+  limit_text: Too many upload requests, or too many concurrent uploads for this user
+  endpoint: uploadRecords
+- name: Model provider quota
+  scope: upstream LLM provider
+  limit_text: The model provider is rate limiting or out of quota.
+  endpoint: createConversation, addMessage, createAgentConversation, addAgentConversationMessage

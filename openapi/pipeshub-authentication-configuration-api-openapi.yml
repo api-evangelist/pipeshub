@@ -1,0 +1,556 @@
+openapi: 3.2.0
+info:
+  title: Pipeshub Authentication Configuration API
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@pipeshub.com
+  description: 'Operations tagged Authentication Configuration across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
+servers:
+- url: '{instance_url}/api/v1'
+  description: Base API URL
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL (without /api/v1)
+- url: '{instance_url}'
+  description: Root URL (used for MCP endpoints mounted at /mcp)
+  variables:
+    instance_url:
+      default: https://app.pipeshub.com
+      description: Base server URL
+security:
+- bearerAuth: []
+- oauth2: []
+tags:
+- name: Authentication Configuration
+  description: Configure authentication providers including Azure AD, Microsoft, Google OAuth, SAML SSO, and custom OAuth 2.0.
+paths:
+  /configurationManager/authConfig/azureAd:
+    post:
+      tags:
+      - Authentication Configuration
+      summary: Configure Azure AD authentication
+      description: Set up Azure Active Directory as an authentication provider for user login.
+      operationId: setAzureAdAuthConfig
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - config:write
+      requestBody:
+        required: true
+        description: Request body for Configure Azure AD authentication
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AzureAdAuthConfig'
+      responses:
+        '200':
+          description: Azure AD configuration saved
+        '400':
+          description: Invalid configuration
+        '401':
+          description: Unauthorized
+        '403':
+          description: Admin access required
+    get:
+      tags:
+      - Authentication Configuration
+      summary: Get Azure AD configuration
+      description: Retrieve Azure AD authentication configuration.
+      operationId: getAzureAdAuthConfig
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - config:read
+      responses:
+        '200':
+          description: Azure AD configuration retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AzureAdAuthConfig'
+        '401':
+          description: Unauthorized
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /configurationManager/authConfig/microsoft:
+    post:
+      tags:
+      - Authentication Configuration
+      summary: Configure Microsoft authentication
+      description: Set up Microsoft account as an authentication provider.
+      operationId: setMicrosoftAuthConfig
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - config:write
+      requestBody:
+        required: true
+        description: Request body for Configure Microsoft authentication
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MicrosoftAuthConfig'
+      responses:
+        '200':
+          description: Microsoft auth configuration saved
+        '400':
+          description: Invalid configuration
+        '401':
+          description: Unauthorized
+        '403':
+          description: Admin access required
+    get:
+      tags:
+      - Authentication Configuration
+      summary: Get Microsoft authentication configuration
+      description: Get Microsoft authentication configuration.
+      operationId: getMicrosoftAuthConfig
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - config:read
+      responses:
+        '200':
+          description: Microsoft auth configuration retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MicrosoftAuthConfig'
+        '401':
+          description: Unauthorized
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /configurationManager/authConfig/google:
+    post:
+      tags:
+      - Authentication Configuration
+      summary: Configure Google authentication
+      description: Set up Google OAuth as an authentication provider.
+      operationId: setGoogleAuthConfig
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - config:write
+      requestBody:
+        required: true
+        description: Request body for Configure Google authentication
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleAuthConfig'
+      responses:
+        '200':
+          description: Google auth configuration saved
+        '400':
+          description: Invalid configuration
+        '401':
+          description: Unauthorized
+        '403':
+          description: Admin access required
+    get:
+      tags:
+      - Authentication Configuration
+      summary: Get Google authentication configuration
+      description: Get Google authentication configuration.
+      operationId: getGoogleAuthConfig
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - config:read
+      responses:
+        '200':
+          description: Google auth configuration retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleAuthConfig'
+        '401':
+          description: Unauthorized
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /configurationManager/authConfig/sso:
+    post:
+      tags:
+      - Authentication Configuration
+      summary: Configure SAML SSO authentication
+      description: Set up SAML 2.0 Single Sign-On with your identity provider (Okta, OneLogin, etc.).
+      operationId: setSsoAuthConfig
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - config:write
+      requestBody:
+        required: true
+        description: Request body for Configure SAML SSO authentication
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SSOAuthConfig'
+      responses:
+        '200':
+          description: SSO configuration saved
+        '400':
+          description: Invalid configuration
+        '401':
+          description: Unauthorized
+        '403':
+          description: Admin access required
+    get:
+      tags:
+      - Authentication Configuration
+      summary: Get SAML SSO configuration
+      description: Get SAML SSO configuration.
+      operationId: getSsoAuthConfig
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - config:read
+      responses:
+        '200':
+          description: SSO configuration retrieved
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/SSOAuthConfig'
+                - type: object
+                  properties:
+                    spEntityId:
+                      type: string
+                      description: Service Provider entity ID derived from SAML_SP_ENTITY_ID env var or the frontend public URL
+                      example: https://app.example.com
+        '401':
+          description: Unauthorized
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+  /configurationManager/authConfig/oauth:
+    post:
+      tags:
+      - Authentication Configuration
+      summary: Configure generic OAuth provider
+      description: Set up a custom OAuth 2.0 authentication provider.
+      operationId: setOAuthConfig
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - config:write
+      requestBody:
+        required: true
+        description: Request body for Configure generic OAuth provider
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GenericOAuthConfig'
+      responses:
+        '200':
+          description: OAuth configuration saved
+        '400':
+          description: Invalid configuration
+        '401':
+          description: Unauthorized
+        '403':
+          description: Admin access required
+    get:
+      tags:
+      - Authentication Configuration
+      summary: Get generic OAuth configuration
+      description: Get generic OAuth configuration.
+      operationId: getGenericOAuthConfig
+      security:
+      - bearerAuth: []
+      - oauth2:
+        - config:read
+      responses:
+        '200':
+          description: OAuth configuration retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GenericOAuthConfig'
+        '401':
+          description: Unauthorized
+    servers:
+    - url: '{instance_url}/api/v1'
+      description: Base API URL
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL (without /api/v1)
+    - url: '{instance_url}'
+      description: Root URL (used for MCP endpoints mounted at /mcp)
+      variables:
+        instance_url:
+          default: https://app.pipeshub.com
+          description: Base server URL
+components:
+  schemas:
+    GenericOAuthConfig:
+      type: object
+      description: Generic OAuth 2.0 provider configuration
+      properties:
+        providerName:
+          type: string
+          description: Display name for the OAuth provider
+          example: Custom OAuth Provider
+        clientId:
+          type: string
+          description: OAuth client ID
+        clientSecret:
+          type: string
+          description: OAuth client secret
+        authorizationUrl:
+          type: string
+          format: uri
+          description: Authorization endpoint URL
+        tokenEndpoint:
+          type: string
+          format: uri
+          description: Token endpoint URL
+        userInfoEndpoint:
+          type: string
+          format: uri
+          description: User info endpoint URL
+        scope:
+          type: string
+          description: OAuth scopes to request
+          example: openid profile email
+        redirectUri:
+          type: string
+          format: uri
+          description: OAuth redirect URI
+    SSOAuthConfig:
+      type: object
+      description: SAML SSO authentication configuration
+      properties:
+        entryPoint:
+          type: string
+          format: uri
+          description: Identity provider SSO URL
+          example: https://idp.example.com/sso/saml
+        certificate:
+          type: string
+          description: X.509 certificate for signature validation (PEM format)
+        emailKey:
+          type: string
+          description: SAML attribute name for user email
+          example: email
+        enableJit:
+          type: boolean
+          description: Enable Just-In-Time (JIT) user provisioning
+          default: true
+          example: true
+        samlPlatform:
+          type: string
+          description: Name of the SAML platform or provider (e.g., Okta, Azure AD)
+          example: Okta
+    AzureAdAuthConfig:
+      type: object
+      description: Azure Active Directory authentication configuration
+      properties:
+        clientId:
+          type: string
+          description: Azure AD application client ID
+          example: 12345678-1234-1234-1234-123456789abc
+        tenantId:
+          type: string
+          description: Azure AD tenant ID (use 'common' for multi-tenant)
+          default: common
+          example: common
+    MicrosoftAuthConfig:
+      type: object
+      description: Microsoft authentication configuration
+      properties:
+        clientId:
+          type: string
+          description: Microsoft application client ID
+          example: 12345678-1234-1234-1234-123456789abc
+        tenantId:
+          type: string
+          description: Microsoft tenant ID
+          default: common
+    GoogleAuthConfig:
+      type: object
+      description: Google authentication configuration
+      properties:
+        clientId:
+          type: string
+          description: Google OAuth client ID
+          example: 123456789-abc.apps.googleusercontent.com
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'JWT Bearer token for authenticated requests.
+
+
+        A personal access token (see the **Personal Access Tokens** tag) is a
+
+        `phpat_`-prefixed variant of this same JWT — e.g. `phpat_eyJhbGci...`.
+
+        The prefix is display-only, added for secret-scanner detectability; the
+
+        gateway strips it before verifying the token, so send it exactly as
+
+        issued, prefix included.
+
+        '
+    scopedToken:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Scoped JWT token for service-to-service authentication.
+
+        Format: "Bearer {scoped_token}"
+
+        Required scopes vary by endpoint.
+
+        '
+    oauth2:
+      type: oauth2
+      description: 'OAuth 2.0 authentication with fine-grained scopes.
+
+        Supports authorization_code (with PKCE) and client_credentials flows.
+
+        OAuth tokens are Bearer JWTs — use the same Authorization header as regular tokens.
+
+        For **client_credentials**, machine JWTs may use `userId === client_id`; the Node gateway resolves the OAuth app creator — see **OAuth Provider** tag.
+
+        '
+      flows:
+        authorizationCode:
+          authorizationUrl: /api/v1/oauth2/authorize
+          tokenUrl: /api/v1/oauth2/token
+          refreshUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:read: Read semantic search results and history
+            semantic:write: Execute semantic search
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+            crawl:delete: Delete crawling jobs
+        clientCredentials:
+          tokenUrl: /api/v1/oauth2/token
+          scopes:
+            openid: OpenID Connect authentication
+            profile: User profile information
+            email: User email address
+            offline_access: Offline access (refresh tokens)
+            org:read: Read organization information
+            org:write: Update organization settings
+            org:admin: Full organization administration
+            user:read: Read user profiles
+            user:write: Update user profiles
+            user:invite: Invite new users
+            user:delete: Delete users
+            usergroup:read: Read user groups
+            usergroup:write: Create and manage user groups
+            team:read: Read team information
+            team:write: Create and manage teams
+            kb:read: Read knowledge bases and records
+            kb:write: Create and update knowledge bases
+            kb:delete: Delete knowledge bases and records
+            kb:upload: Upload files to knowledge bases
+            semantic:write: Execute semantic search
+            semantic:read: Read semantic search results and history
+            semantic:delete: Delete semantic search history
+            conversation:read: Read conversations
+            conversation:write: Create and manage conversations
+            conversation:chat: Send messages in conversations
+            project:read: Read projects and their conversations
+            project:write: Create and manage projects
+            project:delete: Delete projects
+            agent:read: Read AI agents
+            agent:write: Create and manage AI agents
+            agent:execute: Execute AI agents
+            connector:read: Read connector configurations
+            connector:write: Create and update connectors
+            connector:sync: Trigger connector synchronization
+            connector:delete: Delete connectors
+            config:read: Read system configuration
+            config:write: Update system configuration
+            crawl:read: Read crawling jobs
+            crawl:write: Create and manage crawling jobs
+x-refined-from:
+- pipeshub-openapi.yaml
+- pipeshub-openapi.yml
