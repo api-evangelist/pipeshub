@@ -1,11 +1,11 @@
 openapi: 3.2.0
 info:
-  title: Pipeshub Internal Storage API
+  title: PipesHub Internal Storage API
+  description: Unified API documentation for PipesHub services.
   version: 1.0.0
   contact:
     name: API Support
     email: support@pipeshub.com
-  description: 'Operations tagged Internal Storage across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: '{instance_url}/api/v1'
   description: Base API URL
@@ -68,19 +68,6 @@ paths:
           description: The storage scoped token was missing or invalid.
         '503':
           description: The file could not be saved. Safe to retry.
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /document/internal/placeholder:
     post:
       tags:
@@ -135,19 +122,6 @@ paths:
           description: The request body was incomplete.
         '401':
           description: The storage scoped token was missing or invalid.
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /document/internal/{documentId}:
     get:
       tags:
@@ -166,19 +140,6 @@ paths:
           description: The storage scoped token was missing or invalid.
         '404':
           description: No such document.
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /document/internal/{documentId}/:
     delete:
       tags:
@@ -199,19 +160,6 @@ paths:
           description: The storage scoped token was missing or invalid.
         '404':
           description: No such document.
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /document/internal/{documentId}/download:
     get:
       tags:
@@ -246,19 +194,6 @@ paths:
           description: The storage scoped token was missing or invalid.
         '404':
           description: No such document, or no such version.
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /document/internal/{documentId}/buffer:
     get:
       tags:
@@ -319,19 +254,6 @@ paths:
           description: No such document.
         '503':
           description: The file could not be saved. Safe to retry.
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /document/internal/{documentId}/uploadNextVersion:
     post:
       tags:
@@ -367,19 +289,6 @@ paths:
           description: No such document.
         '503':
           description: The file could not be saved. Safe to retry.
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /document/internal/{documentId}/rollBack:
     post:
       tags:
@@ -417,19 +326,6 @@ paths:
           description: The storage scoped token was missing or invalid.
         '404':
           description: No such document, or no such version.
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /document/internal/{documentId}/directUpload:
     post:
       tags:
@@ -452,19 +348,6 @@ paths:
           description: No such document.
         '503':
           description: The upload link could not be issued. Safe to retry.
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /document/internal/{documentId}/isModified:
     get:
       tags:
@@ -483,19 +366,6 @@ paths:
           description: The storage scoped token was missing or invalid.
         '404':
           description: No such document.
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
 components:
   parameters:
     InternalDocumentId:
@@ -634,6 +504,3 @@ components:
             config:write: Update system configuration
             crawl:read: Read crawling jobs
             crawl:write: Create and manage crawling jobs
-x-refined-from:
-- pipeshub-openapi.yaml
-- pipeshub-openapi.yml

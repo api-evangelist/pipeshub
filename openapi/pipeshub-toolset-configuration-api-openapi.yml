@@ -1,11 +1,11 @@
 openapi: 3.2.0
 info:
-  title: Pipeshub Toolset Configuration API
+  title: PipesHub Toolset Configuration API
+  description: Unified API documentation for PipesHub services.
   version: 1.0.0
   contact:
     name: API Support
     email: support@pipeshub.com
-  description: 'Operations tagged Toolset Configuration across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: '{instance_url}/api/v1'
   description: Base API URL
@@ -141,19 +141,6 @@ paths:
           description: Unauthorized
         '404':
           description: Toolset not found
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
 components:
   securitySchemes:
     bearerAuth:
@@ -284,6 +271,3 @@ components:
             config:write: Update system configuration
             crawl:read: Read crawling jobs
             crawl:write: Create and manage crawling jobs
-x-refined-from:
-- pipeshub-openapi.yaml
-- pipeshub-openapi.yml

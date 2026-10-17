@@ -1,11 +1,11 @@
 openapi: 3.2.0
 info:
-  title: Pipeshub Users API
+  title: PipesHub Users API
+  description: Unified API documentation for PipesHub services.
   version: 1.0.0
   contact:
     name: API Support
     email: support@pipeshub.com
-  description: 'Operations tagged Users across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: '{instance_url}/api/v1'
   description: Base API URL
@@ -53,19 +53,6 @@ paths:
                   timestamp:
                     type: string
                     format: date-time
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /users:
     get:
       tags:
@@ -385,19 +372,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /users/{id}:
     get:
       tags:
@@ -739,19 +713,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /users/{id}/email:
     get:
       tags:
@@ -963,19 +924,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /users/dp:
     put:
       tags:
@@ -1171,19 +1119,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /users/bulk/invite:
     post:
       tags:
@@ -1351,19 +1286,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /users/bulk/invite/upload:
     post:
       tags:
@@ -1474,19 +1396,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /users/{id}/resend-invite:
     post:
       tags:
@@ -1612,19 +1521,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /users/graph/list:
     get:
       tags:
@@ -1719,19 +1615,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /users/{id}/unblock:
     put:
       tags:
@@ -1816,19 +1699,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /users/fetch/with-groups:
     get:
       tags:
@@ -1905,19 +1775,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /users/by-ids:
     post:
       tags:
@@ -1996,19 +1853,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /users/{id}/fullname:
     patch:
       tags:
@@ -2097,19 +1941,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /users/{id}/firstName:
     patch:
       tags:
@@ -2198,19 +2029,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /users/{id}/lastName:
     patch:
       tags:
@@ -2299,19 +2117,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /users/{id}/designation:
     patch:
       tags:
@@ -2402,19 +2207,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /users/{id}/adminCheck:
     get:
       tags:
@@ -2482,19 +2274,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /users/me/role:
     get:
       tags:
@@ -2538,51 +2317,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
 components:
   schemas:
-    PaginationMetadata:
-      type: object
-      additionalProperties: false
-      description: 'Generic pagination block emitted by `buildPaginationMetadata` (utils.ts).
-
-        `totalPages` is `Math.ceil(totalCount / limit)`; an empty result yields
-
-        `totalPages: 0`, not `1`.
-
-        '
-      required:
-      - page
-      - limit
-      - totalCount
-      - totalPages
-      - hasNextPage
-      - hasPrevPage
-      properties:
-        page:
-          type: integer
-        limit:
-          type: integer
-        totalCount:
-          type: integer
-        totalPages:
-          type: integer
-        hasNextPage:
-          type: boolean
-        hasPrevPage:
-          type: boolean
     User:
       type: object
       additionalProperties: false
@@ -2702,29 +2438,81 @@ components:
       required:
       - _id
       - orgId
-    Address:
+    PaginationMetadata:
       type: object
       additionalProperties: false
+      description: 'Generic pagination block emitted by `buildPaginationMetadata` (utils.ts).
+
+        `totalPages` is `Math.ceil(totalCount / limit)`; an empty result yields
+
+        `totalPages: 0`, not `1`.
+
+        '
+      required:
+      - page
+      - limit
+      - totalCount
+      - totalPages
+      - hasNextPage
+      - hasPrevPage
       properties:
-        _id:
-          type: string
-          format: ObjectId
-          description: Optional address document id
-        addressLine1:
-          type: string
-          description: Address line 1
-        city:
-          type: string
-          description: City
-        state:
-          type: string
-          description: State/Province
-        postCode:
-          type: string
-          description: Postal/ZIP code
-        country:
-          type: string
-          description: Country
+        page:
+          type: integer
+        limit:
+          type: integer
+        totalCount:
+          type: integer
+        totalPages:
+          type: integer
+        hasNextPage:
+          type: boolean
+        hasPrevPage:
+          type: boolean
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      description: 'Standard error envelope returned by all errors routed through `ErrorMiddleware`.
+
+        Applies to all `BaseError` subclasses including `HttpError`, `ValidationError`, and others.
+
+        The `code` field is a machine-readable string identifying the error type (e.g.
+
+        `HTTP_UNAUTHORIZED`, `HTTP_NOT_FOUND`, `VALIDATION_ERROR`, `INTERNAL_ERROR`).
+
+        '
+      properties:
+        error:
+          type: object
+          additionalProperties: false
+          required:
+          - code
+          - message
+          properties:
+            requestId:
+              type: string
+              description: 'Identifier for this request, echoed so a bug report can quote it.
+
+                Absent when the request never reached the middleware that assigns one.
+
+                '
+            code:
+              type: string
+              description: 'Machine-readable error code. For application errors it takes the form `HTTP_<VARIANT>`
+
+                For unhandled runtime errors (e.g. database unavailable) it is `INTERNAL_ERROR`.
+
+                '
+              example: HTTP_BAD_REQUEST
+            message:
+              type: string
+              description: Human-readable description of the error
+              example: Admin access required
+            metadata:
+              type: object
+              description: Additional context (only present in development environments)
+              additionalProperties: true
+      required:
+      - error
     UpdateUserResponse:
       type: object
       additionalProperties: false
@@ -2859,51 +2647,29 @@ components:
               - sent
               - failed
               description: Result of sending the email-change verification mail
-    ErrorResponse:
+    Address:
       type: object
       additionalProperties: false
-      description: 'Standard error envelope returned by all errors routed through `ErrorMiddleware`.
-
-        Applies to all `BaseError` subclasses including `HttpError`, `ValidationError`, and others.
-
-        The `code` field is a machine-readable string identifying the error type (e.g.
-
-        `HTTP_UNAUTHORIZED`, `HTTP_NOT_FOUND`, `VALIDATION_ERROR`, `INTERNAL_ERROR`).
-
-        '
       properties:
-        error:
-          type: object
-          additionalProperties: false
-          required:
-          - code
-          - message
-          properties:
-            requestId:
-              type: string
-              description: 'Identifier for this request, echoed so a bug report can quote it.
-
-                Absent when the request never reached the middleware that assigns one.
-
-                '
-            code:
-              type: string
-              description: 'Machine-readable error code. For application errors it takes the form `HTTP_<VARIANT>`
-
-                For unhandled runtime errors (e.g. database unavailable) it is `INTERNAL_ERROR`.
-
-                '
-              example: HTTP_BAD_REQUEST
-            message:
-              type: string
-              description: Human-readable description of the error
-              example: Admin access required
-            metadata:
-              type: object
-              description: Additional context (only present in development environments)
-              additionalProperties: true
-      required:
-      - error
+        _id:
+          type: string
+          format: ObjectId
+          description: Optional address document id
+        addressLine1:
+          type: string
+          description: Address line 1
+        city:
+          type: string
+          description: City
+        state:
+          type: string
+          description: State/Province
+        postCode:
+          type: string
+          description: Postal/ZIP code
+        country:
+          type: string
+          description: Country
   securitySchemes:
     bearerAuth:
       type: http
@@ -3033,6 +2799,3 @@ components:
             config:write: Update system configuration
             crawl:read: Read crawling jobs
             crawl:write: Create and manage crawling jobs
-x-refined-from:
-- pipeshub-openapi.yaml
-- pipeshub-openapi.yml

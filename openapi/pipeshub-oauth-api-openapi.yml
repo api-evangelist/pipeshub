@@ -1,11 +1,11 @@
 openapi: 3.2.0
 info:
-  title: Pipeshub OAuth API
+  title: PipesHub OAuth API
+  description: Unified API documentation for PipesHub services.
   version: 1.0.0
   contact:
     name: API Support
     email: support@pipeshub.com
-  description: 'Operations tagged OAuth across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: '{instance_url}/api/v1'
   description: Base API URL
@@ -100,60 +100,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
 components:
   schemas:
-    OAuthExchangeRequest:
-      type: object
-      additionalProperties: false
-      description: Request to exchange OAuth authorization code for tokens
-      properties:
-        code:
-          type: string
-          description: OAuth authorization code
-        provider:
-          type: string
-          description: OAuth provider name
-        redirectUri:
-          type: string
-          format: uri
-          description: Redirect URI used in authorization request
-      required:
-      - code
-      - provider
-      - redirectUri
-    OAuthExchangeResponse:
-      type: object
-      additionalProperties: false
-      description: OAuth token response
-      properties:
-        access_token:
-          type: string
-          description: OAuth access token
-        id_token:
-          type: string
-          description: OAuth ID token (JWT)
-        token_type:
-          type: string
-          example: Bearer
-        expires_in:
-          type: integer
-          description: Token expiry in seconds
-      required:
-      - access_token
-      - token_type
     ErrorResponse:
       type: object
       additionalProperties: false
@@ -199,6 +147,45 @@ components:
               additionalProperties: true
       required:
       - error
+    OAuthExchangeResponse:
+      type: object
+      additionalProperties: false
+      description: OAuth token response
+      properties:
+        access_token:
+          type: string
+          description: OAuth access token
+        id_token:
+          type: string
+          description: OAuth ID token (JWT)
+        token_type:
+          type: string
+          example: Bearer
+        expires_in:
+          type: integer
+          description: Token expiry in seconds
+      required:
+      - access_token
+      - token_type
+    OAuthExchangeRequest:
+      type: object
+      additionalProperties: false
+      description: Request to exchange OAuth authorization code for tokens
+      properties:
+        code:
+          type: string
+          description: OAuth authorization code
+        provider:
+          type: string
+          description: OAuth provider name
+        redirectUri:
+          type: string
+          format: uri
+          description: Redirect URI used in authorization request
+      required:
+      - code
+      - provider
+      - redirectUri
   securitySchemes:
     bearerAuth:
       type: http
@@ -328,6 +315,3 @@ components:
             config:write: Update system configuration
             crawl:read: Read crawling jobs
             crawl:write: Create and manage crawling jobs
-x-refined-from:
-- pipeshub-openapi.yaml
-- pipeshub-openapi.yml

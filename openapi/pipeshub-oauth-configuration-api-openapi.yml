@@ -1,11 +1,11 @@
 openapi: 3.2.0
 info:
-  title: Pipeshub OAuth Configuration API
+  title: PipesHub OAuth Configuration API
+  description: Unified API documentation for PipesHub services.
   version: 1.0.0
   contact:
     name: API Support
     email: support@pipeshub.com
-  description: 'Operations tagged OAuth Configuration across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: '{instance_url}/api/v1'
   description: Base API URL
@@ -48,19 +48,6 @@ paths:
           description: Unauthorized
         '403':
           description: Forbidden
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /toolsets/oauth-configs/{toolsetType}/{oauthConfigId}:
     put:
       tags:
@@ -128,19 +115,6 @@ paths:
           description: OAuth config not found
         '409':
           description: OAuth config is in use by one or more toolset instances
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /oauth/registry:
     get:
       tags:
@@ -194,19 +168,6 @@ paths:
                     $ref: '#/components/schemas/ConnectorPagination'
         '401':
           description: Unauthorized
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /oauth/registry/{connectorType}:
     get:
       tags:
@@ -238,19 +199,6 @@ paths:
           description: Unauthorized
         '404':
           description: Connector type not found
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /oauth:
     get:
       tags:
@@ -305,19 +253,6 @@ paths:
                     $ref: '#/components/schemas/ConnectorPagination'
         '401':
           description: Unauthorized
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /oauth/{connectorType}:
     get:
       tags:
@@ -431,19 +366,6 @@ paths:
           description: Admin access required
         '404':
           description: Connector type not found
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /oauth/{connectorType}/{configId}:
     get:
       tags:
@@ -591,64 +513,41 @@ paths:
           description: Admin access required
         '404':
           description: Configuration not found
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
 components:
   schemas:
-    OAuthConfig:
+    ConnectorPagination:
       type: object
-      description: 'OAuth configuration for a connector type. Created by admins to enable
+      description: Pagination information for connector lists
+      properties:
+        page:
+          type: integer
+          description: Current page number
+        limit:
+          type: integer
+          description: Items per page
+        total:
+          type: integer
+          description: Total number of items
+        hasMore:
+          type: boolean
+          description: Whether more pages exist
+    ConnectorScope:
+      type: string
+      description: 'Scope determines visibility and access control for connectors:<br>
 
-        OAuth authentication for connectors.
+        <ul>
+
+        <li><code>team</code> - Available to all users in the organization (admin-only creation)</li>
+
+        <li><code>personal</code> - Private to the creating user only</li>
+
+        </ul>
 
         '
-      properties:
-        configId:
-          type: string
-          description: Unique configuration ID
-        connectorType:
-          type: string
-          description: Connector type this config applies to
-        oauthInstanceName:
-          type: string
-          description: Name for this OAuth configuration
-          example: Production Google OAuth
-        orgId:
-          type: string
-        createdBy:
-          type: string
-        config:
-          type: object
-          description: OAuth credentials (admin-only view)
-          properties:
-            clientId:
-              type: string
-            clientSecret:
-              type: string
-              description: Redacted for non-admin users
-            tenantId:
-              type: string
-              description: For Microsoft/Azure connectors
-        baseUrl:
-          type: string
-          description: Base URL for self-hosted instances
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
+      enum:
+      - team
+      - personal
+      example: team
     ConnectorType:
       type: object
       description: 'A connector type from the registry. Represents an available integration
@@ -729,39 +628,49 @@ components:
       - API_TOKEN
       - USERNAME_PASSWORD
       - NONE
-    ConnectorScope:
-      type: string
-      description: 'Scope determines visibility and access control for connectors:<br>
+    OAuthConfig:
+      type: object
+      description: 'OAuth configuration for a connector type. Created by admins to enable
 
-        <ul>
-
-        <li><code>team</code> - Available to all users in the organization (admin-only creation)</li>
-
-        <li><code>personal</code> - Private to the creating user only</li>
-
-        </ul>
+        OAuth authentication for connectors.
 
         '
-      enum:
-      - team
-      - personal
-      example: team
-    ConnectorPagination:
-      type: object
-      description: Pagination information for connector lists
       properties:
-        page:
-          type: integer
-          description: Current page number
-        limit:
-          type: integer
-          description: Items per page
-        total:
-          type: integer
-          description: Total number of items
-        hasMore:
-          type: boolean
-          description: Whether more pages exist
+        configId:
+          type: string
+          description: Unique configuration ID
+        connectorType:
+          type: string
+          description: Connector type this config applies to
+        oauthInstanceName:
+          type: string
+          description: Name for this OAuth configuration
+          example: Production Google OAuth
+        orgId:
+          type: string
+        createdBy:
+          type: string
+        config:
+          type: object
+          description: OAuth credentials (admin-only view)
+          properties:
+            clientId:
+              type: string
+            clientSecret:
+              type: string
+              description: Redacted for non-admin users
+            tenantId:
+              type: string
+              description: For Microsoft/Azure connectors
+        baseUrl:
+          type: string
+          description: Base URL for self-hosted instances
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
     CreateOAuthConfigRequest:
       type: object
       description: Request to create OAuth configuration (admin only). Stores credentials that users select when setting up connectors.
@@ -928,6 +837,3 @@ components:
             config:write: Update system configuration
             crawl:read: Read crawling jobs
             crawl:write: Create and manage crawling jobs
-x-refined-from:
-- pipeshub-openapi.yaml
-- pipeshub-openapi.yml

@@ -1,11 +1,11 @@
 openapi: 3.2.0
 info:
-  title: Pipeshub Connector API
+  title: PipesHub Connector API
+  description: Unified API documentation for PipesHub services.
   version: 1.0.0
   contact:
     name: API Support
     email: support@pipeshub.com
-  description: 'Operations tagged Connector across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: '{instance_url}/api/v1'
   description: Base API URL
@@ -132,19 +132,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /connectors/navigate:
     get:
       tags:
@@ -386,19 +373,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /connectors/record/lookup:
     get:
       tags:
@@ -570,140 +544,49 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
 components:
   schemas:
-    KnowledgeGraphPaginationSchema:
+    LookupRecordResponseSchema:
       type: object
       additionalProperties: false
-      description: Pagination envelope for a navigate listing.
-      required:
-      - page
-      - limit
-      - total
-      - has_next
-      - has_prev
-      properties:
-        page:
-          type: integer
-        limit:
-          type: integer
-        total:
-          type: integer
-          description: Total children of the current node, ignoring pagination.
-        has_next:
-          type: boolean
-        has_prev:
-          type: boolean
-    ConnectorNameEnum:
-      type: string
-      description: 'Name of the source connector. Mirrors the values of the backend
-
-        `Connectors` enum (`backend/python/app/config/constants/arangodb.py`);
-
-        records store the enum value (e.g. Google Drive is `DRIVE`,
-
-        SharePoint Online is `SHAREPOINT ONLINE`), not the enum member name.
-
-        '
-      enum:
-      - DRIVE
-      - DRIVE WORKSPACE
-      - GMAIL
-      - GMAIL WORKSPACE
-      - CALENDAR
-      - ONEDRIVE
-      - SHAREPOINT ONLINE
-      - OUTLOOK
-      - OUTLOOK PERSONAL
-      - OUTLOOK CALENDAR
-      - MICROSOFT TEAMS
-      - NOTION
-      - NOTION PERSONAL
-      - SLACK
-      - SLACK WORKSPACE
-      - KB
-      - CONFLUENCE
-      - CONFLUENCE DATA CENTER
-      - CONFLUENCE DATA CENTER PERSONAL
-      - JIRA
-      - JIRA PERSONAL
-      - JIRA DATA CENTER
-      - JIRA DATA CENTER PERSONAL
-      - BOX
-      - NEXTCLOUD
-      - DROPBOX
-      - DROPBOX PERSONAL
-      - WEB
-      - BOOKSTACK
-      - DRUPAL WIKI
-      - GITHUB
-      - GITHUB TEAMS
-      - SERVICENOW
-      - SALESFORCE
-      - S3
-      - MINIO
-      - GCS
-      - AZURE BLOB
-      - AZURE FILES
-      - LINEAR
-      - ZAMMAD
-      - ZOOM
-      - GITLAB
-      - GITLAB PERSONAL
-      - SNOWFLAKE
-      - POSTGRESQL
-      - MARIADB
-      - UNKNOWN
-      - RSS
-      - LOCAL_FS
-      - CODING_SANDBOX
-      - DATABASE_SANDBOX
-      - IMAGE_GENERATION
-      - ATTACHMENTS
-      example: DRIVE
-    GetRecordContentResponseSchema:
-      type: object
-      additionalProperties: false
-      description: 'Response returned by GET /connectors/record/{recordId}/content.
+      description: 'Response returned by GET /connectors/record/lookup.
 
 
-        `content` is the record''s full parsed content flattened into a single
+        Field names are snake_case, matching the knowledge graph''s internal
 
-        plain-text string: a metadata header (title, source, key fields, and a
+        view models. A miss is a 200 with an empty `matches` and the input
 
-        short summary), then the record''s block/table text in reading order, and
-
-        finally a foreign-key related-tables footer for `SQL_TABLE` records.
-
-
-        For `TICKET` records (e.g. Jira) the metadata header is refreshed with
-
-        live ticket fields (status, assignee, comments) at request time rather
-
-        than the last-indexed snapshot. `content` may be empty for records with
-
-        no extractable text (e.g. image-only or not-yet-parsed records).
+        echoed in `not_found_identifiers` — see the endpoint description.
 
         '
       required:
-      - content
+      - matches
+      - ambiguous
+      - not_found_identifiers
+      - text
       properties:
-        content:
+        matches:
+          type: array
+          items:
+            $ref: '#/components/schemas/KnowledgeGraphLookupMatchSchema'
+        ambiguous:
+          type: boolean
+          description: True when one identifier resolved to more than one accessible record. Present the choice rather than taking the first, or retry with `connectorName`.
+        not_found_identifiers:
+          type: array
+          description: Identifiers that resolved to nothing the caller can access.
+          items:
+            type: string
+        searched_connectors:
+          type: object
+          description: Per-identifier list of the connector types that were searched, so a miss can be retried against a different `connectorName`. Keys are the identifiers exactly as supplied.
+          additionalProperties:
+            type: array
+            items:
+              type: string
+        text:
           type: string
-          description: The record's full parsed content as a single plain-text string.
+          description: Flat-text rendering of the matches — each match's metadata block followed by a `Next:` line naming a follow-up call — and a line per miss naming the connectors that were searched. Capped at 25,000 bytes.
     KnowledgeGraphLookupMatchSchema:
       type: object
       additionalProperties: false
@@ -751,33 +634,6 @@ components:
           - string
           - 'null'
           description: Type-specific metadata for the record — for a ticket, status, assignee, priority and dates.
-    KnowledgeGraphNodeRefSchema:
-      type: object
-      additionalProperties: false
-      description: Minimal identity reference for a node in the knowledge graph.
-      required:
-      - id
-      - name
-      - node_type
-      - sub_type
-      - is_record
-      properties:
-        id:
-          type: string
-          description: Node identifier. Pass it back as `nodeId` to open this node. When `is_record` is true it is also the Record ID accepted by GET /connectors/record/{recordId}/content.
-        name:
-          type: string
-        node_type:
-          type: string
-          description: One of `app`, `recordGroup`, `folder`, `record`.
-        sub_type:
-          type:
-          - string
-          - 'null'
-          description: e.g. `TICKET`, `CONFLUENCE_PAGE`, `PROJECT`, `COLLECTION`.
-        is_record:
-          type: boolean
-          description: True for record and folder nodes — the nodes whose content can be read via GET /connectors/record/{recordId}/content.
     KnowledgeGraphNodeRowSchema:
       type: object
       additionalProperties: false
@@ -845,92 +701,6 @@ components:
           type:
           - string
           - 'null'
-    ErrorResponse:
-      type: object
-      additionalProperties: false
-      description: 'Standard error envelope returned by all errors routed through `ErrorMiddleware`.
-
-        Applies to all `BaseError` subclasses including `HttpError`, `ValidationError`, and others.
-
-        The `code` field is a machine-readable string identifying the error type (e.g.
-
-        `HTTP_UNAUTHORIZED`, `HTTP_NOT_FOUND`, `VALIDATION_ERROR`, `INTERNAL_ERROR`).
-
-        '
-      properties:
-        error:
-          type: object
-          additionalProperties: false
-          required:
-          - code
-          - message
-          properties:
-            requestId:
-              type: string
-              description: 'Identifier for this request, echoed so a bug report can quote it.
-
-                Absent when the request never reached the middleware that assigns one.
-
-                '
-            code:
-              type: string
-              description: 'Machine-readable error code. For application errors it takes the form `HTTP_<VARIANT>`
-
-                For unhandled runtime errors (e.g. database unavailable) it is `INTERNAL_ERROR`.
-
-                '
-              example: HTTP_BAD_REQUEST
-            message:
-              type: string
-              description: Human-readable description of the error
-              example: Admin access required
-            metadata:
-              type: object
-              description: Additional context (only present in development environments)
-              additionalProperties: true
-      required:
-      - error
-    LookupRecordResponseSchema:
-      type: object
-      additionalProperties: false
-      description: 'Response returned by GET /connectors/record/lookup.
-
-
-        Field names are snake_case, matching the knowledge graph''s internal
-
-        view models. A miss is a 200 with an empty `matches` and the input
-
-        echoed in `not_found_identifiers` — see the endpoint description.
-
-        '
-      required:
-      - matches
-      - ambiguous
-      - not_found_identifiers
-      - text
-      properties:
-        matches:
-          type: array
-          items:
-            $ref: '#/components/schemas/KnowledgeGraphLookupMatchSchema'
-        ambiguous:
-          type: boolean
-          description: True when one identifier resolved to more than one accessible record. Present the choice rather than taking the first, or retry with `connectorName`.
-        not_found_identifiers:
-          type: array
-          description: Identifiers that resolved to nothing the caller can access.
-          items:
-            type: string
-        searched_connectors:
-          type: object
-          description: Per-identifier list of the connector types that were searched, so a miss can be retried against a different `connectorName`. Keys are the identifiers exactly as supplied.
-          additionalProperties:
-            type: array
-            items:
-              type: string
-        text:
-          type: string
-          description: Flat-text rendering of the matches — each match's metadata block followed by a `Next:` line naming a follow-up call — and a line per miss naming the connectors that were searched. Capped at 25,000 bytes.
     NavigateKnowledgeGraphResponseSchema:
       type: object
       additionalProperties: false
@@ -1014,6 +784,197 @@ components:
             truncation marker appended when exceeded.
 
             '
+    KnowledgeGraphNodeRefSchema:
+      type: object
+      additionalProperties: false
+      description: Minimal identity reference for a node in the knowledge graph.
+      required:
+      - id
+      - name
+      - node_type
+      - sub_type
+      - is_record
+      properties:
+        id:
+          type: string
+          description: Node identifier. Pass it back as `nodeId` to open this node. When `is_record` is true it is also the Record ID accepted by GET /connectors/record/{recordId}/content.
+        name:
+          type: string
+        node_type:
+          type: string
+          description: One of `app`, `recordGroup`, `folder`, `record`.
+        sub_type:
+          type:
+          - string
+          - 'null'
+          description: e.g. `TICKET`, `CONFLUENCE_PAGE`, `PROJECT`, `COLLECTION`.
+        is_record:
+          type: boolean
+          description: True for record and folder nodes — the nodes whose content can be read via GET /connectors/record/{recordId}/content.
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      description: 'Standard error envelope returned by all errors routed through `ErrorMiddleware`.
+
+        Applies to all `BaseError` subclasses including `HttpError`, `ValidationError`, and others.
+
+        The `code` field is a machine-readable string identifying the error type (e.g.
+
+        `HTTP_UNAUTHORIZED`, `HTTP_NOT_FOUND`, `VALIDATION_ERROR`, `INTERNAL_ERROR`).
+
+        '
+      properties:
+        error:
+          type: object
+          additionalProperties: false
+          required:
+          - code
+          - message
+          properties:
+            requestId:
+              type: string
+              description: 'Identifier for this request, echoed so a bug report can quote it.
+
+                Absent when the request never reached the middleware that assigns one.
+
+                '
+            code:
+              type: string
+              description: 'Machine-readable error code. For application errors it takes the form `HTTP_<VARIANT>`
+
+                For unhandled runtime errors (e.g. database unavailable) it is `INTERNAL_ERROR`.
+
+                '
+              example: HTTP_BAD_REQUEST
+            message:
+              type: string
+              description: Human-readable description of the error
+              example: Admin access required
+            metadata:
+              type: object
+              description: Additional context (only present in development environments)
+              additionalProperties: true
+      required:
+      - error
+    GetRecordContentResponseSchema:
+      type: object
+      additionalProperties: false
+      description: 'Response returned by GET /connectors/record/{recordId}/content.
+
+
+        `content` is the record''s full parsed content flattened into a single
+
+        plain-text string: a metadata header (title, source, key fields, and a
+
+        short summary), then the record''s block/table text in reading order, and
+
+        finally a foreign-key related-tables footer for `SQL_TABLE` records.
+
+
+        For `TICKET` records (e.g. Jira) the metadata header is refreshed with
+
+        live ticket fields (status, assignee, comments) at request time rather
+
+        than the last-indexed snapshot. `content` may be empty for records with
+
+        no extractable text (e.g. image-only or not-yet-parsed records).
+
+        '
+      required:
+      - content
+      properties:
+        content:
+          type: string
+          description: The record's full parsed content as a single plain-text string.
+    ConnectorNameEnum:
+      type: string
+      description: 'Name of the source connector. Mirrors the values of the backend
+
+        `Connectors` enum (`backend/python/app/config/constants/arangodb.py`);
+
+        records store the enum value (e.g. Google Drive is `DRIVE`,
+
+        SharePoint Online is `SHAREPOINT ONLINE`), not the enum member name.
+
+        '
+      enum:
+      - DRIVE
+      - DRIVE WORKSPACE
+      - GMAIL
+      - GMAIL WORKSPACE
+      - CALENDAR
+      - ONEDRIVE
+      - SHAREPOINT ONLINE
+      - OUTLOOK
+      - OUTLOOK PERSONAL
+      - OUTLOOK CALENDAR
+      - MICROSOFT TEAMS
+      - NOTION
+      - NOTION PERSONAL
+      - SLACK
+      - SLACK WORKSPACE
+      - KB
+      - CONFLUENCE
+      - CONFLUENCE DATA CENTER
+      - CONFLUENCE DATA CENTER PERSONAL
+      - JIRA
+      - JIRA PERSONAL
+      - JIRA DATA CENTER
+      - JIRA DATA CENTER PERSONAL
+      - BOX
+      - NEXTCLOUD
+      - DROPBOX
+      - DROPBOX PERSONAL
+      - WEB
+      - BOOKSTACK
+      - DRUPAL WIKI
+      - GITHUB
+      - GITHUB TEAMS
+      - SERVICENOW
+      - SALESFORCE
+      - S3
+      - MINIO
+      - GCS
+      - AZURE BLOB
+      - AZURE FILES
+      - LINEAR
+      - ZAMMAD
+      - ZOOM
+      - GITLAB
+      - GITLAB PERSONAL
+      - SNOWFLAKE
+      - POSTGRESQL
+      - MARIADB
+      - UNKNOWN
+      - RSS
+      - LOCAL_FS
+      - CODING_SANDBOX
+      - DATABASE_SANDBOX
+      - IMAGE_GENERATION
+      - ATTACHMENTS
+      example: DRIVE
+    KnowledgeGraphPaginationSchema:
+      type: object
+      additionalProperties: false
+      description: Pagination envelope for a navigate listing.
+      required:
+      - page
+      - limit
+      - total
+      - has_next
+      - has_prev
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        total:
+          type: integer
+          description: Total children of the current node, ignoring pagination.
+        has_next:
+          type: boolean
+        has_prev:
+          type: boolean
   securitySchemes:
     bearerAuth:
       type: http
@@ -1143,6 +1104,3 @@ components:
             config:write: Update system configuration
             crawl:read: Read crawling jobs
             crawl:write: Create and manage crawling jobs
-x-refined-from:
-- pipeshub-openapi.yaml
-- pipeshub-openapi.yml

@@ -1,11 +1,11 @@
 openapi: 3.2.0
 info:
-  title: Pipeshub User Account API
+  title: PipesHub User Account API
+  description: Unified API documentation for PipesHub services.
   version: 1.0.0
   contact:
     name: API Support
     email: support@pipeshub.com
-  description: 'Operations tagged User Account across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: '{instance_url}/api/v1'
   description: Base API URL
@@ -112,19 +112,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /userAccount/authenticate:
     post:
       tags:
@@ -233,19 +220,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /userAccount/login/otp/generate:
     post:
       tags:
@@ -330,19 +304,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /userAccount/password/forgot:
     post:
       tags:
@@ -396,19 +357,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /userAccount/password/reset/token:
     post:
       tags:
@@ -478,19 +426,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /userAccount/validateEmailChange:
     put:
       tags:
@@ -541,19 +476,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /userAccount/refresh/token:
     post:
       tags:
@@ -621,19 +543,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /userAccount/logout/manual:
     post:
       tags:
@@ -675,19 +584,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /userAccount/password/reset:
     post:
       tags:
@@ -786,203 +682,126 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
 components:
   schemas:
-    OAuthCredentials:
+    AuthProviderOAuthPublicConfig:
       type: object
       additionalProperties: false
-      description: Credentials for OAuth authentication (Microsoft, Azure AD, generic OAuth)
+      description: Public generic OAuth provider settings returned to clients
       properties:
-        accessToken:
+        providerName:
           type: string
-          description: OAuth access token
-        idToken:
+          description: Custom OAuth provider display name
+        clientId:
           type: string
-          description: OAuth ID token (JWT)
+          description: OAuth client ID
+        tokenEndpoint:
+          type: string
+          description: OAuth token endpoint URL
+        authorizationUrl:
+          type: string
+          description: OAuth authorization URL
+        clientSecret:
+          type: string
+          description: Client secret (omitted when stripped for public responses)
+        userInfoEndpoint:
+          type: string
+          description: UserInfo endpoint URL
+        scope:
+          type: string
+          description: Default OAuth scopes
+        enableJit:
+          type: boolean
+          description: Whether just-in-time user provisioning is enabled for this provider
       required:
-      - accessToken
-    AuthenticateResponse:
-      oneOf:
-      - $ref: '#/components/schemas/AuthenticateMultiStepResponse'
-      - $ref: '#/components/schemas/AuthenticateFinalResponse'
-      description: 'Either the next step in a multi-factor flow (`status`, `nextStep`, `allowedMethods`, `authProviders`)
-
-        or final tokens (`message`, `accessToken`, `refreshToken`).
-
-        '
-    OtpGenerateRequest:
+      - providerName
+      - clientId
+      - tokenEndpoint
+      - authorizationUrl
+    AuthenticateMultiStepResponse:
       type: object
       additionalProperties: false
-      description: Request for a sign-in code (OTP); a code is sent only if that email can sign in with one
+      description: Current authentication step succeeded; additional MFA steps remain
+      properties:
+        status:
+          type: string
+          enum:
+          - success
+          description: Step completion status
+        nextStep:
+          type: integer
+          description: Next authentication step index
+        allowedMethods:
+          type: array
+          items:
+            type: string
+          description: Allowed method types for the next step
+        authProviders:
+          $ref: '#/components/schemas/AuthProviders'
+      required:
+      - status
+      - nextStep
+      - allowedMethods
+      - authProviders
+    ForgotPasswordRequest:
+      type: object
+      additionalProperties: false
+      description: Request to send password reset email
       properties:
         email:
           type: string
           format: email
-          description: Email address to send OTP to
+          description: Email address to send reset link to
         cf-turnstile-response:
           type: string
           description: Cloudflare Turnstile CAPTCHA token (optional)
       required:
       - email
-    AuthenticatedPasswordResetResponse:
+    TokenPasswordResetRequest:
       type: object
       additionalProperties: false
-      description: Response after authenticated user changes password (new access token issued)
+      description: Request to reset password using email token
       properties:
-        data:
+        password:
           type: string
-          example: password reset
-        accessToken:
-          type: string
-          description: New JWT access token after password change
-      required:
-      - data
-      - accessToken
-    DataStringResponse:
-      type: object
-      additionalProperties: false
-      description: Generic success payload with a single string field (e.g. password reset email, token reset)
-      properties:
-        data:
-          type: string
-      required:
-      - data
-    InitAuthResponse:
-      type: object
-      additionalProperties: false
-      description: Response containing available authentication methods and session info
-      properties:
-        currentStep:
-          type: integer
-          description: Current authentication step (0-indexed). Always 0 for initial response.
-          example: 0
-        allowedMethods:
-          type: array
-          items:
-            type: string
-            enum:
-            - samlSso
-            - otp
-            - password
-            - google
-            - microsoft
-            - azureAd
-            - oauth
-          description: List of allowed authentication methods for the current step
-          example:
-          - password
-          - google
-          - otp
-        message:
-          type: string
-          description: Response message
-          example: Authentication initialized
-        authProviders:
-          $ref: '#/components/schemas/AuthProviders'
-        jitEnabled:
-          type: boolean
-          description: True when at least one allowed external provider has JIT provisioning enabled
-      required:
-      - currentStep
-      - allowedMethods
-      - message
-      - authProviders
-      - jitEnabled
-    ValidateEmailChangeResponse:
-      type: object
-      additionalProperties: false
-      description: Response after validating an email change token
-      properties:
-        message:
-          type: string
-          example: Email updated successfully
-      required:
-      - message
-    RefreshTokenResponse:
-      type: object
-      additionalProperties: false
-      description: Response with new access token
-      properties:
-        user:
-          $ref: '#/components/schemas/RefreshTokenUser'
-        accessToken:
-          type: string
-          description: New JWT access token (24 hour default expiry, configurable via ACCESS_TOKEN_EXPIRY)
-      required:
-      - user
-      - accessToken
-    ErrorResponse:
-      type: object
-      additionalProperties: false
-      description: 'Standard error envelope returned by all errors routed through `ErrorMiddleware`.
+          format: password
+          description: 'New password (must meet password requirements)
 
-        Applies to all `BaseError` subclasses including `HttpError`, `ValidationError`, and others.
-
-        The `code` field is a machine-readable string identifying the error type (e.g.
-
-        `HTTP_UNAUTHORIZED`, `HTTP_NOT_FOUND`, `VALIDATION_ERROR`, `INTERNAL_ERROR`).
+            '
+          minLength: 8
+      required:
+      - password
+    AuthProviders:
+      type: object
+      additionalProperties: false
+      description: Configuration for external authentication providers (returned when those methods are allowed)
+      properties:
+        google:
+          $ref: '#/components/schemas/AuthProviderGooglePublicConfig'
+        microsoft:
+          $ref: '#/components/schemas/AuthProviderMicrosoftPublicConfig'
+        azuread:
+          $ref: '#/components/schemas/AuthProviderAzureAdPublicConfig'
+        oauth:
+          $ref: '#/components/schemas/AuthProviderOAuthPublicConfig'
+        saml:
+          type: object
+          description: Present when SAML SSO is an allowed method; may be an empty object
+          additionalProperties: true
+    InitAuthRequest:
+      type: object
+      additionalProperties: false
+      description: 'Optional JSON body for `/userAccount/initAuth`. Valid shapes include: omitting the body entirely, sending `{}` (empty object), or `{ "email": "<address>" }`. Neither the body nor `email` is required. When `email` is omitted or empty, the session is still created and `allowedMethods` / `authProviders` are returned as usual; clients typically supply `email` later on `/userAccount/authenticate`. The `email` property remains supported mainly for legacy clients and backward compatibility.
 
         '
       properties:
-        error:
-          type: object
-          additionalProperties: false
-          required:
-          - code
-          - message
-          properties:
-            requestId:
-              type: string
-              description: 'Identifier for this request, echoed so a bug report can quote it.
-
-                Absent when the request never reached the middleware that assigns one.
-
-                '
-            code:
-              type: string
-              description: 'Machine-readable error code. For application errors it takes the form `HTTP_<VARIANT>`
-
-                For unhandled runtime errors (e.g. database unavailable) it is `INTERNAL_ERROR`.
-
-                '
-              example: HTTP_BAD_REQUEST
-            message:
-              type: string
-              description: Human-readable description of the error
-              example: Admin access required
-            metadata:
-              type: object
-              description: Additional context (only present in development environments)
-              additionalProperties: true
-      required:
-      - error
-    AuthProviderAzureAdPublicConfig:
-      type: object
-      additionalProperties: false
-      description: Public Azure AD OAuth settings returned to clients
-      properties:
-        tenantId:
+        email:
           type: string
-          description: Azure AD tenant ID
-        clientId:
-          type: string
-          description: Azure AD client ID
-        enableJit:
-          type: boolean
-          description: Whether just-in-time user provisioning is enabled for Azure AD
+          format: email
+          description: 'Optional; retained for legacy reasons. When set, stored on the auth session for correlation with later `/authenticate` calls (RFC 5321 compliant address).
+
+            '
+          example: user@example.com
     AuthenticateFinalResponse:
       type: object
       additionalProperties: false
@@ -1002,17 +821,76 @@ components:
       - message
       - accessToken
       - refreshToken
-    AuthProviderGooglePublicConfig:
+    OtpCredentials:
       type: object
       additionalProperties: false
-      description: Public Google OAuth settings returned to clients
+      description: Credentials for OTP authentication
       properties:
+        otp:
+          type: string
+          description: 6-digit one-time password
+          pattern: ^\d{6}$
+          example: '123456'
+      required:
+      - otp
+    PasswordCredentials:
+      type: object
+      additionalProperties: false
+      description: Credentials for password authentication
+      properties:
+        password:
+          type: string
+          description: User password
+          format: password
+      required:
+      - password
+    ValidateEmailChangeResponse:
+      type: object
+      additionalProperties: false
+      description: Response after validating an email change token
+      properties:
+        message:
+          type: string
+          example: Email updated successfully
+      required:
+      - message
+    Address:
+      type: object
+      additionalProperties: false
+      properties:
+        _id:
+          type: string
+          format: ObjectId
+          description: Optional address document id
+        addressLine1:
+          type: string
+          description: Address line 1
+        city:
+          type: string
+          description: City
+        state:
+          type: string
+          description: State/Province
+        postCode:
+          type: string
+          description: Postal/ZIP code
+        country:
+          type: string
+          description: Country
+    AuthProviderMicrosoftPublicConfig:
+      type: object
+      additionalProperties: false
+      description: Public Microsoft OAuth settings returned to clients
+      properties:
+        tenantId:
+          type: string
+          description: Microsoft tenant ID
         clientId:
           type: string
-          description: Google OAuth client ID
+          description: Microsoft OAuth client ID
         enableJit:
           type: boolean
-          description: Whether just-in-time user provisioning is enabled for Google
+          description: Whether just-in-time user provisioning is enabled for Microsoft
     RefreshTokenUser:
       type: object
       additionalProperties: false
@@ -1121,82 +999,106 @@ components:
       - createdAt
       - updatedAt
       - __v
-    TokenPasswordResetRequest:
+    DataStringResponse:
       type: object
       additionalProperties: false
-      description: Request to reset password using email token
+      description: Generic success payload with a single string field (e.g. password reset email, token reset)
       properties:
-        password:
+        data:
           type: string
-          format: password
-          description: 'New password (must meet password requirements)
-
-            '
-          minLength: 8
       required:
-      - password
-    AuthProviderMicrosoftPublicConfig:
+      - data
+    AuthenticateResponse:
+      oneOf:
+      - $ref: '#/components/schemas/AuthenticateMultiStepResponse'
+      - $ref: '#/components/schemas/AuthenticateFinalResponse'
+      description: 'Either the next step in a multi-factor flow (`status`, `nextStep`, `allowedMethods`, `authProviders`)
+
+        or final tokens (`message`, `accessToken`, `refreshToken`).
+
+        '
+    OAuthCredentials:
       type: object
       additionalProperties: false
-      description: Public Microsoft OAuth settings returned to clients
+      description: Credentials for OAuth authentication (Microsoft, Azure AD, generic OAuth)
+      properties:
+        accessToken:
+          type: string
+          description: OAuth access token
+        idToken:
+          type: string
+          description: OAuth ID token (JWT)
+      required:
+      - accessToken
+    InitAuthResponse:
+      type: object
+      additionalProperties: false
+      description: Response containing available authentication methods and session info
+      properties:
+        currentStep:
+          type: integer
+          description: Current authentication step (0-indexed). Always 0 for initial response.
+          example: 0
+        allowedMethods:
+          type: array
+          items:
+            type: string
+            enum:
+            - samlSso
+            - otp
+            - password
+            - google
+            - microsoft
+            - azureAd
+            - oauth
+          description: List of allowed authentication methods for the current step
+          example:
+          - password
+          - google
+          - otp
+        message:
+          type: string
+          description: Response message
+          example: Authentication initialized
+        authProviders:
+          $ref: '#/components/schemas/AuthProviders'
+        jitEnabled:
+          type: boolean
+          description: True when at least one allowed external provider has JIT provisioning enabled
+      required:
+      - currentStep
+      - allowedMethods
+      - message
+      - authProviders
+      - jitEnabled
+    AuthProviderAzureAdPublicConfig:
+      type: object
+      additionalProperties: false
+      description: Public Azure AD OAuth settings returned to clients
       properties:
         tenantId:
           type: string
-          description: Microsoft tenant ID
+          description: Azure AD tenant ID
         clientId:
           type: string
-          description: Microsoft OAuth client ID
+          description: Azure AD client ID
         enableJit:
           type: boolean
-          description: Whether just-in-time user provisioning is enabled for Microsoft
-    InitAuthRequest:
+          description: Whether just-in-time user provisioning is enabled for Azure AD
+    AuthenticatedPasswordResetResponse:
       type: object
       additionalProperties: false
-      description: 'Optional JSON body for `/userAccount/initAuth`. Valid shapes include: omitting the body entirely, sending `{}` (empty object), or `{ "email": "<address>" }`. Neither the body nor `email` is required. When `email` is omitted or empty, the session is still created and `allowedMethods` / `authProviders` are returned as usual; clients typically supply `email` later on `/userAccount/authenticate`. The `email` property remains supported mainly for legacy clients and backward compatibility.
-
-        '
+      description: Response after authenticated user changes password (new access token issued)
       properties:
-        email:
+        data:
           type: string
-          format: email
-          description: 'Optional; retained for legacy reasons. When set, stored on the auth session for correlation with later `/authenticate` calls (RFC 5321 compliant address).
-
-            '
-          example: user@example.com
-    AuthProviderOAuthPublicConfig:
-      type: object
-      additionalProperties: false
-      description: Public generic OAuth provider settings returned to clients
-      properties:
-        providerName:
+          example: password reset
+        accessToken:
           type: string
-          description: Custom OAuth provider display name
-        clientId:
-          type: string
-          description: OAuth client ID
-        tokenEndpoint:
-          type: string
-          description: OAuth token endpoint URL
-        authorizationUrl:
-          type: string
-          description: OAuth authorization URL
-        clientSecret:
-          type: string
-          description: Client secret (omitted when stripped for public responses)
-        userInfoEndpoint:
-          type: string
-          description: UserInfo endpoint URL
-        scope:
-          type: string
-          description: Default OAuth scopes
-        enableJit:
-          type: boolean
-          description: Whether just-in-time user provisioning is enabled for this provider
+          description: New JWT access token after password change
       required:
-      - providerName
-      - clientId
-      - tokenEndpoint
-      - authorizationUrl
+      - data
+      - accessToken
     AuthenticateRequest:
       type: object
       additionalProperties: false
@@ -1249,108 +1151,76 @@ components:
       required:
       - method
       - credentials
-    ForgotPasswordRequest:
+    OtpGenerateRequest:
       type: object
       additionalProperties: false
-      description: Request to send password reset email
+      description: Request for a sign-in code (OTP); a code is sent only if that email can sign in with one
       properties:
         email:
           type: string
           format: email
-          description: Email address to send reset link to
+          description: Email address to send OTP to
         cf-turnstile-response:
           type: string
           description: Cloudflare Turnstile CAPTCHA token (optional)
       required:
       - email
-    AuthenticateMultiStepResponse:
+    ErrorResponse:
       type: object
       additionalProperties: false
-      description: Current authentication step succeeded; additional MFA steps remain
+      description: 'Standard error envelope returned by all errors routed through `ErrorMiddleware`.
+
+        Applies to all `BaseError` subclasses including `HttpError`, `ValidationError`, and others.
+
+        The `code` field is a machine-readable string identifying the error type (e.g.
+
+        `HTTP_UNAUTHORIZED`, `HTTP_NOT_FOUND`, `VALIDATION_ERROR`, `INTERNAL_ERROR`).
+
+        '
       properties:
-        status:
-          type: string
-          enum:
-          - success
-          description: Step completion status
-        nextStep:
-          type: integer
-          description: Next authentication step index
-        allowedMethods:
-          type: array
-          items:
-            type: string
-          description: Allowed method types for the next step
-        authProviders:
-          $ref: '#/components/schemas/AuthProviders'
-      required:
-      - status
-      - nextStep
-      - allowedMethods
-      - authProviders
-    Address:
-      type: object
-      additionalProperties: false
-      properties:
-        _id:
-          type: string
-          format: ObjectId
-          description: Optional address document id
-        addressLine1:
-          type: string
-          description: Address line 1
-        city:
-          type: string
-          description: City
-        state:
-          type: string
-          description: State/Province
-        postCode:
-          type: string
-          description: Postal/ZIP code
-        country:
-          type: string
-          description: Country
-    AuthProviders:
-      type: object
-      additionalProperties: false
-      description: Configuration for external authentication providers (returned when those methods are allowed)
-      properties:
-        google:
-          $ref: '#/components/schemas/AuthProviderGooglePublicConfig'
-        microsoft:
-          $ref: '#/components/schemas/AuthProviderMicrosoftPublicConfig'
-        azuread:
-          $ref: '#/components/schemas/AuthProviderAzureAdPublicConfig'
-        oauth:
-          $ref: '#/components/schemas/AuthProviderOAuthPublicConfig'
-        saml:
+        error:
           type: object
-          description: Present when SAML SSO is an allowed method; may be an empty object
-          additionalProperties: true
-    OtpCredentials:
+          additionalProperties: false
+          required:
+          - code
+          - message
+          properties:
+            requestId:
+              type: string
+              description: 'Identifier for this request, echoed so a bug report can quote it.
+
+                Absent when the request never reached the middleware that assigns one.
+
+                '
+            code:
+              type: string
+              description: 'Machine-readable error code. For application errors it takes the form `HTTP_<VARIANT>`
+
+                For unhandled runtime errors (e.g. database unavailable) it is `INTERNAL_ERROR`.
+
+                '
+              example: HTTP_BAD_REQUEST
+            message:
+              type: string
+              description: Human-readable description of the error
+              example: Admin access required
+            metadata:
+              type: object
+              description: Additional context (only present in development environments)
+              additionalProperties: true
+      required:
+      - error
+    AuthProviderGooglePublicConfig:
       type: object
       additionalProperties: false
-      description: Credentials for OTP authentication
+      description: Public Google OAuth settings returned to clients
       properties:
-        otp:
+        clientId:
           type: string
-          description: 6-digit one-time password
-          pattern: ^\d{6}$
-          example: '123456'
-      required:
-      - otp
-    PasswordCredentials:
-      type: object
-      additionalProperties: false
-      description: Credentials for password authentication
-      properties:
-        password:
-          type: string
-          description: User password
-          format: password
-      required:
-      - password
+          description: Google OAuth client ID
+        enableJit:
+          type: boolean
+          description: Whether just-in-time user provisioning is enabled for Google
     LoginOtpGenerateResponse:
       type: string
       description: 'Plain-text response body, identical whether or not the email has an account, and
@@ -1360,6 +1230,19 @@ components:
         ``If that email can sign in with a code, one is being sent. It works for 10 minutes. If nothing arrives, check your spam folder or try again later.``
 
         '
+    RefreshTokenResponse:
+      type: object
+      additionalProperties: false
+      description: Response with new access token
+      properties:
+        user:
+          $ref: '#/components/schemas/RefreshTokenUser'
+        accessToken:
+          type: string
+          description: New JWT access token (24 hour default expiry, configurable via ACCESS_TOKEN_EXPIRY)
+      required:
+      - user
+      - accessToken
   securitySchemes:
     bearerAuth:
       type: http
@@ -1489,6 +1372,3 @@ components:
             config:write: Update system configuration
             crawl:read: Read crawling jobs
             crawl:write: Create and manage crawling jobs
-x-refined-from:
-- pipeshub-openapi.yaml
-- pipeshub-openapi.yml

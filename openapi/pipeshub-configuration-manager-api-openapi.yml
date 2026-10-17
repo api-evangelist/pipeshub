@@ -1,11 +1,11 @@
 openapi: 3.2.0
 info:
-  title: Pipeshub Configuration Manager API
+  title: PipesHub Configuration Manager API
+  description: Unified API documentation for PipesHub services.
   version: 1.0.0
   contact:
     name: API Support
     email: support@pipeshub.com
-  description: 'Operations tagged Configuration Manager across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: '{instance_url}/api/v1'
   description: Base API URL
@@ -82,19 +82,6 @@ paths:
           description: Unauthorized
         '403':
           description: Forbidden - Admin access required
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /configurationManager/slack-bot/{configId}:
     put:
       tags:
@@ -163,19 +150,6 @@ paths:
           description: Forbidden - Admin access required
         '404':
           description: Config not found
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /configurationManager/metricsCollection/pushInterval:
     patch:
       tags:
@@ -210,19 +184,6 @@ paths:
           description: Unauthorized
         '403':
           description: Forbidden - Admin access required
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /configurationManager/metricsCollection/serverUrl:
     patch:
       tags:
@@ -257,19 +218,6 @@ paths:
           description: Unauthorized
         '403':
           description: Forbidden - Admin access required
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /configurationManager/aiModelsConfig:
     get:
       tags:
@@ -323,19 +271,6 @@ paths:
           description: Unauthorized
         '403':
           description: Forbidden - Admin access required
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /configurationManager/ai-models:
     get:
       tags:
@@ -362,19 +297,6 @@ paths:
           description: Unauthorized
         '403':
           description: Forbidden - Admin access required
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /configurationManager/ai-models/roles:
     get:
       tags:
@@ -480,99 +402,8 @@ paths:
           description: Unauthorized
         '403':
           description: Forbidden — admin access required
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
 components:
   schemas:
-    AIModelsConfig:
-      type: object
-      additionalProperties: false
-      required:
-      - ocr
-      - embedding
-      - slm
-      - llm
-      - reasoning
-      - multiModal
-      - imageGeneration
-      - tts
-      - stt
-      properties:
-        ocr:
-          type: array
-          items:
-            $ref: '#/components/schemas/AIModelProviderConfig'
-        embedding:
-          type: array
-          items:
-            $ref: '#/components/schemas/AIModelProviderConfig'
-        slm:
-          type: array
-          items:
-            $ref: '#/components/schemas/AIModelProviderConfig'
-        llm:
-          type: array
-          items:
-            $ref: '#/components/schemas/AIModelProviderConfig'
-        reasoning:
-          type: array
-          items:
-            $ref: '#/components/schemas/AIModelProviderConfig'
-        multiModal:
-          type: array
-          items:
-            $ref: '#/components/schemas/AIModelProviderConfig'
-        imageGeneration:
-          type: array
-          items:
-            $ref: '#/components/schemas/AIModelProviderConfig'
-        tts:
-          type: array
-          description: Text-to-Speech providers used to generate chat audio.
-          items:
-            $ref: '#/components/schemas/AIModelProviderConfig'
-        stt:
-          type: array
-          description: Speech-to-Text providers used to transcribe chat audio.
-          items:
-            $ref: '#/components/schemas/AIModelProviderConfig'
-        modelRoles:
-          type: object
-          description: Optional map of named role → model assignment. Each key is a role name (e.g. `indexing`) and the value identifies which configured model handles that role. When a role is absent the corresponding service skips LLM-based processing for that role.
-          additionalProperties:
-            $ref: '#/components/schemas/ModelRoleAssignment'
-      description: Must have at least one model type configured
-    UpdateModelRolesResponse:
-      type: object
-      description: Updated model role assignments after the write.
-      required:
-      - status
-      - message
-      - modelRoles
-      properties:
-        status:
-          type: string
-          enum:
-          - success
-        message:
-          type: string
-          example: Model roles updated successfully
-        modelRoles:
-          type: object
-          description: The full role map after the update.
-          additionalProperties:
-            $ref: '#/components/schemas/ModelRoleAssignment'
     AIModelProviderConfig:
       type: object
       additionalProperties: false
@@ -613,37 +444,6 @@ components:
           type: string
           description: Unique identifier for this model configuration
           readOnly: true
-    GetModelRolesResponse:
-      type: object
-      description: Current model role assignments for the organisation.
-      required:
-      - status
-      - modelRoles
-      properties:
-        status:
-          type: string
-          enum:
-          - success
-        modelRoles:
-          type: object
-          description: Map of role name → assignment. Empty object when no roles are configured.
-          additionalProperties:
-            $ref: '#/components/schemas/ModelRoleAssignment'
-    ModelRoleAssignment:
-      type: object
-      description: Identifies which configured model is assigned to a named role.
-      required:
-      - modelType
-      - modelKey
-      properties:
-        modelType:
-          type: string
-          description: The model-type bucket the assigned model lives in (e.g. `llm`, `slm`, `multiModal`).
-          example: slm
-        modelKey:
-          type: string
-          description: UUID of the model entry within the bucket.
-          example: 3f2a1c8e-0000-0000-0000-000000000001
     AIModelProviderConfiguration:
       type: object
       description: 'Provider-specific configuration stored on each AI model entry.
@@ -782,6 +582,33 @@ components:
         cache_folder:
           type: string
           description: Cache folder for models
+    UpdateModelRolesRequest:
+      type: object
+      description: Replaces the entire model role assignment map. Roles absent from this object are deleted — send an empty `roles` object to clear all role assignments.
+      required:
+      - roles
+      properties:
+        roles:
+          type: object
+          description: The complete desired role map. Replaces the stored map in full; omit a key to delete that role assignment.
+          additionalProperties:
+            $ref: '#/components/schemas/ModelRoleAssignment'
+    GetModelRolesResponse:
+      type: object
+      description: Current model role assignments for the organisation.
+      required:
+      - status
+      - modelRoles
+      properties:
+        status:
+          type: string
+          enum:
+          - success
+        modelRoles:
+          type: object
+          description: Map of role name → assignment. Empty object when no roles are configured.
+          additionalProperties:
+            $ref: '#/components/schemas/ModelRoleAssignment'
     GetAIModelsProvidersResponse:
       type: object
       additionalProperties: false
@@ -806,17 +633,99 @@ components:
           description: Human-readable summary (e.g. "AI models retrieved successfully" or "No AI models found").
         models:
           $ref: '#/components/schemas/AIModelsConfig'
-    UpdateModelRolesRequest:
+    AIModelsConfig:
       type: object
-      description: Replaces the entire model role assignment map. Roles absent from this object are deleted — send an empty `roles` object to clear all role assignments.
+      additionalProperties: false
       required:
-      - roles
+      - ocr
+      - embedding
+      - slm
+      - llm
+      - reasoning
+      - multiModal
+      - imageGeneration
+      - tts
+      - stt
       properties:
-        roles:
+        ocr:
+          type: array
+          items:
+            $ref: '#/components/schemas/AIModelProviderConfig'
+        embedding:
+          type: array
+          items:
+            $ref: '#/components/schemas/AIModelProviderConfig'
+        slm:
+          type: array
+          items:
+            $ref: '#/components/schemas/AIModelProviderConfig'
+        llm:
+          type: array
+          items:
+            $ref: '#/components/schemas/AIModelProviderConfig'
+        reasoning:
+          type: array
+          items:
+            $ref: '#/components/schemas/AIModelProviderConfig'
+        multiModal:
+          type: array
+          items:
+            $ref: '#/components/schemas/AIModelProviderConfig'
+        imageGeneration:
+          type: array
+          items:
+            $ref: '#/components/schemas/AIModelProviderConfig'
+        tts:
+          type: array
+          description: Text-to-Speech providers used to generate chat audio.
+          items:
+            $ref: '#/components/schemas/AIModelProviderConfig'
+        stt:
+          type: array
+          description: Speech-to-Text providers used to transcribe chat audio.
+          items:
+            $ref: '#/components/schemas/AIModelProviderConfig'
+        modelRoles:
           type: object
-          description: The complete desired role map. Replaces the stored map in full; omit a key to delete that role assignment.
+          description: Optional map of named role → model assignment. Each key is a role name (e.g. `indexing`) and the value identifies which configured model handles that role. When a role is absent the corresponding service skips LLM-based processing for that role.
           additionalProperties:
             $ref: '#/components/schemas/ModelRoleAssignment'
+      description: Must have at least one model type configured
+    UpdateModelRolesResponse:
+      type: object
+      description: Updated model role assignments after the write.
+      required:
+      - status
+      - message
+      - modelRoles
+      properties:
+        status:
+          type: string
+          enum:
+          - success
+        message:
+          type: string
+          example: Model roles updated successfully
+        modelRoles:
+          type: object
+          description: The full role map after the update.
+          additionalProperties:
+            $ref: '#/components/schemas/ModelRoleAssignment'
+    ModelRoleAssignment:
+      type: object
+      description: Identifies which configured model is assigned to a named role.
+      required:
+      - modelType
+      - modelKey
+      properties:
+        modelType:
+          type: string
+          description: The model-type bucket the assigned model lives in (e.g. `llm`, `slm`, `multiModal`).
+          example: slm
+        modelKey:
+          type: string
+          description: UUID of the model entry within the bucket.
+          example: 3f2a1c8e-0000-0000-0000-000000000001
   securitySchemes:
     bearerAuth:
       type: http
@@ -946,6 +855,3 @@ components:
             config:write: Update system configuration
             crawl:read: Read crawling jobs
             crawl:write: Create and manage crawling jobs
-x-refined-from:
-- pipeshub-openapi.yaml
-- pipeshub-openapi.yml

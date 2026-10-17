@@ -1,11 +1,11 @@
 openapi: 3.2.0
 info:
-  title: Pipeshub Organizations API
+  title: PipesHub Organizations API
+  description: Unified API documentation for PipesHub services.
   version: 1.0.0
   contact:
     name: API Support
     email: support@pipeshub.com
-  description: 'Operations tagged Organizations across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: '{instance_url}/api/v1'
   description: Base API URL
@@ -74,19 +74,6 @@ paths:
                     type: boolean
                     description: Whether an organization has been created
                     example: true
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /org/health:
     get:
       tags:
@@ -114,19 +101,6 @@ paths:
                   timestamp:
                     type: string
                     format: date-time
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /org:
     post:
       tags:
@@ -524,19 +498,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /org/logo:
     put:
       tags:
@@ -754,19 +715,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /org/onboarding-status:
     get:
       tags:
@@ -907,86 +855,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
 components:
   schemas:
-    Organization:
-      type: object
-      properties:
-        _id:
-          type: string
-          format: ObjectId
-          description: Unique organization identifier
-        slug:
-          type: string
-          description: Unique slug for the organization
-        registeredName:
-          type: string
-          description: Registered name
-        shortName:
-          type: string
-          description: Short name or display name
-        domain:
-          type: string
-          description: Organization domain
-        contactEmail:
-          type: string
-          format: email
-          description: Contact email address
-        accountType:
-          type: string
-          enum:
-          - individual
-          - business
-          description: Type of account
-        permanentAddress:
-          $ref: '#/components/schemas/Address'
-        onBoardingStatus:
-          type: string
-          enum:
-          - configured
-          - notConfigured
-          - skipped
-          description: Onboarding status
-        isDeleted:
-          type: boolean
-          description: Soft delete flag
-          default: false
-        __v:
-          type: integer
-          description: Document version (MongoDB)
-        createdAt:
-          type: string
-          format: date-time
-          description: Creation timestamp (ISO 8601)
-        updatedAt:
-          type: string
-          format: date-time
-          description: Last update timestamp (ISO 8601)
-      required:
-      - _id
-      - slug
-      - registeredName
-      - domain
-      - contactEmail
-      - accountType
-      - onBoardingStatus
-      - isDeleted
-      - createdAt
-      - updatedAt
-      - __v
     ErrorResponse:
       type: object
       additionalProperties: false
@@ -1055,6 +925,71 @@ components:
         country:
           type: string
           description: Country
+    Organization:
+      type: object
+      properties:
+        _id:
+          type: string
+          format: ObjectId
+          description: Unique organization identifier
+        slug:
+          type: string
+          description: Unique slug for the organization
+        registeredName:
+          type: string
+          description: Registered name
+        shortName:
+          type: string
+          description: Short name or display name
+        domain:
+          type: string
+          description: Organization domain
+        contactEmail:
+          type: string
+          format: email
+          description: Contact email address
+        accountType:
+          type: string
+          enum:
+          - individual
+          - business
+          description: Type of account
+        permanentAddress:
+          $ref: '#/components/schemas/Address'
+        onBoardingStatus:
+          type: string
+          enum:
+          - configured
+          - notConfigured
+          - skipped
+          description: Onboarding status
+        isDeleted:
+          type: boolean
+          description: Soft delete flag
+          default: false
+        __v:
+          type: integer
+          description: Document version (MongoDB)
+        createdAt:
+          type: string
+          format: date-time
+          description: Creation timestamp (ISO 8601)
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp (ISO 8601)
+      required:
+      - _id
+      - slug
+      - registeredName
+      - domain
+      - contactEmail
+      - accountType
+      - onBoardingStatus
+      - isDeleted
+      - createdAt
+      - updatedAt
+      - __v
   securitySchemes:
     bearerAuth:
       type: http
@@ -1184,6 +1119,3 @@ components:
             config:write: Update system configuration
             crawl:read: Read crawling jobs
             crawl:write: Create and manage crawling jobs
-x-refined-from:
-- pipeshub-openapi.yaml
-- pipeshub-openapi.yml

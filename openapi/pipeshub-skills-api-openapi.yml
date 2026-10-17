@@ -1,11 +1,11 @@
 openapi: 3.2.0
 info:
-  title: Pipeshub Skills API
+  title: PipesHub Skills API
+  description: Unified API documentation for PipesHub services.
   version: 1.0.0
   contact:
     name: API Support
     email: support@pipeshub.com
-  description: 'Operations tagged Skills across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: '{instance_url}/api/v1'
   description: Base API URL
@@ -134,19 +134,6 @@ paths:
           description: Skills are disabled for this organization
         '409':
           description: A skill with this name already exists, or the name is reserved for a builtin pack
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /skills/categories:
     get:
       tags:
@@ -175,19 +162,6 @@ paths:
           description: Unauthorized
         '403':
           description: Skills are disabled for this organization
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /skills/search:
     get:
       tags:
@@ -237,19 +211,6 @@ paths:
           description: Unauthorized
         '403':
           description: Skills are disabled for this organization
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /skills/candidates/pending:
     get:
       tags:
@@ -276,19 +237,6 @@ paths:
           description: Unauthorized
         '403':
           description: Skills are disabled for this organization
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /skills/candidates/{candidateId}/approve:
     post:
       tags:
@@ -317,19 +265,6 @@ paths:
           description: Skills are disabled for this organization
         '404':
           description: Candidate not found
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /skills/candidates/{candidateId}/reject:
     post:
       tags:
@@ -351,19 +286,6 @@ paths:
           description: Unauthorized
         '403':
           description: Skills are disabled for this organization
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /skills/import/npm/preview:
     post:
       tags:
@@ -396,19 +318,6 @@ paths:
           description: Unauthorized
         '403':
           description: Skills are disabled for this organization
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /skills/import/url/preview:
     post:
       tags:
@@ -439,19 +348,6 @@ paths:
           description: Unauthorized
         '403':
           description: Skills are disabled for this organization
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /skills/import/upload/preview:
     post:
       tags:
@@ -488,19 +384,6 @@ paths:
           description: Unauthorized
         '403':
           description: Skills are disabled for this organization
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /skills/import/finalize:
     post:
       tags:
@@ -537,19 +420,6 @@ paths:
           description: Skills are disabled for this organization
         '409':
           description: A skill with this name already exists, or the name is reserved for a builtin pack
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /skills/{name}:
     get:
       tags:
@@ -666,19 +536,6 @@ paths:
                   properties:
                     message:
                       type: string
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /skills/{name}/export:
     get:
       tags:
@@ -707,19 +564,6 @@ paths:
           description: Skills are disabled for this organization
         '404':
           description: Skill not found
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /skills/{name}/body:
     patch:
       tags:
@@ -750,19 +594,6 @@ paths:
           description: Unauthorized
         '403':
           description: Skills are disabled for this organization
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /skills/{name}/deprecate:
     post:
       tags:
@@ -793,19 +624,6 @@ paths:
           description: Skills are disabled for this organization
         '404':
           description: Skill not found
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /skills/{name}/disable:
     post:
       tags:
@@ -851,19 +669,6 @@ paths:
           description: Skill not found
         '409':
           description: Skill is not currently active (e.g. already disabled, or deprecated)
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /skills/{name}/enable:
     post:
       tags:
@@ -900,19 +705,6 @@ paths:
           description: Skill not found
         '409':
           description: Skill is not currently disabled (e.g. already active, or deprecated)
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /skills/{name}/usage:
     get:
       tags:
@@ -939,19 +731,6 @@ paths:
           description: Unauthorized
         '403':
           description: Skills are disabled for this organization
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /skills/{name}/versions:
     get:
       tags:
@@ -984,19 +763,6 @@ paths:
           description: Skills are disabled for this organization
         '404':
           description: Skill not found
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /skills/{name}/versions/{version}:
     get:
       tags:
@@ -1029,19 +795,6 @@ paths:
           description: Skills are disabled for this organization
         '404':
           description: Skill or version not found
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /skills/{name}/rollback:
     post:
       tags:
@@ -1075,19 +828,6 @@ paths:
           description: Skills are disabled for this organization
         '404':
           description: Skill or version not found
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /skills/{name}/resource:
     get:
       tags:
@@ -1186,73 +926,15 @@ paths:
           description: Skills are disabled for this organization
         '404':
           description: Skill or resource not found
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
 components:
   schemas:
-    SkillNpmImportRequest:
+    SkillUsageReference:
       type: object
-      required:
-      - command_or_name
       properties:
-        command_or_name:
+        id:
           type: string
-          minLength: 1
-          example: npm install @anthropic/skill-pdf
-    SkillImportPreview:
-      type: object
-      description: Stateless preview of an npm/URL/upload import source — nothing is persisted until `POST /skills/import/finalize`.
-      properties:
         name:
           type: string
-        description:
-          type: string
-        version:
-          type: string
-        content:
-          type: string
-          description: Full SKILL.md text extracted from the archive/package.
-        resources:
-          type: object
-          additionalProperties:
-            type: string
-        warnings:
-          type: array
-          items:
-            type: string
-        skippedBinaryResources:
-          type: array
-          items:
-            type: string
-          description: Resource paths that were skipped because they are binary (text-only resources are supported today).
-        sourceLabel:
-          type: string
-          example: npm:@anthropic/skill-pdf
-    SkillUsage:
-      type: object
-      description: Referential-integrity snapshot used to gate `DELETE /skills/{name}`.
-      properties:
-        usedByAgents:
-          type: array
-          items:
-            $ref: '#/components/schemas/SkillUsageReference'
-          description: Agents this skill is currently assigned to via Agent Builder.
-        requiredBySkills:
-          type: array
-          items:
-            type: string
-          description: Other skill names whose frontmatter declares `requires` on this one — these can NEVER be force-deleted, only deprecated.
     Skill:
       description: Full skill — metadata plus editable body and bundled resource listing.
       allOf:
@@ -1269,6 +951,101 @@ components:
               items:
                 type: string
             description: Bundled resource paths grouped by first path segment (e.g. `scripts`, `references`, `assets`, or `files` for root-level files).
+    SkillPatchBodyRequest:
+      type: object
+      description: Exact-match string replacement against the skill's current body — fails 400 if `old_string` isn't found exactly once.
+      required:
+      - old_string
+      - new_string
+      properties:
+        old_string:
+          type: string
+        new_string:
+          type: string
+    SkillResourceWriteRequest:
+      type: object
+      required:
+      - path
+      - content
+      properties:
+        path:
+          type: string
+          minLength: 1
+          description: Path relative to the skill's own root (e.g. `scripts/run.py`). Traversal (`..`), absolute paths, and `SKILL.md` are rejected with 400.
+        content:
+          type: string
+          description: Text content only — binary resources are not yet supported (deferred to a blob-storage follow-up).
+    SkillVersionSummary:
+      type: object
+      properties:
+        version:
+          type: string
+        updatedBy:
+          type:
+          - string
+          - 'null'
+        createdAt:
+          oneOf:
+          - type:
+            - string
+            - 'null'
+          - type: integer
+        summary:
+          type:
+          - string
+          - 'null'
+    SkillRollbackRequest:
+      type: object
+      required:
+      - version
+      properties:
+        version:
+          type: string
+          minLength: 1
+    SkillUsage:
+      type: object
+      description: Referential-integrity snapshot used to gate `DELETE /skills/{name}`.
+      properties:
+        usedByAgents:
+          type: array
+          items:
+            $ref: '#/components/schemas/SkillUsageReference'
+          description: Agents this skill is currently assigned to via Agent Builder.
+        requiredBySkills:
+          type: array
+          items:
+            type: string
+          description: Other skill names whose frontmatter declares `requires` on this one — these can NEVER be force-deleted, only deprecated.
+    SkillUrlImportRequest:
+      type: object
+      required:
+      - url
+      properties:
+        url:
+          type: string
+          minLength: 1
+          example: https://example.com/my-skill.zip
+    SkillNpmImportRequest:
+      type: object
+      required:
+      - command_or_name
+      properties:
+        command_or_name:
+          type: string
+          minLength: 1
+          example: npm install @anthropic/skill-pdf
+    SkillDeprecateRequest:
+      type: object
+      required:
+      - reason
+      properties:
+        reason:
+          type: string
+          minLength: 1
+        replaced_by:
+          type:
+          - string
+          - 'null'
     SkillFinalizeImportRequest:
       type: object
       description: Persists exactly what a prior `preview_*` call returned — the client round-trips `content`/`resources` verbatim.
@@ -1296,98 +1073,6 @@ components:
           - string
           - 'null'
           description: Optional kebab-case name to persist as. Rewrites SKILL.md frontmatter `name` so an import can avoid a reserved builtin.
-    SkillWriteRequest:
-      type: object
-      description: 'Structured create/update payload. The backend renders this into a full,
-
-        spec-compliant SKILL.md string server-side — clients never hand-assemble
-
-        YAML frontmatter.
-
-        '
-      required:
-      - description
-      - body
-      properties:
-        name:
-          type: string
-          description: Required on create; ignored on update (the `{name}` path param is authoritative).
-        description:
-          type: string
-          minLength: 1
-        body:
-          type: string
-          minLength: 1
-        category:
-          type:
-          - string
-          - 'null'
-        subcategory:
-          type:
-          - string
-          - 'null'
-        tags:
-          type: array
-          items:
-            type: string
-        license:
-          type:
-          - string
-          - 'null'
-        compatibility:
-          type:
-          - string
-          - 'null'
-        allowed_tools:
-          type:
-          - array
-          - 'null'
-          items:
-            type: string
-        related:
-          type: array
-          items:
-            type: string
-        requires:
-          type: array
-          items:
-            type: string
-        concepts:
-          type: array
-          items:
-            type: string
-    SkillPatchBodyRequest:
-      type: object
-      description: Exact-match string replacement against the skill's current body — fails 400 if `old_string` isn't found exactly once.
-      required:
-      - old_string
-      - new_string
-      properties:
-        old_string:
-          type: string
-        new_string:
-          type: string
-    SkillRollbackRequest:
-      type: object
-      required:
-      - version
-      properties:
-        version:
-          type: string
-          minLength: 1
-    SkillResourceWriteRequest:
-      type: object
-      required:
-      - path
-      - content
-      properties:
-        path:
-          type: string
-          minLength: 1
-          description: Path relative to the skill's own root (e.g. `scripts/run.py`). Traversal (`..`), absolute paths, and `SKILL.md` are rejected with 400.
-        content:
-          type: string
-          description: Text content only — binary resources are not yet supported (deferred to a blob-storage follow-up).
     SkillMetadata:
       type: object
       description: 'Skill metadata (SKILL.md YAML frontmatter, agentskills.io-compatible, plus
@@ -1496,53 +1181,95 @@ components:
           type:
           - string
           - 'null'
-    SkillDeprecateRequest:
+    SkillImportPreview:
       type: object
-      required:
-      - reason
+      description: Stateless preview of an npm/URL/upload import source — nothing is persisted until `POST /skills/import/finalize`.
       properties:
-        reason:
-          type: string
-          minLength: 1
-        replaced_by:
-          type:
-          - string
-          - 'null'
-    SkillVersionSummary:
-      type: object
-      properties:
-        version:
-          type: string
-        updatedBy:
-          type:
-          - string
-          - 'null'
-        createdAt:
-          oneOf:
-          - type:
-            - string
-            - 'null'
-          - type: integer
-        summary:
-          type:
-          - string
-          - 'null'
-    SkillUsageReference:
-      type: object
-      properties:
-        id:
-          type: string
         name:
           type: string
-    SkillUrlImportRequest:
+        description:
+          type: string
+        version:
+          type: string
+        content:
+          type: string
+          description: Full SKILL.md text extracted from the archive/package.
+        resources:
+          type: object
+          additionalProperties:
+            type: string
+        warnings:
+          type: array
+          items:
+            type: string
+        skippedBinaryResources:
+          type: array
+          items:
+            type: string
+          description: Resource paths that were skipped because they are binary (text-only resources are supported today).
+        sourceLabel:
+          type: string
+          example: npm:@anthropic/skill-pdf
+    SkillWriteRequest:
       type: object
+      description: 'Structured create/update payload. The backend renders this into a full,
+
+        spec-compliant SKILL.md string server-side — clients never hand-assemble
+
+        YAML frontmatter.
+
+        '
       required:
-      - url
+      - description
+      - body
       properties:
-        url:
+        name:
+          type: string
+          description: Required on create; ignored on update (the `{name}` path param is authoritative).
+        description:
           type: string
           minLength: 1
-          example: https://example.com/my-skill.zip
+        body:
+          type: string
+          minLength: 1
+        category:
+          type:
+          - string
+          - 'null'
+        subcategory:
+          type:
+          - string
+          - 'null'
+        tags:
+          type: array
+          items:
+            type: string
+        license:
+          type:
+          - string
+          - 'null'
+        compatibility:
+          type:
+          - string
+          - 'null'
+        allowed_tools:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+        related:
+          type: array
+          items:
+            type: string
+        requires:
+          type: array
+          items:
+            type: string
+        concepts:
+          type: array
+          items:
+            type: string
   securitySchemes:
     bearerAuth:
       type: http
@@ -1672,6 +1399,3 @@ components:
             config:write: Update system configuration
             crawl:read: Read crawling jobs
             crawl:write: Create and manage crawling jobs
-x-refined-from:
-- pipeshub-openapi.yaml
-- pipeshub-openapi.yml

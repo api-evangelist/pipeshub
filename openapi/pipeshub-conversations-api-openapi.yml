@@ -1,11 +1,11 @@
 openapi: 3.2.0
 info:
-  title: Pipeshub Conversations API
+  title: PipesHub Conversations API
+  description: Unified API documentation for PipesHub services.
   version: 1.0.0
   contact:
     name: API Support
     email: support@pipeshub.com
-  description: 'Operations tagged Conversations across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: '{instance_url}/api/v1'
   description: Base API URL
@@ -168,19 +168,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /conversations/stream:
     post:
       tags:
@@ -298,19 +285,6 @@ paths:
             `RUN_ERROR` SSE event instead of an HTTP status change.
 
             '
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /conversations/attachments/upload:
     post:
       tags:
@@ -384,19 +358,6 @@ paths:
           description: 'Gateway fallback when the upstream call does not return a status (implementation default).
 
             '
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /conversations/attachments/{recordId}:
     delete:
       tags:
@@ -450,19 +411,6 @@ paths:
           description: 'Other status codes are forwarded from the query service (e.g. 404) with an **empty** response body from this route.
 
             '
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /conversations:
     get:
       tags:
@@ -964,19 +912,6 @@ paths:
             '
         '401':
           description: Unauthorized - Valid bearer token required
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /conversations/show/archives:
     get:
       tags:
@@ -1427,19 +1362,6 @@ paths:
                         description: Server processing time in milliseconds
         '401':
           description: Unauthorized
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /conversations/show/archives/search:
     get:
       tags:
@@ -1601,19 +1523,6 @@ paths:
           description: Search parameter missing, empty, not a string, or longer than 1000 characters
         '401':
           description: Unauthorized
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /conversations/{conversationId}:
     get:
       tags:
@@ -2343,19 +2252,6 @@ paths:
           description: Conversation not found, already deleted, or caller has no delete access
         '500':
           description: Internal server error while deleting the conversation
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /conversations/{conversationId}/messages:
     post:
       tags:
@@ -2509,19 +2405,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /conversations/{conversationId}/messages/stream:
     post:
       tags:
@@ -2616,19 +2499,6 @@ paths:
             change.
 
             '
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /conversations/{conversationId}/share:
     post:
       tags:
@@ -2754,19 +2624,6 @@ paths:
           description: Forbidden - Only owner can share
         '404':
           description: Conversation or users not found
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /conversations/{conversationId}/title:
     patch:
       tags:
@@ -3084,19 +2941,6 @@ paths:
           description: Conversation not found, soft-deleted, or not owned by the caller.
         '500':
           description: Persistence layer failed to update the conversation document.
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /conversations/{conversationId}/archive:
     patch:
       tags:
@@ -3187,19 +3031,6 @@ paths:
           description: Unauthorized
         '404':
           description: Conversation not found or caller lacks archive permission
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /conversations/{conversationId}/unarchive:
     patch:
       tags:
@@ -3277,19 +3108,6 @@ paths:
           description: Conversation not found or caller lacks unarchive permission
         '500':
           description: Persistence layer failed to update the conversation document.
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /conversations/{conversationId}/message/{messageId}/regenerate:
     post:
       tags:
@@ -3408,19 +3226,6 @@ paths:
           description: Unauthorized
         '404':
           description: Conversation or message not found
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /conversations/{conversationId}/cancel:
     post:
       tags:
@@ -3500,19 +3305,6 @@ paths:
           description: '`runId` exists but was registered under a different user, org, or conversation than this request.'
         '404':
           description: Conversation not found or unauthorized
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /conversations/{conversationId}/message/{messageId}/feedback:
     post:
       tags:
@@ -3605,19 +3397,6 @@ paths:
             '
         '500':
           description: Persistence layer failed to append the feedback entry.
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /conversations/{conversationId}/unshare:
     post:
       tags:
@@ -3754,19 +3533,6 @@ paths:
           description: Conversation not found, or caller is not the initiator.
         '500':
           description: Persistence layer failed to update the conversation document.
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /conversations/{conversationId}/project:
     put:
       tags:
@@ -3871,19 +3637,6 @@ paths:
             target project does not exist or is not visible to the caller.
 
             '
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /conversations/{conversationId}/project-visibility:
     patch:
       tags:
@@ -3957,19 +3710,6 @@ paths:
           description: Unauthorized
         '404':
           description: Conversation not found or caller is not the initiator.
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /projects/{projectId}/conversations:
     get:
       tags:
@@ -4044,93 +3784,72 @@ paths:
           description: Unauthorized
         '404':
           description: Project not found or not visible to the caller.
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
 components:
   schemas:
-    AddMessageResponse:
+    CitationReference:
       type: object
       additionalProperties: false
-      description: 'Envelope returned by `POST /conversations/{conversationId}/messages`.
-
-        Contains the updated conversation, the number of citation records used
-
-        to ground the AI response for this turn, and request metadata.
-
-        '
-      required:
-      - conversation
-      - recordsUsed
-      - meta
+      description: Reference to a source document cited in a response
       properties:
-        conversation:
-          $ref: '#/components/schemas/Conversation'
-        recordsUsed:
-          type: integer
-          minimum: 0
-          description: 'Number of citation records used to ground the AI response generated
-
-            for this turn.
-
-            '
-        meta:
-          type: object
-          additionalProperties: false
-          required:
-          - timestamp
-          - duration
-          properties:
-            requestId:
-              type: string
-              description: 'Request correlation id. Omitted when upstream middleware did
-
-                not set `req.context.requestId`.
-
-                '
-            timestamp:
-              type: string
-              format: date-time
-              description: Server timestamp when the response was sent.
-            duration:
-              type: integer
-              minimum: 0
-              description: Total handler duration in milliseconds.
-            recordsUsed:
-              type: integer
-              minimum: 0
-              description: 'Same value as the top-level `recordsUsed`. Duplicated inside
-
-                `meta` for client convenience.
-
-                '
-    MessageReasoningTurn:
-      type: object
-      additionalProperties: false
-      description: 'One model turn''s chain-of-thought. Persisted only when reasoning
-
-        persistence is enabled; the array is empty otherwise.
-
-        '
-      required:
-      - content
-      properties:
-        messageId:
+        citationId:
           type: string
-        turnIndex:
+          format: objectId
+          description: ID of the citation record
+        relevanceScore:
           type: number
-        content:
+          minimum: 0
+          maximum: 1
+          description: How relevant this citation is to the query (0-1)
+        excerpt:
           type: string
+          description: Relevant excerpt from the source document
+        context:
+          type: string
+          description: Additional context around the citation
+    ChatAttachmentUploadRef:
+      type: object
+      additionalProperties: false
+      description: 'Concrete attachment metadata returned by `POST /conversations/attachments/upload`
+
+        (or the equivalent agent route).
+
+        '
+      required:
+      - recordId
+      - recordName
+      - mimeType
+      - extension
+      - virtualRecordId
+      properties:
+        recordId:
+          type: string
+          minLength: 1
+          description: Server-assigned attachment record id.
+        recordName:
+          type: string
+          minLength: 1
+          description: Original filename stored for the attachment.
+        mimeType:
+          type: string
+          minLength: 1
+          description: MIME type of the uploaded file.
+        extension:
+          type: string
+          minLength: 1
+          description: File extension derived by the backend.
+        virtualRecordId:
+          type: string
+          minLength: 1
+          description: Synthetic record id used by the graph layer.
+        parseMode:
+          type: string
+          minLength: 1
+          description: Backend-reported parsing mode used for the attachment (e.g. `pdfplumber`, `docling`, `csv_lightweight`).
+        ocrMode:
+          type: string
+          minLength: 1
+          deprecated: true
+          description: Deprecated alias for `parseMode`, kept for backward compatibility. Use `parseMode` instead.
     AppliedFilterNode:
       type: object
       additionalProperties: false
@@ -4320,6 +4039,246 @@ components:
         updatedAt:
           type: string
           format: date-time
+    AgentCapabilities:
+      type: object
+      additionalProperties: false
+      description: 'Per-request agent capability toggles. Only meaningful when `chatMode`
+
+        selects an agent mode; ignored otherwise. Each field falls back to its
+
+        own `default` below when omitted — a missing flag is not uniformly
+
+        `true`. Omitting the whole object applies every default.
+
+        '
+      properties:
+        internalSearch:
+          type: boolean
+          default: true
+          description: Whether the agent may search internal knowledge bases for this turn.
+        webSearch:
+          type: boolean
+          default: true
+          description: Whether the agent may perform web search for this turn.
+        deepSearch:
+          type: boolean
+          default: false
+          description: Whether the agent may use deeper, higher-latency retrieval for this turn.
+    RegenerateRequest:
+      type: object
+      additionalProperties: false
+      description: "Request body for regenerating an AI response. All fields are optional;\nwhen omitted the model selection and execution context from the\noriginal message are reused.\n\nSupported fields:\n- `filters` — optional `{ apps?, kb? }` filter object\n- `chatMode` — optional non-empty chat mode string\n- `modelKey`, `modelName`, `modelFriendlyName` —\n  optional non-empty model override fields\n- `timezone` — optional non-empty client timezone string\n- `currentTime` — optional ISO 8601 / RFC 3339 datetime string with\n  UTC `Z` or a numeric offset\n- `tools` — optional array of non-empty tool identifiers\n- `protocol` — optional inert compatibility field; when present it must\n  be `agui`, which is also the protocol used when the field is omitted\n- `agentCapabilities` — optional per-request agent capability toggles\n"
+      properties:
+        filters:
+          $ref: '#/components/schemas/Filters'
+        modelKey:
+          type: string
+          minLength: 1
+          description: 'Identifier of the AI model configuration to use for regeneration.
+
+            Typically a UUID returned by the model-management endpoints. When
+
+            omitted, the model used for the original message is reused.
+
+            '
+          example: 05438a37-68f2-4641-a8dc-6c47e63278ca
+        modelName:
+          type: string
+          minLength: 1
+          description: Provider model name (e.g. the underlying LLM identifier).
+          example: gpt-5.6-luna
+        modelFriendlyName:
+          type: string
+          minLength: 1
+          description: Friendly display name of the selected model.
+          example: mini
+        chatMode:
+          type: string
+          minLength: 1
+          description: 'Chat mode used for regeneration (for example `internal_search`,
+
+            `web_search`, or the universal `agent` mode).
+
+            '
+          example: internal_search
+        timezone:
+          type: string
+          minLength: 1
+          description: 'IANA timezone identifier from the client. Used to provide
+
+            time-aware context to the AI during regeneration.
+
+            '
+          example: Asia/Calcutta
+        currentTime:
+          type: string
+          format: date-time
+          description: 'ISO 8601 / RFC 3339 datetime from the client (UTC `Z` or numeric
+
+            offset). Used to anchor any relative time references in the query.
+
+            '
+          example: '2026-05-11T15:43:21+05:30'
+        tools:
+          type: array
+          items:
+            type: string
+            minLength: 1
+          description: 'Optional list of tool identifiers (fully-qualified action names
+
+            such as `jira.create_issue`) the agent may invoke when
+
+            regenerating. Applicable only in agent chat modes.
+
+            '
+          example:
+          - jira.create_issue
+          - confluence.search_content
+        protocol:
+          type: string
+          enum:
+          - agui
+          description: 'AG-UI is the only supported wire protocol. When present must be
+
+            `"agui"`. Omitting the field is equivalent — the server always
+
+            uses the AG-UI vocabulary. Kept in the schema for backward
+
+            compatibility with callers that already send it.
+
+            '
+        agentCapabilities:
+          $ref: '#/components/schemas/AgentCapabilities'
+        runId:
+          type: string
+          format: uuid
+          description: 'Client-generated identifier for this regeneration run. Send it
+
+            here to enable `POST .../cancel {runId}` while it is still
+
+            generating.
+
+            '
+    MessageToolCall:
+      type: object
+      additionalProperties: false
+      description: One tool invocation recorded on a message turn.
+      properties:
+        toolName:
+          type: string
+        toolResult: {}
+    MessageFeedbackAppendMetrics:
+      type: object
+      additionalProperties: false
+      required:
+      - timeToFeedback
+      description: 'Telemetry recorded server-side alongside the feedback. Always present
+
+        on append responses.
+
+        '
+      properties:
+        timeToFeedback:
+          type: number
+          description: 'Milliseconds between message creation and feedback submission.
+
+            Always present.
+
+            '
+        userAgent:
+          type: string
+          description: Value of the `User-Agent` request header captured server-side.
+    SSEEvent:
+      type: object
+      description: "Server-Sent Event envelope for streaming chat responses. AG-UI is\nthe sole wire protocol.\n\n`event` carries the AG-UI type name and `data` is a JSON-encoded\nobject that includes a `\"type\"` field matching `event`, plus\ntype-specific fields. Stable gateway-generated top-level outcomes:\n\n- `RUN_FINISHED` — `{ type, result }`; `result` carries the full\n  persisted `conversation` and a `meta` block with `requestId`,\n  `timestamp` and `duration`.\n- `RUN_ERROR` — `{ type, message, code? }`. The conversation row is\n  marked FAILED before the stream closes.\n\nForwarded upstream lifecycle or child-run events may contain `runId`,\n`threadId`, and `parentRunId`. Gateway-generated root terminal events\ndo not. Clients should ignore unknown event names.\n"
+      properties:
+        event:
+          type: string
+          enum:
+          - RUN_STARTED
+          - RUN_FINISHED
+          - RUN_ERROR
+          - STEP_STARTED
+          - STEP_FINISHED
+          - TEXT_MESSAGE_START
+          - TEXT_MESSAGE_CONTENT
+          - TEXT_MESSAGE_END
+          - REASONING_START
+          - REASONING_MESSAGE_START
+          - REASONING_MESSAGE_CONTENT
+          - REASONING_MESSAGE_END
+          - REASONING_END
+          - TOOL_CALL_START
+          - TOOL_CALL_ARGS
+          - TOOL_CALL_END
+          - TOOL_CALL_RESULT
+          - STATE_DELTA
+          - STATE_SNAPSHOT
+          - CUSTOM
+          - HEARTBEAT
+        data:
+          type: string
+          description: 'JSON-encoded event payload. The decoded JSON includes a `"type"`
+
+            field matching `event`, plus type-specific fields. Shape depends
+
+            on `event`.
+
+            '
+    MessageFeedbackSubmitRequest:
+      type: object
+      additionalProperties: false
+      description: 'Gateway request body for submitting message feedback (Zod
+
+        `feedbackBodySchema`). All fields are optional; an empty object is
+
+        accepted. Matches the first-party chat UI payload shape.
+
+        '
+      properties:
+        isHelpful:
+          type: boolean
+          description: Overall helpfulness signal (thumbs up/down).
+        categories:
+          type: array
+          description: Issue or positive categories that apply to the response.
+          items:
+            type: string
+            enum:
+            - incorrect_information
+            - missing_information
+            - irrelevant_information
+            - unclear_explanation
+            - poor_citations
+            - excellent_answer
+            - helpful_citations
+            - well_explained
+            - other
+        comments:
+          type: object
+          additionalProperties: false
+          description: Free-text comments grouped by sentiment.
+          properties:
+            positive:
+              type: string
+              description: What was good about the response.
+            negative:
+              type: string
+              description: What could be improved.
+    FollowUpQuestion:
+      type: object
+      additionalProperties: false
+      description: AI-suggested follow-up question
+      properties:
+        question:
+          type: string
+          description: The suggested question text
+        confidence:
+          type: string
+          description: Confidence level for this suggestion
+        reasoning:
+          type: string
+          description: Why this question might be relevant
     ShareRequest:
       type: object
       description: Request to share a conversation or search with other users
@@ -4349,43 +4308,44 @@ components:
             - `write` — Can add messages
 
             '
-    Filters:
+    CreateConversationResponse:
       type: object
       additionalProperties: false
-      description: 'App connector instance ids and knowledge-base / record-group ids that narrow retrieval
+      description: 'Envelope returned by `POST /conversations/create`. Contains the
 
-        for a turn. For **org assistant** chat streams, send explicit `apps` / `kb` lists.
+        persisted conversation (including the initial user message and the AI
 
-        For **agent** chat streams, send explicit id lists, or **omit** `filters` (and `tools`)
-
-        to let the service use the agent’s stored knowledge and tool configuration. Sending
-
-        `{ "apps": [], "kb": [] }` on an agent stream means **no** knowledge sources for that
-
-        turn (it is not “full org default”).
+        response) plus request metadata.
 
         '
+      required:
+      - conversation
+      - meta
       properties:
-        apps:
-          type: array
-          items:
-            type: string
-          description: 'Connector instance ids to scope retrieval for this turn. Each element
+        conversation:
+          $ref: '#/components/schemas/Conversation'
+        meta:
+          type: object
+          additionalProperties: false
+          required:
+          - timestamp
+          - duration
+          properties:
+            requestId:
+              type: string
+              description: 'Request correlation id. Omitted when upstream middleware did
 
-            must be a valid UUID (connector app id, KB app id, record-group id, etc.).
+                not set a request id on the context.
 
-            Gateway validation matches Zod `appOrKbIdSchema`.
-
-            '
-        kb:
-          type: array
-          items:
-            type: string
-          description: 'Knowledge-base app ids to scope retrieval for this turn.
-
-            Each element must be a valid UUID.
-
-            '
+                '
+            timestamp:
+              type: string
+              format: date-time
+              description: Server timestamp when the response was sent.
+            duration:
+              type: integer
+              minimum: 0
+              description: Total handler duration in milliseconds.
     ChatAttachmentRef:
       type: object
       additionalProperties: false
@@ -4419,298 +4379,9 @@ components:
           type: string
           minLength: 1
           description: Optional synthetic record id used by the graph layer.
-    CitationReference:
+    ConversationMessageStreamSSEEvent:
       type: object
-      additionalProperties: false
-      description: Reference to a source document cited in a response
-      properties:
-        citationId:
-          type: string
-          format: objectId
-          description: ID of the citation record
-        relevanceScore:
-          type: number
-          minimum: 0
-          maximum: 1
-          description: How relevant this citation is to the query (0-1)
-        excerpt:
-          type: string
-          description: Relevant excerpt from the source document
-        context:
-          type: string
-          description: Additional context around the citation
-    ErrorResponse:
-      type: object
-      additionalProperties: false
-      description: 'Standard error envelope returned by all errors routed through `ErrorMiddleware`.
-
-        Applies to all `BaseError` subclasses including `HttpError`, `ValidationError`, and others.
-
-        The `code` field is a machine-readable string identifying the error type (e.g.
-
-        `HTTP_UNAUTHORIZED`, `HTTP_NOT_FOUND`, `VALIDATION_ERROR`, `INTERNAL_ERROR`).
-
-        '
-      properties:
-        error:
-          type: object
-          additionalProperties: false
-          required:
-          - code
-          - message
-          properties:
-            requestId:
-              type: string
-              description: 'Identifier for this request, echoed so a bug report can quote it.
-
-                Absent when the request never reached the middleware that assigns one.
-
-                '
-            code:
-              type: string
-              description: 'Machine-readable error code. For application errors it takes the form `HTTP_<VARIANT>`
-
-                For unhandled runtime errors (e.g. database unavailable) it is `INTERNAL_ERROR`.
-
-                '
-              example: HTTP_BAD_REQUEST
-            message:
-              type: string
-              description: Human-readable description of the error
-              example: Admin access required
-            metadata:
-              type: object
-              description: Additional context (only present in development environments)
-              additionalProperties: true
-      required:
-      - error
-    FollowUpQuestion:
-      type: object
-      additionalProperties: false
-      description: AI-suggested follow-up question
-      properties:
-        question:
-          type: string
-          description: The suggested question text
-        confidence:
-          type: string
-          description: Confidence level for this suggestion
-        reasoning:
-          type: string
-          description: Why this question might be relevant
-    CreateConversationRequest:
-      type: object
-      description: 'Request body for creating a new AI conversation.
-
-
-        **Query Processing:**
-
-
-        The query is processed through PipesHub''s AI pipeline which:
-
-
-        - Performs semantic search across indexed knowledge bases
-
-        - Retrieves relevant context from matching documents
-
-        - Generates a response with citations to source materials
-
-        - Suggests follow-up questions based on the conversation
-
-        '
-      required:
-      - query
-      properties:
-        query:
-          type: string
-          minLength: 1
-          maxLength: 100000
-          description: 'The user''s question or prompt to start the conversation.
-
-            Supports natural language queries of any complexity.
-
-            '
-          example: What are the key findings from our Q4 financial report?
-        recordIds:
-          type: array
-          items:
-            type: string
-            format: objectId
-          description: 'Limit the AI''s knowledge scope to specific records/documents.
-
-            When provided, only these records will be searched for context.
-
-            '
-          example:
-          - 507f1f77bcf86cd799439011
-          - 507f1f77bcf86cd799439012
-        filters:
-          $ref: '#/components/schemas/Filters'
-        appliedFilters:
-          $ref: '#/components/schemas/AppliedFilters'
-        attachments:
-          type: array
-          items:
-            $ref: '#/components/schemas/ChatAttachmentRef'
-          description: 'Uploaded chat attachments to associate with this conversation turn (see
-
-            `POST /conversations/attachments/upload`).
-
-            '
-        projectId:
-          type: string
-          format: objectId
-          description: 'Link the new conversation to a project the caller has at least
-
-            viewer access to. When the project''s instructions, knowledge
-
-            scope, or files are set and this request didn''t supply its own
-
-            `filters`/`attachments`, they are merged in as a fallback (the
-
-            request always wins). Ignored on follow-up turns — only
-
-            meaningful when creating a conversation.
-
-            '
-        projectVisibility:
-          type: string
-          enum:
-          - private
-          - project
-          description: 'Only meaningful together with `projectId`. Overrides the
-
-            project''s default sharing behavior for this one conversation:
-
-            `private` keeps it visible to the owner only; `project` exposes
-
-            it to every project member. Defaults from the project''s
-
-            `chatSharing` setting when omitted.
-
-            '
-        modelKey:
-          type: string
-          description: 'Identifier for the AI model configuration to use.
-
-            Available models depend on organization settings.
-
-            '
-          example: gpt-5.6-luna
-        modelName:
-          type: string
-          description: Display name of the AI model
-          example: gpt-5.6-luna
-        modelFriendlyName:
-          type: string
-          description: Friendly display name of the selected model
-          example: gpt-5.6-Luna
-        chatMode:
-          type: string
-          enum:
-          - agent
-          - internal_search
-          - web_search
-          description: 'Optional execution mode for non-stream consumers of this shared
-
-            request schema.
-
-            `agent` uses the universal agent loop, while `internal_search`
-
-            and `web_search` use their corresponding assistant search paths.
-
-            '
-          example: internal_search
-        timezone:
-          type: string
-          minLength: 1
-          description: 'IANA timezone identifier from the client (top-level field).
-
-            Used to provide time-aware context to the AI.
-
-            '
-          example: America/New_York
-        currentTime:
-          type: string
-          format: date-time
-          description: 'ISO 8601 / RFC 3339 datetime from the client (top-level field; UTC `Z` or numeric offset).
-
-            '
-          example: '2026-04-12T16:00:00+05:30'
-        tools:
-          type: array
-          items:
-            type: string
-            minLength: 1
-          description: 'Optional list of tool identifiers (fully-qualified action names such as
-
-            "jira.create_issue") that the AI agent is permitted to invoke for this
-
-            request. When omitted the agent may use any configured tool. Applicable
-
-            only when `chatMode` is `agent`.
-
-            '
-          example:
-          - jira.create_issue
-          - confluence.search_content
-        protocol:
-          type: string
-          enum:
-          - agui
-          description: 'AG-UI is the only supported wire protocol. When present must be
-
-            `"agui"`. Omitting the field is equivalent — the server always
-
-            uses the AG-UI vocabulary (`RUN_STARTED`, `TEXT_MESSAGE_CONTENT`,
-
-            etc.). Kept in the schema for backward compatibility with callers
-
-            that already send it.
-
-            '
-        agentCapabilities:
-          $ref: '#/components/schemas/AgentCapabilities'
-        runId:
-          type: string
-          format: uuid
-          description: 'Client-generated identifier for this run. Send it here to enable
-
-            `POST /conversations/{conversationId}/cancel {runId}` while the
-
-            stream is still generating. Optional — a caller that never sends
-
-            one just can''t cooperatively cancel the run.
-
-            '
-    AgentCapabilities:
-      type: object
-      additionalProperties: false
-      description: 'Per-request agent capability toggles. Only meaningful when `chatMode`
-
-        selects an agent mode; ignored otherwise. Each field falls back to its
-
-        own `default` below when omitted — a missing flag is not uniformly
-
-        `true`. Omitting the whole object applies every default.
-
-        '
-      properties:
-        internalSearch:
-          type: boolean
-          default: true
-          description: Whether the agent may search internal knowledge bases for this turn.
-        webSearch:
-          type: boolean
-          default: true
-          description: Whether the agent may perform web search for this turn.
-        deepSearch:
-          type: boolean
-          default: false
-          description: Whether the agent may use deeper, higher-latency retrieval for this turn.
-    ConversationStreamSSEEvent:
-      type: object
-      description: "Server-Sent Event envelope for public conversation streams using\n`agent`, `internal_search`, or `web_search`. AG-UI is the sole wire\nprotocol.\n\n`event` carries the AG-UI type name and `data` is a JSON-encoded\nobject that includes a `\"type\"` field matching `event`, plus\ntype-specific fields. Universal `agent` mode may emit `STEP_STARTED`,\n`STEP_FINISHED`, and nested child-run events carrying `parentRunId`.\nStable gateway-generated top-level outcomes:\n\n- `CUSTOM` (`name: \"conversation_created\"`) — fired once on\n  connection. Carries the newly created `conversationId` and\n  `title` so the client can link the stream to the new row before\n  any tokens arrive.\n- `RUN_FINISHED` — fired once after the AI backend finishes.\n  The gateway emits `{ type, result }`; `result` carries the full\n  persisted `conversation` and a `meta` block.\n- `RUN_ERROR` — fired when the stream fails. Carries a `message`\n  and optional `code`; the conversation row is marked FAILED\n  before close.\n\nForwarded upstream lifecycle or child-run events may contain `runId`,\n`threadId`, and `parentRunId`. Gateway-generated root terminal events\ndo not.\nClients should ignore unknown event names rather than treating them\nas errors.\n"
+      description: "Server-Sent Event envelope for public follow-up streams using `agent`,\n`internal_search`, or `web_search` on an existing conversation. AG-UI\nis the sole wire protocol.\n\n`event` carries the AG-UI type name and `data` is a JSON-encoded\nobject that includes a `\"type\"` field matching `event`, plus\ntype-specific fields. Universal `agent` mode may emit step and nested\nchild-run events. Stable gateway-generated top-level outcomes:\n\n- `CUSTOM` (`name: \"conversation_created\"`) — fired once on\n  connection.\n- `RUN_FINISHED` — fired once after the AI backend finishes.\n  The gateway emits `{ type, result }`; `result` carries\n  `{ conversation, recordsUsed, meta }`.\n  `recordsUsed` is the count of citations attached to the new\n  assistant message.\n- `RUN_ERROR` — fired when the stream fails. Carries a `message`\n  and optional `code`; the conversation row is marked FAILED\n  before close.\n\nForwarded upstream lifecycle or child-run events may contain `runId`,\n`threadId`, and `parentRunId`. Gateway-generated root terminal events\ndo not.\nClients should ignore unknown event names rather than treating them\nas errors.\n"
       properties:
         event:
           type: string
@@ -4747,6 +4418,90 @@ components:
             `threadId`, and `parentRunId`.
 
             '
+    PopulatedCitationReference:
+      type: object
+      additionalProperties: false
+      description: 'A message''s citation reference after the handler populates it: the
+
+        stored reference fields, with `citationId` as the id and the cited
+
+        document under `citationData`.
+
+        '
+      properties:
+        citationId:
+          type: string
+          format: objectId
+          description: ID of the citation record
+        relevanceScore:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: How relevant this citation is to the query (0-1)
+        excerpt:
+          type: string
+          description: Relevant excerpt from the source document
+        context:
+          type: string
+          description: Additional context around the citation
+        citationData:
+          $ref: '#/components/schemas/Citation'
+    MessageFeedbackAppendEntry:
+      type: object
+      additionalProperties: false
+      required:
+      - feedbackProvider
+      - timestamp
+      - metrics
+      description: 'The feedback entry just appended to the message. Echoes the fields
+
+        supplied in the request plus server-stamped `feedbackProvider`,
+
+        `timestamp`, and `metrics`.
+
+        '
+      properties:
+        isHelpful:
+          type: boolean
+          description: Echoed from the request when supplied.
+        categories:
+          type: array
+          description: Echoed categories from the request.
+          items:
+            type: string
+            enum:
+            - incorrect_information
+            - missing_information
+            - irrelevant_information
+            - unclear_explanation
+            - poor_citations
+            - excellent_answer
+            - helpful_citations
+            - well_explained
+            - other
+        comments:
+          type: object
+          additionalProperties: false
+          description: Echoed free-text comments from the request.
+          properties:
+            positive:
+              type: string
+            negative:
+              type: string
+        feedbackProvider:
+          type: string
+          format: objectId
+          description: User who submitted the feedback. Always present.
+        timestamp:
+          type: integer
+          format: int64
+          description: 'Submission time as epoch milliseconds (not an ISO 8601 datetime).
+
+            Always present.
+
+            '
+        metrics:
+          $ref: '#/components/schemas/MessageFeedbackAppendMetrics'
     Conversation:
       type: object
       description: 'A conversation represents a chat session between a user and the AI.
@@ -4943,6 +4698,328 @@ components:
             '
         sharedBy:
           $ref: '#/components/schemas/ConversationSharedBy'
+    ConversationSharedBy:
+      type: object
+      additionalProperties: false
+      description: 'Present on conversations the caller received via share. Identifies the
+
+        conversation initiator (the only user who can share a chat).
+
+        '
+      required:
+      - userId
+      - name
+      properties:
+        userId:
+          type: string
+          format: objectId
+        name:
+          type: string
+          description: Display name, falling back to email or the user id
+    MessageFeedbackUpdateResponse:
+      type: object
+      additionalProperties: false
+      required:
+      - conversationId
+      - messageId
+      - feedback
+      - meta
+      description: 'Gateway response after appending feedback to a bot-response message.
+
+        '
+      properties:
+        conversationId:
+          type: string
+          format: objectId
+          description: Conversation the feedback was attached to.
+        messageId:
+          type: string
+          format: objectId
+          description: Message the feedback was attached to.
+        feedback:
+          $ref: '#/components/schemas/MessageFeedbackAppendEntry'
+        meta:
+          type: object
+          additionalProperties: false
+          required:
+          - requestId
+          - timestamp
+          - duration
+          properties:
+            requestId:
+              type: string
+              description: 'Server-side request identifier. Read from the `X-Request-ID`
+
+                header when supplied, otherwise auto-generated, so this field
+
+                is always present.
+
+                '
+            timestamp:
+              type: string
+              format: date-time
+            duration:
+              type: integer
+              description: Server-side processing time in milliseconds.
+    ConversationMessageStreamRequest:
+      allOf:
+      - $ref: '#/components/schemas/AddMessageRequest'
+      - type: object
+        description: 'Request body for
+
+          `POST /conversations/{conversationId}/messages/stream`. The public
+
+          stream requires an explicit universal execution mode.
+
+          '
+        required:
+        - chatMode
+    MessagePart:
+      type: object
+      additionalProperties: false
+      description: 'One entry in the ordered agent-activity transcript for a message turn.
+
+        Every field beyond `type` is optional and depends on the part kind, and
+
+        `sub_agent` nests this same shape recursively under `parts`.
+
+
+        Tool results here are always a bounded preview, never the full payload —
+
+        `artifactId` points at the complete result.
+
+        '
+      properties:
+        type:
+          type: string
+          enum:
+          - text
+          - reasoning
+          - tool_call
+          - sub_agent
+        content:
+          type: string
+        toolCallId:
+          type: string
+        toolName:
+          type: string
+        displayName:
+          type: string
+        args:
+          type: string
+        argsSummary:
+          type: string
+          description: Human-readable summary of `args`, computed server-side.
+        status:
+          type: string
+          enum:
+          - running
+          - completed
+          - failed
+          - blocked
+        resultPreview:
+          type: string
+        resultSummary:
+          type: string
+          description: 'Human-readable summary of the tool result, computed server-side from
+
+            the full untruncated output.
+
+            '
+        artifactId:
+          type: string
+          description: Blob-backed artifact id for the full tool result.
+        runId:
+          type: string
+        roleName:
+          type: string
+        isFinal:
+          type: boolean
+          description: 'Set on the single root-level `text` part carrying the answer. Every
+
+            other root `text` part is an abandoned preamble turn. Never set on
+
+            child parts nested under a `sub_agent`.
+
+            '
+        parts:
+          type: array
+          description: Nested transcript of a `sub_agent` part.
+          items:
+            $ref: '#/components/schemas/MessagePart'
+    ConversationListItem:
+      type: object
+      description: 'Conversation summary returned by list endpoints. Identical to
+
+        `Conversation` but omits `messages` to keep list payloads small.
+
+        Fetch a single conversation to retrieve its messages.
+
+        '
+      properties:
+        _id:
+          type: string
+          format: objectId
+        userId:
+          type: string
+          format: objectId
+        orgId:
+          type: string
+          format: objectId
+        title:
+          type: string
+        initiator:
+          type: string
+          format: objectId
+        status:
+          type: string
+          enum:
+          - None
+          - Inprogress
+          - Complete
+          - Failed
+          - Stopped
+        failReason:
+          type: string
+        modelInfo:
+          type: object
+          properties:
+            modelKey:
+              type: string
+            modelName:
+              type: string
+            modelFriendlyName:
+              type: string
+            modelProvider:
+              type: string
+            chatMode:
+              type: string
+        isShared:
+          type: boolean
+        shareLink:
+          type: string
+        sharedWith:
+          type: array
+          items:
+            type: object
+            properties:
+              userId:
+                type: string
+                format: objectId
+              accessLevel:
+                type: string
+                enum:
+                - read
+                - write
+        isArchived:
+          type: boolean
+        archivedBy:
+          type:
+          - string
+          - 'null'
+          format: objectId
+          description: 'User ID of the last user who archived this row, or `null` after
+
+            unarchive cleared the archive state. Absent on rows that have
+
+            never been archived.
+
+            '
+        isDeleted:
+          type: boolean
+        deletedBy:
+          type: string
+          format: objectId
+        conversationErrors:
+          type: array
+          items:
+            type: object
+            properties:
+              message:
+                type: string
+              errorType:
+                type: string
+              timestamp:
+                type: string
+                format: date-time
+              messageId:
+                type: string
+                format: objectId
+              stack:
+                type: string
+              metadata:
+                type: object
+                additionalProperties: true
+        metadata:
+          type: object
+          additionalProperties: true
+        lastActivityAt:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        isOwner:
+          type: boolean
+          readOnly: true
+        accessLevel:
+          type: string
+          enum:
+          - read
+          - write
+          readOnly: true
+        projectId:
+          type:
+          - string
+          - 'null'
+          format: objectId
+          description: 'The project this conversation is linked to, if any. Set via
+
+            `PUT /conversations/{conversationId}/project` or at creation
+
+            time; absent on conversations that were never linked.
+
+            '
+        projectVisibility:
+          type:
+          - string
+          - 'null'
+          enum:
+          - private
+          - project
+          description: 'Only meaningful when `projectId` is set. `private` (default)
+
+            keeps the conversation visible to its owner only; `project`
+
+            exposes it to every member of the linked project. See
+
+            `PATCH /conversations/{conversationId}/project-visibility`.
+
+            '
+        sharedBy:
+          $ref: '#/components/schemas/ConversationSharedBy'
+    ConversationModelInfo:
+      type: object
+      additionalProperties: false
+      description: AI model configuration recorded against a conversation or message.
+      properties:
+        modelKey:
+          type: string
+          description: Stable identifier of the configured model record
+        modelName:
+          type: string
+          description: Provider-facing model name (e.g. `gpt-5.6-luna`)
+        modelProvider:
+          type: string
+          description: Provider key (e.g. `openai`, `anthropic`)
+        modelFriendlyName:
+          type: string
+          description: Human-readable display name
+        chatMode:
+          type: string
+          description: Chat mode used for this turn (e.g. `quick`, `internal_search`)
     MessageFeedback:
       type: object
       additionalProperties: false
@@ -5108,374 +5185,6 @@ components:
               type: string
             platform:
               type: string
-    ChatAttachmentUploadRef:
-      type: object
-      additionalProperties: false
-      description: 'Concrete attachment metadata returned by `POST /conversations/attachments/upload`
-
-        (or the equivalent agent route).
-
-        '
-      required:
-      - recordId
-      - recordName
-      - mimeType
-      - extension
-      - virtualRecordId
-      properties:
-        recordId:
-          type: string
-          minLength: 1
-          description: Server-assigned attachment record id.
-        recordName:
-          type: string
-          minLength: 1
-          description: Original filename stored for the attachment.
-        mimeType:
-          type: string
-          minLength: 1
-          description: MIME type of the uploaded file.
-        extension:
-          type: string
-          minLength: 1
-          description: File extension derived by the backend.
-        virtualRecordId:
-          type: string
-          minLength: 1
-          description: Synthetic record id used by the graph layer.
-        parseMode:
-          type: string
-          minLength: 1
-          description: Backend-reported parsing mode used for the attachment (e.g. `pdfplumber`, `docling`, `csv_lightweight`).
-        ocrMode:
-          type: string
-          minLength: 1
-          deprecated: true
-          description: Deprecated alias for `parseMode`, kept for backward compatibility. Use `parseMode` instead.
-    MessageToolCall:
-      type: object
-      additionalProperties: false
-      description: One tool invocation recorded on a message turn.
-      properties:
-        toolName:
-          type: string
-        toolResult: {}
-    ConversationStreamRequest:
-      allOf:
-      - $ref: '#/components/schemas/CreateConversationRequest'
-      - type: object
-        description: 'Request body for `POST /conversations/stream`. The public stream
-
-          requires an explicit universal execution mode.
-
-          '
-        required:
-        - chatMode
-    SSEEvent:
-      type: object
-      description: "Server-Sent Event envelope for streaming chat responses. AG-UI is\nthe sole wire protocol.\n\n`event` carries the AG-UI type name and `data` is a JSON-encoded\nobject that includes a `\"type\"` field matching `event`, plus\ntype-specific fields. Stable gateway-generated top-level outcomes:\n\n- `RUN_FINISHED` — `{ type, result }`; `result` carries the full\n  persisted `conversation` and a `meta` block with `requestId`,\n  `timestamp` and `duration`.\n- `RUN_ERROR` — `{ type, message, code? }`. The conversation row is\n  marked FAILED before the stream closes.\n\nForwarded upstream lifecycle or child-run events may contain `runId`,\n`threadId`, and `parentRunId`. Gateway-generated root terminal events\ndo not. Clients should ignore unknown event names.\n"
-      properties:
-        event:
-          type: string
-          enum:
-          - RUN_STARTED
-          - RUN_FINISHED
-          - RUN_ERROR
-          - STEP_STARTED
-          - STEP_FINISHED
-          - TEXT_MESSAGE_START
-          - TEXT_MESSAGE_CONTENT
-          - TEXT_MESSAGE_END
-          - REASONING_START
-          - REASONING_MESSAGE_START
-          - REASONING_MESSAGE_CONTENT
-          - REASONING_MESSAGE_END
-          - REASONING_END
-          - TOOL_CALL_START
-          - TOOL_CALL_ARGS
-          - TOOL_CALL_END
-          - TOOL_CALL_RESULT
-          - STATE_DELTA
-          - STATE_SNAPSHOT
-          - CUSTOM
-          - HEARTBEAT
-        data:
-          type: string
-          description: 'JSON-encoded event payload. The decoded JSON includes a `"type"`
-
-            field matching `event`, plus type-specific fields. Shape depends
-
-            on `event`.
-
-            '
-    ConversationMessageStreamSSEEvent:
-      type: object
-      description: "Server-Sent Event envelope for public follow-up streams using `agent`,\n`internal_search`, or `web_search` on an existing conversation. AG-UI\nis the sole wire protocol.\n\n`event` carries the AG-UI type name and `data` is a JSON-encoded\nobject that includes a `\"type\"` field matching `event`, plus\ntype-specific fields. Universal `agent` mode may emit step and nested\nchild-run events. Stable gateway-generated top-level outcomes:\n\n- `CUSTOM` (`name: \"conversation_created\"`) — fired once on\n  connection.\n- `RUN_FINISHED` — fired once after the AI backend finishes.\n  The gateway emits `{ type, result }`; `result` carries\n  `{ conversation, recordsUsed, meta }`.\n  `recordsUsed` is the count of citations attached to the new\n  assistant message.\n- `RUN_ERROR` — fired when the stream fails. Carries a `message`\n  and optional `code`; the conversation row is marked FAILED\n  before close.\n\nForwarded upstream lifecycle or child-run events may contain `runId`,\n`threadId`, and `parentRunId`. Gateway-generated root terminal events\ndo not.\nClients should ignore unknown event names rather than treating them\nas errors.\n"
-      properties:
-        event:
-          type: string
-          enum:
-          - RUN_STARTED
-          - RUN_FINISHED
-          - RUN_ERROR
-          - STEP_STARTED
-          - STEP_FINISHED
-          - TEXT_MESSAGE_START
-          - TEXT_MESSAGE_CONTENT
-          - TEXT_MESSAGE_END
-          - REASONING_START
-          - REASONING_MESSAGE_START
-          - REASONING_MESSAGE_CONTENT
-          - REASONING_MESSAGE_END
-          - REASONING_END
-          - TOOL_CALL_START
-          - TOOL_CALL_ARGS
-          - TOOL_CALL_END
-          - TOOL_CALL_RESULT
-          - STATE_DELTA
-          - STATE_SNAPSHOT
-          - CUSTOM
-          - HEARTBEAT
-        data:
-          type: string
-          description: 'JSON-encoded event payload. The decoded JSON includes a `"type"`
-
-            field matching `event`, plus type-specific fields. Shape depends
-
-            on `event`. Forwarded lifecycle events may carry `runId`,
-
-            `threadId`, and `parentRunId`.
-
-            '
-    CreateConversationResponse:
-      type: object
-      additionalProperties: false
-      description: 'Envelope returned by `POST /conversations/create`. Contains the
-
-        persisted conversation (including the initial user message and the AI
-
-        response) plus request metadata.
-
-        '
-      required:
-      - conversation
-      - meta
-      properties:
-        conversation:
-          $ref: '#/components/schemas/Conversation'
-        meta:
-          type: object
-          additionalProperties: false
-          required:
-          - timestamp
-          - duration
-          properties:
-            requestId:
-              type: string
-              description: 'Request correlation id. Omitted when upstream middleware did
-
-                not set a request id on the context.
-
-                '
-            timestamp:
-              type: string
-              format: date-time
-              description: Server timestamp when the response was sent.
-            duration:
-              type: integer
-              minimum: 0
-              description: Total handler duration in milliseconds.
-    MessageFeedbackAppendEntry:
-      type: object
-      additionalProperties: false
-      required:
-      - feedbackProvider
-      - timestamp
-      - metrics
-      description: 'The feedback entry just appended to the message. Echoes the fields
-
-        supplied in the request plus server-stamped `feedbackProvider`,
-
-        `timestamp`, and `metrics`.
-
-        '
-      properties:
-        isHelpful:
-          type: boolean
-          description: Echoed from the request when supplied.
-        categories:
-          type: array
-          description: Echoed categories from the request.
-          items:
-            type: string
-            enum:
-            - incorrect_information
-            - missing_information
-            - irrelevant_information
-            - unclear_explanation
-            - poor_citations
-            - excellent_answer
-            - helpful_citations
-            - well_explained
-            - other
-        comments:
-          type: object
-          additionalProperties: false
-          description: Echoed free-text comments from the request.
-          properties:
-            positive:
-              type: string
-            negative:
-              type: string
-        feedbackProvider:
-          type: string
-          format: objectId
-          description: User who submitted the feedback. Always present.
-        timestamp:
-          type: integer
-          format: int64
-          description: 'Submission time as epoch milliseconds (not an ISO 8601 datetime).
-
-            Always present.
-
-            '
-        metrics:
-          $ref: '#/components/schemas/MessageFeedbackAppendMetrics'
-    MessageFeedbackSubmitRequest:
-      type: object
-      additionalProperties: false
-      description: 'Gateway request body for submitting message feedback (Zod
-
-        `feedbackBodySchema`). All fields are optional; an empty object is
-
-        accepted. Matches the first-party chat UI payload shape.
-
-        '
-      properties:
-        isHelpful:
-          type: boolean
-          description: Overall helpfulness signal (thumbs up/down).
-        categories:
-          type: array
-          description: Issue or positive categories that apply to the response.
-          items:
-            type: string
-            enum:
-            - incorrect_information
-            - missing_information
-            - irrelevant_information
-            - unclear_explanation
-            - poor_citations
-            - excellent_answer
-            - helpful_citations
-            - well_explained
-            - other
-        comments:
-          type: object
-          additionalProperties: false
-          description: Free-text comments grouped by sentiment.
-          properties:
-            positive:
-              type: string
-              description: What was good about the response.
-            negative:
-              type: string
-              description: What could be improved.
-    RegenerateRequest:
-      type: object
-      additionalProperties: false
-      description: "Request body for regenerating an AI response. All fields are optional;\nwhen omitted the model selection and execution context from the\noriginal message are reused.\n\nSupported fields:\n- `filters` — optional `{ apps?, kb? }` filter object\n- `chatMode` — optional non-empty chat mode string\n- `modelKey`, `modelName`, `modelFriendlyName` —\n  optional non-empty model override fields\n- `timezone` — optional non-empty client timezone string\n- `currentTime` — optional ISO 8601 / RFC 3339 datetime string with\n  UTC `Z` or a numeric offset\n- `tools` — optional array of non-empty tool identifiers\n- `protocol` — optional inert compatibility field; when present it must\n  be `agui`, which is also the protocol used when the field is omitted\n- `agentCapabilities` — optional per-request agent capability toggles\n"
-      properties:
-        filters:
-          $ref: '#/components/schemas/Filters'
-        modelKey:
-          type: string
-          minLength: 1
-          description: 'Identifier of the AI model configuration to use for regeneration.
-
-            Typically a UUID returned by the model-management endpoints. When
-
-            omitted, the model used for the original message is reused.
-
-            '
-          example: 05438a37-68f2-4641-a8dc-6c47e63278ca
-        modelName:
-          type: string
-          minLength: 1
-          description: Provider model name (e.g. the underlying LLM identifier).
-          example: gpt-5.6-luna
-        modelFriendlyName:
-          type: string
-          minLength: 1
-          description: Friendly display name of the selected model.
-          example: mini
-        chatMode:
-          type: string
-          minLength: 1
-          description: 'Chat mode used for regeneration (for example `internal_search`,
-
-            `web_search`, or the universal `agent` mode).
-
-            '
-          example: internal_search
-        timezone:
-          type: string
-          minLength: 1
-          description: 'IANA timezone identifier from the client. Used to provide
-
-            time-aware context to the AI during regeneration.
-
-            '
-          example: Asia/Calcutta
-        currentTime:
-          type: string
-          format: date-time
-          description: 'ISO 8601 / RFC 3339 datetime from the client (UTC `Z` or numeric
-
-            offset). Used to anchor any relative time references in the query.
-
-            '
-          example: '2026-05-11T15:43:21+05:30'
-        tools:
-          type: array
-          items:
-            type: string
-            minLength: 1
-          description: 'Optional list of tool identifiers (fully-qualified action names
-
-            such as `jira.create_issue`) the agent may invoke when
-
-            regenerating. Applicable only in agent chat modes.
-
-            '
-          example:
-          - jira.create_issue
-          - confluence.search_content
-        protocol:
-          type: string
-          enum:
-          - agui
-          description: 'AG-UI is the only supported wire protocol. When present must be
-
-            `"agui"`. Omitting the field is equivalent — the server always
-
-            uses the AG-UI vocabulary. Kept in the schema for backward
-
-            compatibility with callers that already send it.
-
-            '
-        agentCapabilities:
-          $ref: '#/components/schemas/AgentCapabilities'
-        runId:
-          type: string
-          format: uuid
-          description: 'Client-generated identifier for this regeneration run. Send it
-
-            here to enable `POST .../cancel {runId}` while it is still
-
-            generating.
-
-            '
     AddMessageRequest:
       type: object
       description: Request body for adding a message to an existing conversation
@@ -5578,19 +5287,137 @@ components:
             stream is still generating.
 
             '
-    ConversationMessageStreamRequest:
-      allOf:
-      - $ref: '#/components/schemas/AddMessageRequest'
-      - type: object
-        description: 'Request body for
+    ConversationStreamSSEEvent:
+      type: object
+      description: "Server-Sent Event envelope for public conversation streams using\n`agent`, `internal_search`, or `web_search`. AG-UI is the sole wire\nprotocol.\n\n`event` carries the AG-UI type name and `data` is a JSON-encoded\nobject that includes a `\"type\"` field matching `event`, plus\ntype-specific fields. Universal `agent` mode may emit `STEP_STARTED`,\n`STEP_FINISHED`, and nested child-run events carrying `parentRunId`.\nStable gateway-generated top-level outcomes:\n\n- `CUSTOM` (`name: \"conversation_created\"`) — fired once on\n  connection. Carries the newly created `conversationId` and\n  `title` so the client can link the stream to the new row before\n  any tokens arrive.\n- `RUN_FINISHED` — fired once after the AI backend finishes.\n  The gateway emits `{ type, result }`; `result` carries the full\n  persisted `conversation` and a `meta` block.\n- `RUN_ERROR` — fired when the stream fails. Carries a `message`\n  and optional `code`; the conversation row is marked FAILED\n  before close.\n\nForwarded upstream lifecycle or child-run events may contain `runId`,\n`threadId`, and `parentRunId`. Gateway-generated root terminal events\ndo not.\nClients should ignore unknown event names rather than treating them\nas errors.\n"
+      properties:
+        event:
+          type: string
+          enum:
+          - RUN_STARTED
+          - RUN_FINISHED
+          - RUN_ERROR
+          - STEP_STARTED
+          - STEP_FINISHED
+          - TEXT_MESSAGE_START
+          - TEXT_MESSAGE_CONTENT
+          - TEXT_MESSAGE_END
+          - REASONING_START
+          - REASONING_MESSAGE_START
+          - REASONING_MESSAGE_CONTENT
+          - REASONING_MESSAGE_END
+          - REASONING_END
+          - TOOL_CALL_START
+          - TOOL_CALL_ARGS
+          - TOOL_CALL_END
+          - TOOL_CALL_RESULT
+          - STATE_DELTA
+          - STATE_SNAPSHOT
+          - CUSTOM
+          - HEARTBEAT
+        data:
+          type: string
+          description: 'JSON-encoded event payload. The decoded JSON includes a `"type"`
 
-          `POST /conversations/{conversationId}/messages/stream`. The public
+            field matching `event`, plus type-specific fields. Shape depends
 
-          stream requires an explicit universal execution mode.
+            on `event`. Forwarded lifecycle events may carry `runId`,
 
-          '
-        required:
-        - chatMode
+            `threadId`, and `parentRunId`.
+
+            '
+    Filters:
+      type: object
+      additionalProperties: false
+      description: 'App connector instance ids and knowledge-base / record-group ids that narrow retrieval
+
+        for a turn. For **org assistant** chat streams, send explicit `apps` / `kb` lists.
+
+        For **agent** chat streams, send explicit id lists, or **omit** `filters` (and `tools`)
+
+        to let the service use the agent’s stored knowledge and tool configuration. Sending
+
+        `{ "apps": [], "kb": [] }` on an agent stream means **no** knowledge sources for that
+
+        turn (it is not “full org default”).
+
+        '
+      properties:
+        apps:
+          type: array
+          items:
+            type: string
+          description: 'Connector instance ids to scope retrieval for this turn. Each element
+
+            must be a valid UUID (connector app id, KB app id, record-group id, etc.).
+
+            Gateway validation matches Zod `appOrKbIdSchema`.
+
+            '
+        kb:
+          type: array
+          items:
+            type: string
+          description: 'Knowledge-base app ids to scope retrieval for this turn.
+
+            Each element must be a valid UUID.
+
+            '
+    AddMessageResponse:
+      type: object
+      additionalProperties: false
+      description: 'Envelope returned by `POST /conversations/{conversationId}/messages`.
+
+        Contains the updated conversation, the number of citation records used
+
+        to ground the AI response for this turn, and request metadata.
+
+        '
+      required:
+      - conversation
+      - recordsUsed
+      - meta
+      properties:
+        conversation:
+          $ref: '#/components/schemas/Conversation'
+        recordsUsed:
+          type: integer
+          minimum: 0
+          description: 'Number of citation records used to ground the AI response generated
+
+            for this turn.
+
+            '
+        meta:
+          type: object
+          additionalProperties: false
+          required:
+          - timestamp
+          - duration
+          properties:
+            requestId:
+              type: string
+              description: 'Request correlation id. Omitted when upstream middleware did
+
+                not set `req.context.requestId`.
+
+                '
+            timestamp:
+              type: string
+              format: date-time
+              description: Server timestamp when the response was sent.
+            duration:
+              type: integer
+              minimum: 0
+              description: Total handler duration in milliseconds.
+            recordsUsed:
+              type: integer
+              minimum: 0
+              description: 'Same value as the top-level `recordsUsed`. Duplicated inside
+
+                `meta` for client convenience.
+
+                '
     Citation:
       type: object
       additionalProperties: false
@@ -5630,75 +5457,6 @@ components:
         updatedAt:
           type: string
           format: date-time
-    PopulatedCitationReference:
-      type: object
-      additionalProperties: false
-      description: 'A message''s citation reference after the handler populates it: the
-
-        stored reference fields, with `citationId` as the id and the cited
-
-        document under `citationData`.
-
-        '
-      properties:
-        citationId:
-          type: string
-          format: objectId
-          description: ID of the citation record
-        relevanceScore:
-          type: number
-          minimum: 0
-          maximum: 1
-          description: How relevant this citation is to the query (0-1)
-        excerpt:
-          type: string
-          description: Relevant excerpt from the source document
-        context:
-          type: string
-          description: Additional context around the citation
-        citationData:
-          $ref: '#/components/schemas/Citation'
-    AppliedFilters:
-      type: object
-      additionalProperties: false
-      description: 'Rich filter state selected by the user, used for display and persistence only.
-
-        This mirrors the active selection shown in the UI and is distinct from the
-
-        machine-readable `filters` field used for retrieval scoping.
-
-        '
-      properties:
-        apps:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppliedFilterNode'
-          description: Applied app/connector filter nodes
-        kb:
-          type: array
-          items:
-            $ref: '#/components/schemas/AppliedFilterNode'
-          description: Applied knowledge-base filter nodes
-    ConversationModelInfo:
-      type: object
-      additionalProperties: false
-      description: AI model configuration recorded against a conversation or message.
-      properties:
-        modelKey:
-          type: string
-          description: Stable identifier of the configured model record
-        modelName:
-          type: string
-          description: Provider-facing model name (e.g. `gpt-5.6-luna`)
-        modelProvider:
-          type: string
-          description: Provider key (e.g. `openai`, `anthropic`)
-        modelFriendlyName:
-          type: string
-          description: Human-readable display name
-        chatMode:
-          type: string
-          description: Chat mode used for this turn (e.g. `quick`, `internal_search`)
     PersistedSemanticSearchCitationMetadata:
       type: object
       additionalProperties: false
@@ -5828,97 +5586,294 @@ components:
           - 'null'
           items:
             type: string
-    ConversationSharedBy:
+    PersistedSemanticSearchBoundingBox:
       type: object
       additionalProperties: false
-      description: 'Present on conversations the caller received via share. Identifies the
+      description: 'Bounding box subdocument embedded in persisted citation metadata.
 
-        conversation initiator (the only user who can share a chat).
+        `boundingBoxSchema` does not set `_id: false`, so Mongoose auto-injects an `_id`.
 
         '
       required:
-      - userId
-      - name
+      - _id
+      - x
+      - y
       properties:
-        userId:
+        _id:
           type: string
           format: objectId
-        name:
+        x:
+          type: number
+        y:
+          type: number
+    CreateConversationRequest:
+      type: object
+      description: 'Request body for creating a new AI conversation.
+
+
+        **Query Processing:**
+
+
+        The query is processed through PipesHub''s AI pipeline which:
+
+
+        - Performs semantic search across indexed knowledge bases
+
+        - Retrieves relevant context from matching documents
+
+        - Generates a response with citations to source materials
+
+        - Suggests follow-up questions based on the conversation
+
+        '
+      required:
+      - query
+      properties:
+        query:
           type: string
-          description: Display name, falling back to email or the user id
-    MessagePart:
+          minLength: 1
+          maxLength: 100000
+          description: 'The user''s question or prompt to start the conversation.
+
+            Supports natural language queries of any complexity.
+
+            '
+          example: What are the key findings from our Q4 financial report?
+        recordIds:
+          type: array
+          items:
+            type: string
+            format: objectId
+          description: 'Limit the AI''s knowledge scope to specific records/documents.
+
+            When provided, only these records will be searched for context.
+
+            '
+          example:
+          - 507f1f77bcf86cd799439011
+          - 507f1f77bcf86cd799439012
+        filters:
+          $ref: '#/components/schemas/Filters'
+        appliedFilters:
+          $ref: '#/components/schemas/AppliedFilters'
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatAttachmentRef'
+          description: 'Uploaded chat attachments to associate with this conversation turn (see
+
+            `POST /conversations/attachments/upload`).
+
+            '
+        projectId:
+          type: string
+          format: objectId
+          description: 'Link the new conversation to a project the caller has at least
+
+            viewer access to. When the project''s instructions, knowledge
+
+            scope, or files are set and this request didn''t supply its own
+
+            `filters`/`attachments`, they are merged in as a fallback (the
+
+            request always wins). Ignored on follow-up turns — only
+
+            meaningful when creating a conversation.
+
+            '
+        projectVisibility:
+          type: string
+          enum:
+          - private
+          - project
+          description: 'Only meaningful together with `projectId`. Overrides the
+
+            project''s default sharing behavior for this one conversation:
+
+            `private` keeps it visible to the owner only; `project` exposes
+
+            it to every project member. Defaults from the project''s
+
+            `chatSharing` setting when omitted.
+
+            '
+        modelKey:
+          type: string
+          description: 'Identifier for the AI model configuration to use.
+
+            Available models depend on organization settings.
+
+            '
+          example: gpt-5.6-luna
+        modelName:
+          type: string
+          description: Display name of the AI model
+          example: gpt-5.6-luna
+        modelFriendlyName:
+          type: string
+          description: Friendly display name of the selected model
+          example: gpt-5.6-Luna
+        chatMode:
+          type: string
+          enum:
+          - agent
+          - internal_search
+          - web_search
+          description: 'Optional execution mode for non-stream consumers of this shared
+
+            request schema.
+
+            `agent` uses the universal agent loop, while `internal_search`
+
+            and `web_search` use their corresponding assistant search paths.
+
+            '
+          example: internal_search
+        timezone:
+          type: string
+          minLength: 1
+          description: 'IANA timezone identifier from the client (top-level field).
+
+            Used to provide time-aware context to the AI.
+
+            '
+          example: America/New_York
+        currentTime:
+          type: string
+          format: date-time
+          description: 'ISO 8601 / RFC 3339 datetime from the client (top-level field; UTC `Z` or numeric offset).
+
+            '
+          example: '2026-04-12T16:00:00+05:30'
+        tools:
+          type: array
+          items:
+            type: string
+            minLength: 1
+          description: 'Optional list of tool identifiers (fully-qualified action names such as
+
+            "jira.create_issue") that the AI agent is permitted to invoke for this
+
+            request. When omitted the agent may use any configured tool. Applicable
+
+            only when `chatMode` is `agent`.
+
+            '
+          example:
+          - jira.create_issue
+          - confluence.search_content
+        protocol:
+          type: string
+          enum:
+          - agui
+          description: 'AG-UI is the only supported wire protocol. When present must be
+
+            `"agui"`. Omitting the field is equivalent — the server always
+
+            uses the AG-UI vocabulary (`RUN_STARTED`, `TEXT_MESSAGE_CONTENT`,
+
+            etc.). Kept in the schema for backward compatibility with callers
+
+            that already send it.
+
+            '
+        agentCapabilities:
+          $ref: '#/components/schemas/AgentCapabilities'
+        runId:
+          type: string
+          format: uuid
+          description: 'Client-generated identifier for this run. Send it here to enable
+
+            `POST /conversations/{conversationId}/cancel {runId}` while the
+
+            stream is still generating. Optional — a caller that never sends
+
+            one just can''t cooperatively cancel the run.
+
+            '
+    MessageReasoningTurn:
       type: object
       additionalProperties: false
-      description: 'One entry in the ordered agent-activity transcript for a message turn.
+      description: 'One model turn''s chain-of-thought. Persisted only when reasoning
 
-        Every field beyond `type` is optional and depends on the part kind, and
+        persistence is enabled; the array is empty otherwise.
 
-        `sub_agent` nests this same shape recursively under `parts`.
+        '
+      required:
+      - content
+      properties:
+        messageId:
+          type: string
+        turnIndex:
+          type: number
+        content:
+          type: string
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      description: 'Standard error envelope returned by all errors routed through `ErrorMiddleware`.
 
+        Applies to all `BaseError` subclasses including `HttpError`, `ValidationError`, and others.
 
-        Tool results here are always a bounded preview, never the full payload —
+        The `code` field is a machine-readable string identifying the error type (e.g.
 
-        `artifactId` points at the complete result.
+        `HTTP_UNAUTHORIZED`, `HTTP_NOT_FOUND`, `VALIDATION_ERROR`, `INTERNAL_ERROR`).
 
         '
       properties:
-        type:
-          type: string
-          enum:
-          - text
-          - reasoning
-          - tool_call
-          - sub_agent
-        content:
-          type: string
-        toolCallId:
-          type: string
-        toolName:
-          type: string
-        displayName:
-          type: string
-        args:
-          type: string
-        argsSummary:
-          type: string
-          description: Human-readable summary of `args`, computed server-side.
-        status:
-          type: string
-          enum:
-          - running
-          - completed
-          - failed
-          - blocked
-        resultPreview:
-          type: string
-        resultSummary:
-          type: string
-          description: 'Human-readable summary of the tool result, computed server-side from
+        error:
+          type: object
+          additionalProperties: false
+          required:
+          - code
+          - message
+          properties:
+            requestId:
+              type: string
+              description: 'Identifier for this request, echoed so a bug report can quote it.
 
-            the full untruncated output.
+                Absent when the request never reached the middleware that assigns one.
 
-            '
-        artifactId:
-          type: string
-          description: Blob-backed artifact id for the full tool result.
-        runId:
-          type: string
-        roleName:
-          type: string
-        isFinal:
-          type: boolean
-          description: 'Set on the single root-level `text` part carrying the answer. Every
+                '
+            code:
+              type: string
+              description: 'Machine-readable error code. For application errors it takes the form `HTTP_<VARIANT>`
 
-            other root `text` part is an abandoned preamble turn. Never set on
+                For unhandled runtime errors (e.g. database unavailable) it is `INTERNAL_ERROR`.
 
-            child parts nested under a `sub_agent`.
+                '
+              example: HTTP_BAD_REQUEST
+            message:
+              type: string
+              description: Human-readable description of the error
+              example: Admin access required
+            metadata:
+              type: object
+              description: Additional context (only present in development environments)
+              additionalProperties: true
+      required:
+      - error
+    AppliedFilters:
+      type: object
+      additionalProperties: false
+      description: 'Rich filter state selected by the user, used for display and persistence only.
 
-            '
-        parts:
+        This mirrors the active selection shown in the UI and is distinct from the
+
+        machine-readable `filters` field used for retrieval scoping.
+
+        '
+      properties:
+        apps:
           type: array
-          description: Nested transcript of a `sub_agent` part.
           items:
-            $ref: '#/components/schemas/MessagePart'
+            $ref: '#/components/schemas/AppliedFilterNode'
+          description: Applied app/connector filter nodes
+        kb:
+          type: array
+          items:
+            $ref: '#/components/schemas/AppliedFilterNode'
+          description: Applied knowledge-base filter nodes
     ChatAttachmentUploadResponse:
       type: object
       additionalProperties: false
@@ -5943,245 +5898,17 @@ components:
           minItems: 1
           items:
             $ref: '#/components/schemas/ChatAttachmentUploadRef'
-    MessageFeedbackAppendMetrics:
-      type: object
-      additionalProperties: false
-      required:
-      - timeToFeedback
-      description: 'Telemetry recorded server-side alongside the feedback. Always present
+    ConversationStreamRequest:
+      allOf:
+      - $ref: '#/components/schemas/CreateConversationRequest'
+      - type: object
+        description: 'Request body for `POST /conversations/stream`. The public stream
 
-        on append responses.
+          requires an explicit universal execution mode.
 
-        '
-      properties:
-        timeToFeedback:
-          type: number
-          description: 'Milliseconds between message creation and feedback submission.
-
-            Always present.
-
-            '
-        userAgent:
-          type: string
-          description: Value of the `User-Agent` request header captured server-side.
-    ConversationListItem:
-      type: object
-      description: 'Conversation summary returned by list endpoints. Identical to
-
-        `Conversation` but omits `messages` to keep list payloads small.
-
-        Fetch a single conversation to retrieve its messages.
-
-        '
-      properties:
-        _id:
-          type: string
-          format: objectId
-        userId:
-          type: string
-          format: objectId
-        orgId:
-          type: string
-          format: objectId
-        title:
-          type: string
-        initiator:
-          type: string
-          format: objectId
-        status:
-          type: string
-          enum:
-          - None
-          - Inprogress
-          - Complete
-          - Failed
-          - Stopped
-        failReason:
-          type: string
-        modelInfo:
-          type: object
-          properties:
-            modelKey:
-              type: string
-            modelName:
-              type: string
-            modelFriendlyName:
-              type: string
-            modelProvider:
-              type: string
-            chatMode:
-              type: string
-        isShared:
-          type: boolean
-        shareLink:
-          type: string
-        sharedWith:
-          type: array
-          items:
-            type: object
-            properties:
-              userId:
-                type: string
-                format: objectId
-              accessLevel:
-                type: string
-                enum:
-                - read
-                - write
-        isArchived:
-          type: boolean
-        archivedBy:
-          type:
-          - string
-          - 'null'
-          format: objectId
-          description: 'User ID of the last user who archived this row, or `null` after
-
-            unarchive cleared the archive state. Absent on rows that have
-
-            never been archived.
-
-            '
-        isDeleted:
-          type: boolean
-        deletedBy:
-          type: string
-          format: objectId
-        conversationErrors:
-          type: array
-          items:
-            type: object
-            properties:
-              message:
-                type: string
-              errorType:
-                type: string
-              timestamp:
-                type: string
-                format: date-time
-              messageId:
-                type: string
-                format: objectId
-              stack:
-                type: string
-              metadata:
-                type: object
-                additionalProperties: true
-        metadata:
-          type: object
-          additionalProperties: true
-        lastActivityAt:
-          type: integer
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-        isOwner:
-          type: boolean
-          readOnly: true
-        accessLevel:
-          type: string
-          enum:
-          - read
-          - write
-          readOnly: true
-        projectId:
-          type:
-          - string
-          - 'null'
-          format: objectId
-          description: 'The project this conversation is linked to, if any. Set via
-
-            `PUT /conversations/{conversationId}/project` or at creation
-
-            time; absent on conversations that were never linked.
-
-            '
-        projectVisibility:
-          type:
-          - string
-          - 'null'
-          enum:
-          - private
-          - project
-          description: 'Only meaningful when `projectId` is set. `private` (default)
-
-            keeps the conversation visible to its owner only; `project`
-
-            exposes it to every member of the linked project. See
-
-            `PATCH /conversations/{conversationId}/project-visibility`.
-
-            '
-        sharedBy:
-          $ref: '#/components/schemas/ConversationSharedBy'
-    MessageFeedbackUpdateResponse:
-      type: object
-      additionalProperties: false
-      required:
-      - conversationId
-      - messageId
-      - feedback
-      - meta
-      description: 'Gateway response after appending feedback to a bot-response message.
-
-        '
-      properties:
-        conversationId:
-          type: string
-          format: objectId
-          description: Conversation the feedback was attached to.
-        messageId:
-          type: string
-          format: objectId
-          description: Message the feedback was attached to.
-        feedback:
-          $ref: '#/components/schemas/MessageFeedbackAppendEntry'
-        meta:
-          type: object
-          additionalProperties: false
-          required:
-          - requestId
-          - timestamp
-          - duration
-          properties:
-            requestId:
-              type: string
-              description: 'Server-side request identifier. Read from the `X-Request-ID`
-
-                header when supplied, otherwise auto-generated, so this field
-
-                is always present.
-
-                '
-            timestamp:
-              type: string
-              format: date-time
-            duration:
-              type: integer
-              description: Server-side processing time in milliseconds.
-    PersistedSemanticSearchBoundingBox:
-      type: object
-      additionalProperties: false
-      description: 'Bounding box subdocument embedded in persisted citation metadata.
-
-        `boundingBoxSchema` does not set `_id: false`, so Mongoose auto-injects an `_id`.
-
-        '
-      required:
-      - _id
-      - x
-      - y
-      properties:
-        _id:
-          type: string
-          format: objectId
-        x:
-          type: number
-        y:
-          type: number
+          '
+        required:
+        - chatMode
   headers:
     X-Conversation-Id:
       description: 'Id of the conversation this turn wrote to. Sent on success and on
@@ -6323,6 +6050,3 @@ components:
             config:write: Update system configuration
             crawl:read: Read crawling jobs
             crawl:write: Create and manage crawling jobs
-x-refined-from:
-- pipeshub-openapi.yaml
-- pipeshub-openapi.yml

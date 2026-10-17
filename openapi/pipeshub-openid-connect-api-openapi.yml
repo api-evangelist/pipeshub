@@ -1,11 +1,11 @@
 openapi: 3.2.0
 info:
-  title: Pipeshub OpenID Connect API
+  title: PipesHub OpenID Connect API
+  description: Unified API documentation for PipesHub services.
   version: 1.0.0
   contact:
     name: API Support
     email: support@pipeshub.com
-  description: 'Operations tagged OpenID Connect across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: '{instance_url}/api/v1'
   description: Base API URL
@@ -73,19 +73,6 @@ paths:
           description: Invalid or missing access token
         '403':
           description: Token does not have openid scope
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /.well-known/openid-configuration:
     get:
       tags:
@@ -149,19 +136,6 @@ paths:
                 - client_secret_post
                 code_challenge_methods_supported:
                 - S256
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /.well-known/oauth-authorization-server:
     get:
       tags:
@@ -215,19 +189,6 @@ paths:
                 - client_secret_post
                 code_challenge_methods_supported:
                 - S256
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /.well-known/jwks.json:
     get:
       tags:
@@ -280,19 +241,6 @@ paths:
                   kid: key-1
                   n: 0vx7agoebG...
                   e: AQAB
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /.well-known/oauth-protected-resource/mcp:
     get:
       tags:
@@ -342,21 +290,79 @@ paths:
                 bearer_methods_supported:
                 - header
                 resource_documentation: https://api.pipeshub.com/api/v1/docs
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
 components:
   schemas:
+    JWK:
+      type: object
+      description: 'JSON Web Key (RFC 7517).
+
+        Public key for verifying JWT signatures.
+
+        '
+      properties:
+        kty:
+          type: string
+          description: Key type
+          example: RSA
+        use:
+          type: string
+          description: Key use (sig = signature)
+          example: sig
+        alg:
+          type: string
+          description: Algorithm
+          example: RS256
+        kid:
+          type: string
+          description: Key ID
+        n:
+          type: string
+          description: RSA modulus (base64url encoded)
+        e:
+          type: string
+          description: RSA exponent (base64url encoded)
+          example: AQAB
+    OAuthProtectedResourceMetadata:
+      type: object
+      description: 'OAuth Protected Resource Metadata (RFC 9728).
+
+        Describes the protected resource, its authorization servers, supported scopes, and bearer token methods.
+
+        '
+      required:
+      - resource
+      - authorization_servers
+      properties:
+        resource:
+          type: string
+          format: uri
+          description: Protected resource identifier
+        authorization_servers:
+          type: array
+          items:
+            type: string
+            format: uri
+          description: Authorization servers that can issue tokens for this resource
+        scopes_supported:
+          type: array
+          items:
+            type: string
+          description: OAuth scopes supported by this resource
+          example:
+          - read:records
+          - write:records
+          - admin:connectors
+        bearer_methods_supported:
+          type: array
+          items:
+            type: string
+          description: Methods supported for sending bearer tokens
+          example:
+          - header
+        resource_documentation:
+          type: string
+          format: uri
+          description: URL to human-readable documentation for the resource
     OpenIDConfiguration:
       type: object
       description: 'OpenID Connect Discovery Response (RFC 8414).
@@ -463,90 +469,6 @@ components:
           description: Supported PKCE code challenge methods (only `S256`)
           example:
           - S256
-    OAuthProtectedResourceMetadata:
-      type: object
-      description: 'OAuth Protected Resource Metadata (RFC 9728).
-
-        Describes the protected resource, its authorization servers, supported scopes, and bearer token methods.
-
-        '
-      required:
-      - resource
-      - authorization_servers
-      properties:
-        resource:
-          type: string
-          format: uri
-          description: Protected resource identifier
-        authorization_servers:
-          type: array
-          items:
-            type: string
-            format: uri
-          description: Authorization servers that can issue tokens for this resource
-        scopes_supported:
-          type: array
-          items:
-            type: string
-          description: OAuth scopes supported by this resource
-          example:
-          - read:records
-          - write:records
-          - admin:connectors
-        bearer_methods_supported:
-          type: array
-          items:
-            type: string
-          description: Methods supported for sending bearer tokens
-          example:
-          - header
-        resource_documentation:
-          type: string
-          format: uri
-          description: URL to human-readable documentation for the resource
-    JWKS:
-      type: object
-      description: 'JSON Web Key Set (RFC 7517).
-
-        Contains public keys for verifying token signatures.
-
-        '
-      properties:
-        keys:
-          type: array
-          items:
-            $ref: '#/components/schemas/JWK'
-          description: Array of JSON Web Keys
-    JWK:
-      type: object
-      description: 'JSON Web Key (RFC 7517).
-
-        Public key for verifying JWT signatures.
-
-        '
-      properties:
-        kty:
-          type: string
-          description: Key type
-          example: RSA
-        use:
-          type: string
-          description: Key use (sig = signature)
-          example: sig
-        alg:
-          type: string
-          description: Algorithm
-          example: RS256
-        kid:
-          type: string
-          description: Key ID
-        n:
-          type: string
-          description: RSA modulus (base64url encoded)
-        e:
-          type: string
-          description: RSA exponent (base64url encoded)
-          example: AQAB
     OAuthUserInfoResponse:
       type: object
       description: 'OpenID Connect UserInfo Response.
@@ -583,6 +505,19 @@ components:
           description: Last profile update timestamp (Unix epoch)
       required:
       - user_id
+    JWKS:
+      type: object
+      description: 'JSON Web Key Set (RFC 7517).
+
+        Contains public keys for verifying token signatures.
+
+        '
+      properties:
+        keys:
+          type: array
+          items:
+            $ref: '#/components/schemas/JWK'
+          description: Array of JSON Web Keys
   securitySchemes:
     bearerAuth:
       type: http
@@ -712,6 +647,3 @@ components:
             config:write: Update system configuration
             crawl:read: Read crawling jobs
             crawl:write: Create and manage crawling jobs
-x-refined-from:
-- pipeshub-openapi.yaml
-- pipeshub-openapi.yml

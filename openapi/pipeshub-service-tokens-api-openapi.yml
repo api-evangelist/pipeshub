@@ -1,11 +1,11 @@
 openapi: 3.2.0
 info:
-  title: Pipeshub Service Tokens API
+  title: PipesHub Service Tokens API
+  description: Unified API documentation for PipesHub services.
   version: 1.0.0
   contact:
     name: API Support
     email: support@pipeshub.com
-  description: 'Operations tagged Service Tokens across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: '{instance_url}/api/v1'
   description: Base API URL
@@ -123,19 +123,6 @@ paths:
           description: Token lacks the required scope
         '404':
           description: No such service account in this organisation
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /service-tokens/scopes:
     get:
       tags:
@@ -191,19 +178,6 @@ paths:
           description: Not authenticated
         '403':
           description: Token lacks the required scope
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /service-tokens/{tokenId}:
     delete:
       tags:
@@ -244,46 +218,23 @@ paths:
           description: Token lacks the required scope
         '404':
           description: No such token for that service account
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
 components:
   schemas:
-    ServiceToken:
-      type: object
-      additionalProperties: false
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-          description: What this token is for, shown in the list
-          example: Release digest job
-        serviceAccountId:
-          type: string
-        scopes:
-          type: array
-          items:
+    ServiceTokenWithSecret:
+      allOf:
+      - $ref: '#/components/schemas/ServiceToken'
+      - type: object
+        properties:
+          accessToken:
             type: string
-        createdAt:
-          type: string
-          format: date-time
-        expiresAt:
-          type: string
-          format: date-time
-        lastUsedAt:
-          type: string
-          format: date-time
+            description: 'The raw token, returned by this call and never retrievable
+
+              again. Carries a `phsvc_` prefix ahead of the JWT, which is
+
+              display-only and stripped before the token is verified.
+
+              '
+            example: phsvc_eyJhbGciOi...
     OAuthScopeInfo:
       type: object
       description: Information about an OAuth scope
@@ -349,21 +300,31 @@ components:
             one most likely to outlive the reason it was created.
 
             '
-    ServiceTokenWithSecret:
-      allOf:
-      - $ref: '#/components/schemas/ServiceToken'
-      - type: object
-        properties:
-          accessToken:
+    ServiceToken:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          description: What this token is for, shown in the list
+          example: Release digest job
+        serviceAccountId:
+          type: string
+        scopes:
+          type: array
+          items:
             type: string
-            description: 'The raw token, returned by this call and never retrievable
-
-              again. Carries a `phsvc_` prefix ahead of the JWT, which is
-
-              display-only and stripped before the token is verified.
-
-              '
-            example: phsvc_eyJhbGciOi...
+        createdAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+        lastUsedAt:
+          type: string
+          format: date-time
   securitySchemes:
     bearerAuth:
       type: http
@@ -493,6 +454,3 @@ components:
             config:write: Update system configuration
             crawl:read: Read crawling jobs
             crawl:write: Create and manage crawling jobs
-x-refined-from:
-- pipeshub-openapi.yaml
-- pipeshub-openapi.yml

@@ -1,11 +1,11 @@
 openapi: 3.2.0
 info:
-  title: Pipeshub Teams API
+  title: PipesHub Teams API
+  description: Unified API documentation for PipesHub services.
   version: 1.0.0
   contact:
     name: API Support
     email: support@pipeshub.com
-  description: 'Operations tagged Teams across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: '{instance_url}/api/v1'
   description: Base API URL
@@ -104,19 +104,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /teams/user/teams:
     get:
       tags:
@@ -236,19 +223,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /teams/{teamId}:
     get:
       tags:
@@ -507,19 +481,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /teams/{teamId}/users:
     get:
       tags:
@@ -604,41 +565,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
 components:
   schemas:
-    TeamMutationResponse:
-      type: object
-      additionalProperties: false
-      description: 'Success envelope with updated team (`status`, `message`, `team`).
-
-        Returned by update/add/remove/permissions mutations from Python.
-
-        '
-      required:
-      - status
-      - message
-      - team
-      properties:
-        status:
-          type: string
-          example: success
-        message:
-          type: string
-        team:
-          $ref: '#/components/schemas/TeamDetail'
     TeamListResponse:
       type: object
       additionalProperties: false
@@ -663,59 +591,6 @@ components:
             $ref: '#/components/schemas/TeamListItem'
         pagination:
           $ref: '#/components/schemas/TeamPagination'
-    TeamCreatedByUser:
-      type: object
-      additionalProperties: false
-      description: Creator profile on team responses.
-      properties:
-        id:
-          type: string
-          description: Graph user key of the team creator
-        userId:
-          type: string
-          pattern: ^[a-fA-F0-9]{24}$
-          description: MongoDB user ID of the team creator
-        name:
-          type: string
-          description: Creator display name
-        email:
-          type: string
-          description: Creator email
-        profilePicture:
-          type:
-          - string
-          - 'null'
-          description: Base64-encoded data URI of the creator profile picture, if available
-    TeamUpdateRequest:
-      type: object
-      additionalProperties: false
-      description: Partial update for `PUT /teams/{teamId}`. Validated by `updateTeamSchema` (Zod).
-      properties:
-        name:
-          type: string
-          minLength: 1
-          maxLength: 100
-          description: Team display name
-        description:
-          type: string
-          maxLength: 500
-          description: Team description
-        addUserRoles:
-          type: array
-          items:
-            $ref: '#/components/schemas/TeamMemberRoleEntry'
-          description: Members to add, each with Mongo userId and role
-        removeUserIds:
-          type: array
-          items:
-            type: string
-            pattern: ^[a-fA-F0-9]{24}$
-          description: Mongo user IDs of members to remove
-        updateUserRoles:
-          type: array
-          items:
-            $ref: '#/components/schemas/TeamMemberRoleEntry'
-          description: Member role updates, each with Mongo userId and role
     TeamDetail:
       type: object
       additionalProperties: false
@@ -764,117 +639,6 @@ components:
       - memberCount
       - createdAtTimestamp
       - updatedAtTimestamp
-    TeamMemberRoleEntry:
-      type: object
-      additionalProperties: false
-      description: Mongo userId and role for create/update/member mutation bodies.
-      required:
-      - userId
-      - role
-      properties:
-        userId:
-          type: string
-          pattern: ^[a-fA-F0-9]{24}$
-          description: MongoDB user ID (resolved to graph key on the server)
-        role:
-          type: string
-          enum:
-          - OWNER
-          - READER
-          - WRITER
-          description: User role on the team
-    TeamGraphKey:
-      type: string
-      description: 'Team identifier in list/detail payloads: standard UUID team key, or the
-
-        system **All** team `all_{mongoOrgId}` created by `ensure_all_team_with_users`.
-
-        '
-      example: 550e8400-e29b-41d4-a716-446655440000
-    TeamPagination:
-      type: object
-      additionalProperties: false
-      description: Pagination block for team list responses.
-      required:
-      - page
-      - limit
-      - total
-      - pages
-      - hasNext
-      - hasPrev
-      properties:
-        page:
-          type: integer
-          description: Current 1-based page number
-          example: 1
-        limit:
-          type: integer
-          description: Page size
-          example: 10
-        total:
-          type: integer
-          description: Total matching teams
-          example: 5
-        pages:
-          type: integer
-          description: Total pages
-          example: 1
-        hasNext:
-          type: boolean
-          example: false
-        hasPrev:
-          type: boolean
-          example: false
-    TeamListItem:
-      type: object
-      additionalProperties: false
-      description: Team row returned by `GET /teams/user/teams`.
-      properties:
-        id:
-          $ref: '#/components/schemas/TeamGraphKey'
-        name:
-          type: string
-          description: Team display name
-        description:
-          type:
-          - string
-          - 'null'
-          description: Team description
-        createdByUser:
-          $ref: '#/components/schemas/TeamCreatedByUser'
-        orgId:
-          type: string
-          description: Organization ID
-        memberCount:
-          type: integer
-          description: Number of team members
-        createdAtTimestamp:
-          type: integer
-          format: int64
-          description: Creation timestamp (ms)
-        updatedAtTimestamp:
-          type: integer
-          format: int64
-          description: Last update timestamp (ms)
-        members:
-          type: array
-          items:
-            $ref: '#/components/schemas/TeamMember'
-          description: Members when included on list rows
-        canEdit:
-          type: boolean
-        canDelete:
-          type: boolean
-          description: Always false for the system All team (`all_{mongoOrgId}`); DELETE returns 403.
-        canManageMembers:
-          type: boolean
-      required:
-      - id
-      - name
-      - orgId
-      - memberCount
-      - createdAtTimestamp
-      - updatedAtTimestamp
     TeamDeleteResponse:
       type: object
       additionalProperties: false
@@ -888,69 +652,14 @@ components:
         message:
           type: string
           example: Team deleted successfully
-    TeamCreateRequest:
+    TeamMutationResponse:
       type: object
       additionalProperties: false
-      description: Request body for `POST /teams`. Validated by `createTeamSchema` (Zod).
-      required:
-      - name
-      properties:
-        name:
-          type: string
-          minLength: 1
-          maxLength: 100
-          description: Team display name
-          example: Engineering Team
-        description:
-          type: string
-          maxLength: 500
-          description: Optional team description
-        userRoles:
-          type: array
-          items:
-            $ref: '#/components/schemas/TeamMemberRoleEntry'
-          description: Members to add on create, each with Mongo userId and role
-    TeamMember:
-      type: object
-      additionalProperties: false
-      description: Team member as returned by list/detail/users endpoints.
-      properties:
-        id:
-          type: string
-          description: Graph user key (internal identifier)
-        userId:
-          type: string
-          pattern: ^[a-fA-F0-9]{24}$
-          description: MongoDB user ID
-        userName:
-          type: string
-          description: Member display name
-        userEmail:
-          type: string
-          description: Member email
-        role:
-          type: string
-          enum:
-          - OWNER
-          - READER
-          - WRITER
-          description: Member role on the team
-        joinedAt:
-          type: integer
-          format: int64
-          description: Permission edge created timestamp (ms)
-        isOwner:
-          type: boolean
-          description: Whether the member has OWNER role
-        profilePicture:
-          type:
-          - string
-          - 'null'
-          description: Base64-encoded data URI of the member profile picture, if available
-    GetTeamResponse:
-      type: object
-      additionalProperties: false
-      description: Success envelope from `GET /teams/{teamId}` (Python forwards through Node).
+      description: 'Success envelope with updated team (`status`, `message`, `team`).
+
+        Returned by update/add/remove/permissions mutations from Python.
+
+        '
       required:
       - status
       - message
@@ -961,7 +670,6 @@ components:
           example: success
         message:
           type: string
-          example: Team fetched successfully
         team:
           $ref: '#/components/schemas/TeamDetail'
     TeamUsersPagination:
@@ -998,6 +706,53 @@ components:
           example: Team created successfully
         data:
           $ref: '#/components/schemas/TeamDetail'
+    GetTeamResponse:
+      type: object
+      additionalProperties: false
+      description: Success envelope from `GET /teams/{teamId}` (Python forwards through Node).
+      required:
+      - status
+      - message
+      - team
+      properties:
+        status:
+          type: string
+          example: success
+        message:
+          type: string
+          example: Team fetched successfully
+        team:
+          $ref: '#/components/schemas/TeamDetail'
+    TeamUpdateRequest:
+      type: object
+      additionalProperties: false
+      description: Partial update for `PUT /teams/{teamId}`. Validated by `updateTeamSchema` (Zod).
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Team display name
+        description:
+          type: string
+          maxLength: 500
+          description: Team description
+        addUserRoles:
+          type: array
+          items:
+            $ref: '#/components/schemas/TeamMemberRoleEntry'
+          description: Members to add, each with Mongo userId and role
+        removeUserIds:
+          type: array
+          items:
+            type: string
+            pattern: ^[a-fA-F0-9]{24}$
+          description: Mongo user IDs of members to remove
+        updateUserRoles:
+          type: array
+          items:
+            $ref: '#/components/schemas/TeamMemberRoleEntry'
+          description: Member role updates, each with Mongo userId and role
     TeamUsersListResponse:
       type: object
       additionalProperties: false
@@ -1057,6 +812,199 @@ components:
               additionalProperties: true
       required:
       - error
+    TeamPagination:
+      type: object
+      additionalProperties: false
+      description: Pagination block for team list responses.
+      required:
+      - page
+      - limit
+      - total
+      - pages
+      - hasNext
+      - hasPrev
+      properties:
+        page:
+          type: integer
+          description: Current 1-based page number
+          example: 1
+        limit:
+          type: integer
+          description: Page size
+          example: 10
+        total:
+          type: integer
+          description: Total matching teams
+          example: 5
+        pages:
+          type: integer
+          description: Total pages
+          example: 1
+        hasNext:
+          type: boolean
+          example: false
+        hasPrev:
+          type: boolean
+          example: false
+    TeamMember:
+      type: object
+      additionalProperties: false
+      description: Team member as returned by list/detail/users endpoints.
+      properties:
+        id:
+          type: string
+          description: Graph user key (internal identifier)
+        userId:
+          type: string
+          pattern: ^[a-fA-F0-9]{24}$
+          description: MongoDB user ID
+        userName:
+          type: string
+          description: Member display name
+        userEmail:
+          type: string
+          description: Member email
+        role:
+          type: string
+          enum:
+          - OWNER
+          - READER
+          - WRITER
+          description: Member role on the team
+        joinedAt:
+          type: integer
+          format: int64
+          description: Permission edge created timestamp (ms)
+        isOwner:
+          type: boolean
+          description: Whether the member has OWNER role
+        profilePicture:
+          type:
+          - string
+          - 'null'
+          description: Base64-encoded data URI of the member profile picture, if available
+    TeamListItem:
+      type: object
+      additionalProperties: false
+      description: Team row returned by `GET /teams/user/teams`.
+      properties:
+        id:
+          $ref: '#/components/schemas/TeamGraphKey'
+        name:
+          type: string
+          description: Team display name
+        description:
+          type:
+          - string
+          - 'null'
+          description: Team description
+        createdByUser:
+          $ref: '#/components/schemas/TeamCreatedByUser'
+        orgId:
+          type: string
+          description: Organization ID
+        memberCount:
+          type: integer
+          description: Number of team members
+        createdAtTimestamp:
+          type: integer
+          format: int64
+          description: Creation timestamp (ms)
+        updatedAtTimestamp:
+          type: integer
+          format: int64
+          description: Last update timestamp (ms)
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/TeamMember'
+          description: Members when included on list rows
+        canEdit:
+          type: boolean
+        canDelete:
+          type: boolean
+          description: Always false for the system All team (`all_{mongoOrgId}`); DELETE returns 403.
+        canManageMembers:
+          type: boolean
+      required:
+      - id
+      - name
+      - orgId
+      - memberCount
+      - createdAtTimestamp
+      - updatedAtTimestamp
+    TeamMemberRoleEntry:
+      type: object
+      additionalProperties: false
+      description: Mongo userId and role for create/update/member mutation bodies.
+      required:
+      - userId
+      - role
+      properties:
+        userId:
+          type: string
+          pattern: ^[a-fA-F0-9]{24}$
+          description: MongoDB user ID (resolved to graph key on the server)
+        role:
+          type: string
+          enum:
+          - OWNER
+          - READER
+          - WRITER
+          description: User role on the team
+    TeamCreatedByUser:
+      type: object
+      additionalProperties: false
+      description: Creator profile on team responses.
+      properties:
+        id:
+          type: string
+          description: Graph user key of the team creator
+        userId:
+          type: string
+          pattern: ^[a-fA-F0-9]{24}$
+          description: MongoDB user ID of the team creator
+        name:
+          type: string
+          description: Creator display name
+        email:
+          type: string
+          description: Creator email
+        profilePicture:
+          type:
+          - string
+          - 'null'
+          description: Base64-encoded data URI of the creator profile picture, if available
+    TeamCreateRequest:
+      type: object
+      additionalProperties: false
+      description: Request body for `POST /teams`. Validated by `createTeamSchema` (Zod).
+      required:
+      - name
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Team display name
+          example: Engineering Team
+        description:
+          type: string
+          maxLength: 500
+          description: Optional team description
+        userRoles:
+          type: array
+          items:
+            $ref: '#/components/schemas/TeamMemberRoleEntry'
+          description: Members to add on create, each with Mongo userId and role
+    TeamGraphKey:
+      type: string
+      description: 'Team identifier in list/detail payloads: standard UUID team key, or the
+
+        system **All** team `all_{mongoOrgId}` created by `ensure_all_team_with_users`.
+
+        '
+      example: 550e8400-e29b-41d4-a716-446655440000
   securitySchemes:
     bearerAuth:
       type: http
@@ -1186,6 +1134,3 @@ components:
             config:write: Update system configuration
             crawl:read: Read crawling jobs
             crawl:write: Create and manage crawling jobs
-x-refined-from:
-- pipeshub-openapi.yaml
-- pipeshub-openapi.yml

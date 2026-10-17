@@ -1,11 +1,11 @@
 openapi: 3.2.0
 info:
-  title: Pipeshub Connector Control API
+  title: PipesHub Connector Control API
+  description: Unified API documentation for PipesHub services.
   version: 1.0.0
   contact:
     name: API Support
     email: support@pipeshub.com
-  description: 'Operations tagged Connector Control across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: '{instance_url}/api/v1'
   description: Base API URL
@@ -136,19 +136,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LocalFsDesktopRefusal'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
 components:
   schemas:
     LocalFsDesktopRefusal:
@@ -196,31 +183,49 @@ components:
             ownerDeviceName:
               type: string
               description: Name of the owner device, when the connector has one.
-    ConnectorAuthType:
+    ConnectorToggleRequest:
+      type: object
+      description: Request to toggle connector active status
+      required:
+      - type
+      properties:
+        type:
+          type: string
+          enum:
+          - sync
+          - agent
+          description: 'Toggle type: ''sync'' for data synchronization, ''agent'' for AI agent integration'
+        deviceId:
+          type: string
+          description: 'Sent by the desktop app. Required when enabling sync on a Local FS
+
+            connector with no owner yet; must match `ownerDeviceId` afterwards.
+
+            '
+        deviceName:
+          type: string
+          description: 'Sent by the desktop app with `deviceId`. Stored as `ownerDeviceName`
+
+            when the device claims the connector.
+
+            '
+    ConnectorScope:
       type: string
-      description: 'Authentication method required by the connector:<br>
+      description: 'Scope determines visibility and access control for connectors:<br>
 
         <ul>
 
-        <li><code>OAUTH</code> - User OAuth consent flow</li>
+        <li><code>team</code> - Available to all users in the organization (admin-only creation)</li>
 
-        <li><code>OAUTH_ADMIN_CONSENT</code> - Admin OAuth with org-wide consent</li>
-
-        <li><code>API_TOKEN</code> - API key or token authentication</li>
-
-        <li><code>USERNAME_PASSWORD</code> - Username/password credentials</li>
-
-        <li><code>NONE</code> - No authentication required</li>
+        <li><code>personal</code> - Private to the creating user only</li>
 
         </ul>
 
         '
       enum:
-      - OAUTH
-      - OAUTH_ADMIN_CONSENT
-      - API_TOKEN
-      - USERNAME_PASSWORD
-      - NONE
+      - team
+      - personal
+      example: team
     ConnectorInstance:
       type: object
       description: 'A configured connector instance. Represents an active or configured
@@ -301,49 +306,31 @@ components:
         updatedAt:
           type: string
           format: date-time
-    ConnectorScope:
+    ConnectorAuthType:
       type: string
-      description: 'Scope determines visibility and access control for connectors:<br>
+      description: 'Authentication method required by the connector:<br>
 
         <ul>
 
-        <li><code>team</code> - Available to all users in the organization (admin-only creation)</li>
+        <li><code>OAUTH</code> - User OAuth consent flow</li>
 
-        <li><code>personal</code> - Private to the creating user only</li>
+        <li><code>OAUTH_ADMIN_CONSENT</code> - Admin OAuth with org-wide consent</li>
+
+        <li><code>API_TOKEN</code> - API key or token authentication</li>
+
+        <li><code>USERNAME_PASSWORD</code> - Username/password credentials</li>
+
+        <li><code>NONE</code> - No authentication required</li>
 
         </ul>
 
         '
       enum:
-      - team
-      - personal
-      example: team
-    ConnectorToggleRequest:
-      type: object
-      description: Request to toggle connector active status
-      required:
-      - type
-      properties:
-        type:
-          type: string
-          enum:
-          - sync
-          - agent
-          description: 'Toggle type: ''sync'' for data synchronization, ''agent'' for AI agent integration'
-        deviceId:
-          type: string
-          description: 'Sent by the desktop app. Required when enabling sync on a Local FS
-
-            connector with no owner yet; must match `ownerDeviceId` afterwards.
-
-            '
-        deviceName:
-          type: string
-          description: 'Sent by the desktop app with `deviceId`. Stored as `ownerDeviceName`
-
-            when the device claims the connector.
-
-            '
+      - OAUTH
+      - OAUTH_ADMIN_CONSENT
+      - API_TOKEN
+      - USERNAME_PASSWORD
+      - NONE
   securitySchemes:
     bearerAuth:
       type: http
@@ -473,6 +460,3 @@ components:
             config:write: Update system configuration
             crawl:read: Read crawling jobs
             crawl:write: Create and manage crawling jobs
-x-refined-from:
-- pipeshub-openapi.yaml
-- pipeshub-openapi.yml

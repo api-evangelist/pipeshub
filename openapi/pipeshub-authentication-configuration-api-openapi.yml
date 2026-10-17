@@ -1,11 +1,11 @@
 openapi: 3.2.0
 info:
-  title: Pipeshub Authentication Configuration API
+  title: PipesHub Authentication Configuration API
+  description: Unified API documentation for PipesHub services.
   version: 1.0.0
   contact:
     name: API Support
     email: support@pipeshub.com
-  description: 'Operations tagged Authentication Configuration across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: '{instance_url}/api/v1'
   description: Base API URL
@@ -72,19 +72,6 @@ paths:
                 $ref: '#/components/schemas/AzureAdAuthConfig'
         '401':
           description: Unauthorized
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /configurationManager/authConfig/microsoft:
     post:
       tags:
@@ -131,19 +118,6 @@ paths:
                 $ref: '#/components/schemas/MicrosoftAuthConfig'
         '401':
           description: Unauthorized
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /configurationManager/authConfig/google:
     post:
       tags:
@@ -190,19 +164,6 @@ paths:
                 $ref: '#/components/schemas/GoogleAuthConfig'
         '401':
           description: Unauthorized
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /configurationManager/authConfig/sso:
     post:
       tags:
@@ -256,19 +217,6 @@ paths:
                       example: https://app.example.com
         '401':
           description: Unauthorized
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /configurationManager/authConfig/oauth:
     post:
       tags:
@@ -315,55 +263,8 @@ paths:
                 $ref: '#/components/schemas/GenericOAuthConfig'
         '401':
           description: Unauthorized
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
 components:
   schemas:
-    GenericOAuthConfig:
-      type: object
-      description: Generic OAuth 2.0 provider configuration
-      properties:
-        providerName:
-          type: string
-          description: Display name for the OAuth provider
-          example: Custom OAuth Provider
-        clientId:
-          type: string
-          description: OAuth client ID
-        clientSecret:
-          type: string
-          description: OAuth client secret
-        authorizationUrl:
-          type: string
-          format: uri
-          description: Authorization endpoint URL
-        tokenEndpoint:
-          type: string
-          format: uri
-          description: Token endpoint URL
-        userInfoEndpoint:
-          type: string
-          format: uri
-          description: User info endpoint URL
-        scope:
-          type: string
-          description: OAuth scopes to request
-          example: openid profile email
-        redirectUri:
-          type: string
-          format: uri
-          description: OAuth redirect URI
     SSOAuthConfig:
       type: object
       description: SAML SSO authentication configuration
@@ -402,6 +303,48 @@ components:
           description: Azure AD tenant ID (use 'common' for multi-tenant)
           default: common
           example: common
+    GoogleAuthConfig:
+      type: object
+      description: Google authentication configuration
+      properties:
+        clientId:
+          type: string
+          description: Google OAuth client ID
+          example: 123456789-abc.apps.googleusercontent.com
+    GenericOAuthConfig:
+      type: object
+      description: Generic OAuth 2.0 provider configuration
+      properties:
+        providerName:
+          type: string
+          description: Display name for the OAuth provider
+          example: Custom OAuth Provider
+        clientId:
+          type: string
+          description: OAuth client ID
+        clientSecret:
+          type: string
+          description: OAuth client secret
+        authorizationUrl:
+          type: string
+          format: uri
+          description: Authorization endpoint URL
+        tokenEndpoint:
+          type: string
+          format: uri
+          description: Token endpoint URL
+        userInfoEndpoint:
+          type: string
+          format: uri
+          description: User info endpoint URL
+        scope:
+          type: string
+          description: OAuth scopes to request
+          example: openid profile email
+        redirectUri:
+          type: string
+          format: uri
+          description: OAuth redirect URI
     MicrosoftAuthConfig:
       type: object
       description: Microsoft authentication configuration
@@ -414,14 +357,6 @@ components:
           type: string
           description: Microsoft tenant ID
           default: common
-    GoogleAuthConfig:
-      type: object
-      description: Google authentication configuration
-      properties:
-        clientId:
-          type: string
-          description: Google OAuth client ID
-          example: 123456789-abc.apps.googleusercontent.com
   securitySchemes:
     bearerAuth:
       type: http
@@ -551,6 +486,3 @@ components:
             config:write: Update system configuration
             crawl:read: Read crawling jobs
             crawl:write: Create and manage crawling jobs
-x-refined-from:
-- pipeshub-openapi.yaml
-- pipeshub-openapi.yml

@@ -1,11 +1,11 @@
 openapi: 3.2.0
 info:
-  title: Pipeshub Connector Filters API
+  title: PipesHub Connector Filters API
+  description: Unified API documentation for PipesHub services.
   version: 1.0.0
   contact:
     name: API Support
     email: support@pipeshub.com
-  description: 'Operations tagged Connector Filters across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: '{instance_url}/api/v1'
   description: Base API URL
@@ -134,19 +134,6 @@ paths:
           description: Unauthorized
         '404':
           description: Connector not found
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /connectors/{connectorId}/filters/{filterKey}/options:
     get:
       tags:
@@ -310,41 +297,8 @@ paths:
           description: Unauthorized
         '404':
           description: Connector or filter not found
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
 components:
   schemas:
-    SaveConnectorFiltersRequest:
-      type: object
-      description: Request to save filter selections for a connector
-      required:
-      - filters
-      properties:
-        filters:
-          type: object
-          description: Filter values to save (structure depends on connector's filter schema)
-          additionalProperties: true
-          example:
-            folders:
-            - id: folder_123
-              name: Documents
-            - id: folder_456
-              name: Reports
-            fileTypes:
-            - pdf
-            - docx
-            modifiedAfter: '2024-01-01'
     FilterOptions:
       type: object
       description: Available filter options for a connector
@@ -423,6 +377,26 @@ components:
                       type: string
                     label:
                       type: string
+    SaveConnectorFiltersRequest:
+      type: object
+      description: Request to save filter selections for a connector
+      required:
+      - filters
+      properties:
+        filters:
+          type: object
+          description: Filter values to save (structure depends on connector's filter schema)
+          additionalProperties: true
+          example:
+            folders:
+            - id: folder_123
+              name: Documents
+            - id: folder_456
+              name: Reports
+            fileTypes:
+            - pdf
+            - docx
+            modifiedAfter: '2024-01-01'
   securitySchemes:
     bearerAuth:
       type: http
@@ -552,6 +526,3 @@ components:
             config:write: Update system configuration
             crawl:read: Read crawling jobs
             crawl:write: Create and manage crawling jobs
-x-refined-from:
-- pipeshub-openapi.yaml
-- pipeshub-openapi.yml

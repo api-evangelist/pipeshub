@@ -1,11 +1,11 @@
 openapi: 3.2.0
 info:
-  title: Pipeshub AI Models Providers API
+  title: PipesHub AI Models Providers API
+  description: Unified API documentation for PipesHub services.
   version: 1.0.0
   contact:
     name: API Support
     email: support@pipeshub.com
-  description: 'Operations tagged AI Models Providers across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: '{instance_url}/api/v1'
   description: Base API URL
@@ -55,19 +55,6 @@ paths:
                 $ref: '#/components/schemas/GetModelsByTypeResponse'
         '401':
           description: Unauthorized
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /configurationManager/ai-models/available/{modelType}:
     get:
       tags:
@@ -411,19 +398,6 @@ paths:
                 error:
                   code: HTTP_INTERNAL_SERVER_ERROR
                   message: An unexpected error occurred
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /configurationManager/ai-models/providers:
     post:
       tags:
@@ -471,19 +445,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /configurationManager/ai-models/providers/{modelType}/{modelKey}:
     put:
       tags:
@@ -666,19 +627,6 @@ paths:
                 error:
                   code: HTTP_CONFLICT
                   message: 'Cannot delete model ''gpt-4o-mini'': currently in use by agent ''Research Assistant''. Remove it from the agent first.'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /configurationManager/ai-models/default/{modelType}/{modelKey}:
     put:
       tags:
@@ -710,19 +658,6 @@ paths:
           description: Admin access required
         '404':
           description: Model not found
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /configurationManager/ai-models/prepare-model:
     post:
       tags:
@@ -864,19 +799,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /configurationManager/ai-models/download-progress:
     get:
       tags:
@@ -975,19 +897,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /configurationManager/ai-models/registry:
     get:
       tags:
@@ -1045,19 +954,6 @@ paths:
           description: Forbidden - Admin access required
         '503':
           description: AI model registry service is unavailable
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /configurationManager/ai-models/registry/capabilities:
     get:
       tags:
@@ -1102,19 +998,6 @@ paths:
           description: Forbidden - Admin access required
         '503':
           description: AI model registry service is unavailable
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /configurationManager/ai-models/registry/{providerId}/schema:
     get:
       tags:
@@ -1173,21 +1056,119 @@ paths:
           description: Provider not found
         '503':
           description: AI model registry service is unavailable
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
 components:
   schemas:
+    AddAIModelProviderRequest:
+      type: object
+      description: Request to add a new AI model provider
+      additionalProperties: false
+      required:
+      - modelType
+      - provider
+      - configuration
+      properties:
+        modelType:
+          $ref: '#/components/schemas/ModelType'
+        provider:
+          type: string
+          minLength: 1
+          description: Provider registry ID (e.g. openAI, gemini, azureOpenAI, groq)
+          example: openAI
+        configuration:
+          $ref: '#/components/schemas/AIModelProviderConfiguration'
+        isMultimodal:
+          type: boolean
+          description: Whether the model supports multimodal inputs
+          default: false
+        isReasoning:
+          type: boolean
+          description: Whether this is a reasoning model
+          default: false
+        isDefault:
+          type: boolean
+          description: Set as default model for this type
+          default: false
+        contextLength:
+          type:
+          - integer
+          - 'null'
+          description: Maximum context length (tokens)
+    AIModelRegistryProvider:
+      type: object
+      properties:
+        providerId:
+          type: string
+          description: Unique identifier (e.g. openAI, anthropic)
+        name:
+          type: string
+          description: Human-readable provider name
+        description:
+          type: string
+        capabilities:
+          type: array
+          items:
+            type: string
+        icon:
+          type: string
+          description: Path to the provider icon asset
+        color:
+          type: string
+          description: Brand hex colour
+        isPopular:
+          type: boolean
+    UpdateAIModelProviderErrorResponse:
+      oneOf:
+      - $ref: '#/components/schemas/ErrorResponse'
+      - $ref: '#/components/schemas/AIModelProviderSimpleError'
+      - $ref: '#/components/schemas/AIModelProviderHealthCheckErrorEnvelope'
+    AddAIModelProviderErrorResponse:
+      oneOf:
+      - $ref: '#/components/schemas/ErrorResponse'
+      - $ref: '#/components/schemas/AIModelProviderSimpleError'
+      - $ref: '#/components/schemas/AIModelProviderHealthCheckErrorEnvelope'
+    EmbeddingDownloadProgressSSEEvent:
+      type: object
+      description: 'SSE event envelope for
+
+        `GET /configurationManager/ai-models/download-progress`. Every frame
+
+        uses the `progress` event name; `data` is a JSON-encoded
+
+        `EmbeddingDownloadProgressPayload` with one extra `timestamp` field
+
+        (epoch milliseconds) added by the Node.js proxy on each poll.
+
+        '
+      properties:
+        event:
+          type: string
+          enum:
+          - progress
+        data:
+          type: string
+          description: 'JSON-encoded `EmbeddingDownloadProgressPayload` plus a
+
+            `timestamp` (epoch ms) field.
+
+            '
+    UpdateAIModelProviderResponse:
+      type: object
+      additionalProperties: false
+      description: Success response from updateAIModelProvider
+      required:
+      - status
+      - message
+      - details
+      properties:
+        status:
+          type: string
+          enum:
+          - success
+        message:
+          type: string
+          example: LLM provider updated successfully
+        details:
+          $ref: '#/components/schemas/UpdateAIModelProviderDetails'
     AIModelFieldSchema:
       type: object
       properties:
@@ -1226,92 +1207,70 @@ components:
           type: object
           description: Validation constraints (e.g. min, max, pattern)
           additionalProperties: true
-    ModelType:
-      type: string
-      enum:
-      - llm
-      - embedding
-      - ocr
-      - slm
-      - reasoning
-      - multiModal
-      - imageGeneration
-      - tts
-      - stt
-      description: Type of AI model
-    ErrorResponse:
+    DeleteAIModelProviderDetails:
       type: object
       additionalProperties: false
-      description: 'Standard error envelope returned by all errors routed through `ErrorMiddleware`.
-
-        Applies to all `BaseError` subclasses including `HttpError`, `ValidationError`, and others.
-
-        The `code` field is a machine-readable string identifying the error type (e.g.
-
-        `HTTP_UNAUTHORIZED`, `HTTP_NOT_FOUND`, `VALIDATION_ERROR`, `INTERNAL_ERROR`).
-
-        '
-      properties:
-        error:
-          type: object
-          additionalProperties: false
-          required:
-          - code
-          - message
-          properties:
-            requestId:
-              type: string
-              description: 'Identifier for this request, echoed so a bug report can quote it.
-
-                Absent when the request never reached the middleware that assigns one.
-
-                '
-            code:
-              type: string
-              description: 'Machine-readable error code. For application errors it takes the form `HTTP_<VARIANT>`
-
-                For unhandled runtime errors (e.g. database unavailable) it is `INTERNAL_ERROR`.
-
-                '
-              example: HTTP_BAD_REQUEST
-            message:
-              type: string
-              description: Human-readable description of the error
-              example: Admin access required
-            metadata:
-              type: object
-              description: Additional context (only present in development environments)
-              additionalProperties: true
+      description: Metadata about the AI model provider entry removed by deleteAIModelProvider
       required:
-      - error
-    GetModelsByTypeResponse:
+      - modelKey
+      - modelType
+      - provider
+      - wasDefault
+      properties:
+        modelKey:
+          type: string
+          format: uuid
+          description: UUID of the deleted provider configuration
+        modelType:
+          $ref: '#/components/schemas/ModelType'
+        provider:
+          type: string
+          description: Provider registry ID (e.g. openAI, gemini, azureOpenAI)
+        model:
+          type: string
+          description: Model name from `configuration.model` when present
+        wasDefault:
+          type: boolean
+          description: Whether the deleted entry was the default for its model type
+        contextLength:
+          type:
+          - integer
+          - 'null'
+          description: Maximum context length (tokens) when configured
+    UpdateAIModelProviderDetails:
       type: object
       additionalProperties: false
-      description: 'Success response from getModelsByType. Returns stored provider entries
-
-        for a single model type bucket (not the flattened available-models shape).
-
-        Each entry''s `configuration` includes only `model`, `modelFriendlyName`,
-
-        and `dimensions` when stored.
-
-        '
+      description: Summary of the provider entry returned by updateAIModelProvider
       required:
-      - status
-      - models
-      - message
+      - modelKey
+      - modelType
+      - provider
+      - isMultimodal
+      - isReasoning
       properties:
-        status:
+        modelKey:
           type: string
-          enum:
-          - success
-        message:
+          format: uuid
+          description: Unique identifier for this model configuration
+        modelType:
+          $ref: '#/components/schemas/ModelType'
+        provider:
           type: string
-          description: Human-readable summary (e.g. "Found 2 llm models", "No llm models found").
-        models:
-          type: array
-          items:
-            $ref: '#/components/schemas/AIModelProviderConfig'
+          description: Provider registry ID
+        model:
+          type: string
+          description: Model name from `configuration.model`
+        contextLength:
+          type:
+          - integer
+          - 'null'
+          description: Context length (tokens)
+        isMultimodal:
+          type: boolean
+          description: Whether the model supports multimodal inputs
+        isReasoning:
+          type: boolean
+          description: Whether this is a reasoning model
     AIModelProviderHealthCheckBackendDetails:
       type: object
       additionalProperties: false
@@ -1363,46 +1322,51 @@ components:
         llm:
           type: string
           description: LLM subsystem status (HTTPException detail payloads)
-    AIModelProviderHealthCheckBackendPayload:
+    GetModelsByTypeResponse:
       type: object
       additionalProperties: false
-      description: 'Raw JSON body from `POST /api/v1/health-check/{modelType}` on the Python query
+      description: 'Success response from getModelsByType. Returns stored provider entries
 
-        service, forwarded unchanged as `error.details` by addAIModelProvider and
+        for a single model type bucket (not the flattened available-models shape).
 
-        updateAIModelProvider when the health check fails.
+        Each entry''s `configuration` includes only `model`, `modelFriendlyName`,
+
+        and `dimensions` when stored.
 
         '
+      required:
+      - status
+      - models
+      - message
       properties:
         status:
           type: string
-          description: Health outcome from Python (e.g. error, not healthy)
-          example: error
+          enum:
+          - success
         message:
           type: string
-          description: Primary human-readable failure reason from Python
-          example: 'LLM health check failed: Incorrect API key provided'
-        error:
-          type: string
-          description: Alternate top-level error field (legacy envelopes and HTTPException detail)
-          example: 'Health check failed: Connection refused'
-        timestamp:
-          type: integer
-          format: int64
-          description: Epoch milliseconds when the check completed
-        details:
-          $ref: '#/components/schemas/AIModelProviderHealthCheckBackendDetails'
-      example:
-        status: error
-        message: 'LLM health check failed: Incorrect API key provided'
-        details:
-          provider: openai
-          model: gpt-5.6-luna
-          error_type: AuthenticationError
-    AIModelProviderResponse:
+          description: Human-readable summary (e.g. "Found 2 llm models", "No llm models found").
+        models:
+          type: array
+          items:
+            $ref: '#/components/schemas/AIModelProviderConfig'
+    ModelType:
+      type: string
+      enum:
+      - llm
+      - embedding
+      - ocr
+      - slm
+      - reasoning
+      - multiModal
+      - imageGeneration
+      - tts
+      - stt
+      description: Type of AI model
+    DeleteAIModelProviderResponse:
       type: object
       additionalProperties: false
-      description: Success response from addAIModelProvider
+      description: Success response from deleteAIModelProvider
       required:
       - status
       - message
@@ -1414,34 +1378,10 @@ components:
           - success
         message:
           type: string
-          example: LLM provider added successfully
+          description: Human-readable confirmation
+          example: LLM provider deleted successfully
         details:
-          $ref: '#/components/schemas/AIModelProviderAddedDetails'
-    EmbeddingDownloadProgressSSEEvent:
-      type: object
-      description: 'SSE event envelope for
-
-        `GET /configurationManager/ai-models/download-progress`. Every frame
-
-        uses the `progress` event name; `data` is a JSON-encoded
-
-        `EmbeddingDownloadProgressPayload` with one extra `timestamp` field
-
-        (epoch milliseconds) added by the Node.js proxy on each poll.
-
-        '
-      properties:
-        event:
-          type: string
-          enum:
-          - progress
-        data:
-          type: string
-          description: 'JSON-encoded `EmbeddingDownloadProgressPayload` plus a
-
-            `timestamp` (epoch ms) field.
-
-            '
+          $ref: '#/components/schemas/DeleteAIModelProviderDetails'
     EmbeddingDownloadStatus:
       type: string
       description: 'Lifecycle state of a model load/download on the embedding server.
@@ -1600,56 +1540,6 @@ components:
         cache_folder:
           type: string
           description: Cache folder for models
-    AIModelRegistryProvider:
-      type: object
-      properties:
-        providerId:
-          type: string
-          description: Unique identifier (e.g. openAI, anthropic)
-        name:
-          type: string
-          description: Human-readable provider name
-        description:
-          type: string
-        capabilities:
-          type: array
-          items:
-            type: string
-        icon:
-          type: string
-          description: Path to the provider icon asset
-        color:
-          type: string
-          description: Brand hex colour
-        isPopular:
-          type: boolean
-    AIModelProviderHealthCheckErrorEnvelope:
-      type: object
-      additionalProperties: false
-      description: Health-check failure from the Python AI backend
-      required:
-      - error
-      properties:
-        error:
-          type: object
-          additionalProperties: false
-          required:
-          - status
-          - message
-          properties:
-            status:
-              type: string
-              enum:
-              - error
-            message:
-              type: string
-              description: 'User-facing reason from the Node controller, derived from the Python
-
-                body (`message`, or `error` / `error.message` when present).
-
-                '
-            details:
-              $ref: '#/components/schemas/AIModelProviderHealthCheckBackendPayload'
     EmbeddingDownloadProgressPayload:
       type: object
       additionalProperties: false
@@ -1754,131 +1644,6 @@ components:
           - integer
           - 'null'
           description: Context length (tokens), when provided in the request
-    AddAIModelProviderRequest:
-      type: object
-      description: Request to add a new AI model provider
-      additionalProperties: false
-      required:
-      - modelType
-      - provider
-      - configuration
-      properties:
-        modelType:
-          $ref: '#/components/schemas/ModelType'
-        provider:
-          type: string
-          minLength: 1
-          description: Provider registry ID (e.g. openAI, gemini, azureOpenAI, groq)
-          example: openAI
-        configuration:
-          $ref: '#/components/schemas/AIModelProviderConfiguration'
-        isMultimodal:
-          type: boolean
-          description: Whether the model supports multimodal inputs
-          default: false
-        isReasoning:
-          type: boolean
-          description: Whether this is a reasoning model
-          default: false
-        isDefault:
-          type: boolean
-          description: Set as default model for this type
-          default: false
-        contextLength:
-          type:
-          - integer
-          - 'null'
-          description: Maximum context length (tokens)
-    AIModelProviderSimpleError:
-      type: object
-      additionalProperties: false
-      description: 'Controller validation error returned before the Python health-check
-
-        (e.g. missing required fields or invalid modelType).
-
-        '
-      required:
-      - status
-      - message
-      properties:
-        status:
-          type: string
-          enum:
-          - error
-        message:
-          type: string
-    DeleteAIModelProviderDetails:
-      type: object
-      additionalProperties: false
-      description: Metadata about the AI model provider entry removed by deleteAIModelProvider
-      required:
-      - modelKey
-      - modelType
-      - provider
-      - wasDefault
-      properties:
-        modelKey:
-          type: string
-          format: uuid
-          description: UUID of the deleted provider configuration
-        modelType:
-          $ref: '#/components/schemas/ModelType'
-        provider:
-          type: string
-          description: Provider registry ID (e.g. openAI, gemini, azureOpenAI)
-        model:
-          type: string
-          description: Model name from `configuration.model` when present
-        wasDefault:
-          type: boolean
-          description: Whether the deleted entry was the default for its model type
-        contextLength:
-          type:
-          - integer
-          - 'null'
-          description: Maximum context length (tokens) when configured
-    DeleteAIModelProviderResponse:
-      type: object
-      additionalProperties: false
-      description: Success response from deleteAIModelProvider
-      required:
-      - status
-      - message
-      - details
-      properties:
-        status:
-          type: string
-          enum:
-          - success
-        message:
-          type: string
-          description: Human-readable confirmation
-          example: LLM provider deleted successfully
-        details:
-          $ref: '#/components/schemas/DeleteAIModelProviderDetails'
-    UpdateAIModelProviderErrorResponse:
-      oneOf:
-      - $ref: '#/components/schemas/ErrorResponse'
-      - $ref: '#/components/schemas/AIModelProviderSimpleError'
-      - $ref: '#/components/schemas/AIModelProviderHealthCheckErrorEnvelope'
-    UpdateAIModelProviderResponse:
-      type: object
-      additionalProperties: false
-      description: Success response from updateAIModelProvider
-      required:
-      - status
-      - message
-      - details
-      properties:
-        status:
-          type: string
-          enum:
-          - success
-        message:
-          type: string
-          example: LLM provider updated successfully
-        details:
-          $ref: '#/components/schemas/UpdateAIModelProviderDetails'
     UpdateAIModelProviderRequest:
       type: object
       description: Request to update an existing AI model provider
@@ -1910,6 +1675,42 @@ components:
           - integer
           - 'null'
           description: Maximum context length (tokens)
+    AIModelProviderResponse:
+      type: object
+      additionalProperties: false
+      description: Success response from addAIModelProvider
+      required:
+      - status
+      - message
+      - details
+      properties:
+        status:
+          type: string
+          enum:
+          - success
+        message:
+          type: string
+          example: LLM provider added successfully
+        details:
+          $ref: '#/components/schemas/AIModelProviderAddedDetails'
+    AIModelProviderSimpleError:
+      type: object
+      additionalProperties: false
+      description: 'Controller validation error returned before the Python health-check
+
+        (e.g. missing required fields or invalid modelType).
+
+        '
+      required:
+      - status
+      - message
+      properties:
+        status:
+          type: string
+          enum:
+          - error
+        message:
+          type: string
     AIModelProviderConfig:
       type: object
       additionalProperties: false
@@ -1950,40 +1751,6 @@ components:
           type: string
           description: Unique identifier for this model configuration
           readOnly: true
-    UpdateAIModelProviderDetails:
-      type: object
-      additionalProperties: false
-      description: Summary of the provider entry returned by updateAIModelProvider
-      required:
-      - modelKey
-      - modelType
-      - provider
-      - isMultimodal
-      - isReasoning
-      properties:
-        modelKey:
-          type: string
-          format: uuid
-          description: Unique identifier for this model configuration
-        modelType:
-          $ref: '#/components/schemas/ModelType'
-        provider:
-          type: string
-          description: Provider registry ID
-        model:
-          type: string
-          description: Model name from `configuration.model`
-        contextLength:
-          type:
-          - integer
-          - 'null'
-          description: Context length (tokens)
-        isMultimodal:
-          type: boolean
-          description: Whether the model supports multimodal inputs
-        isReasoning:
-          type: boolean
-          description: Whether this is a reasoning model
     PrepareEmbeddingModelRequest:
       type: object
       additionalProperties: false
@@ -2010,11 +1777,114 @@ components:
             `EMBEDDING_SERVER_ALLOW_REMOTE_CODE=true` set.
 
             '
-    AddAIModelProviderErrorResponse:
-      oneOf:
-      - $ref: '#/components/schemas/ErrorResponse'
-      - $ref: '#/components/schemas/AIModelProviderSimpleError'
-      - $ref: '#/components/schemas/AIModelProviderHealthCheckErrorEnvelope'
+    AIModelProviderHealthCheckBackendPayload:
+      type: object
+      additionalProperties: false
+      description: 'Raw JSON body from `POST /api/v1/health-check/{modelType}` on the Python query
+
+        service, forwarded unchanged as `error.details` by addAIModelProvider and
+
+        updateAIModelProvider when the health check fails.
+
+        '
+      properties:
+        status:
+          type: string
+          description: Health outcome from Python (e.g. error, not healthy)
+          example: error
+        message:
+          type: string
+          description: Primary human-readable failure reason from Python
+          example: 'LLM health check failed: Incorrect API key provided'
+        error:
+          type: string
+          description: Alternate top-level error field (legacy envelopes and HTTPException detail)
+          example: 'Health check failed: Connection refused'
+        timestamp:
+          type: integer
+          format: int64
+          description: Epoch milliseconds when the check completed
+        details:
+          $ref: '#/components/schemas/AIModelProviderHealthCheckBackendDetails'
+      example:
+        status: error
+        message: 'LLM health check failed: Incorrect API key provided'
+        details:
+          provider: openai
+          model: gpt-5.6-luna
+          error_type: AuthenticationError
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      description: 'Standard error envelope returned by all errors routed through `ErrorMiddleware`.
+
+        Applies to all `BaseError` subclasses including `HttpError`, `ValidationError`, and others.
+
+        The `code` field is a machine-readable string identifying the error type (e.g.
+
+        `HTTP_UNAUTHORIZED`, `HTTP_NOT_FOUND`, `VALIDATION_ERROR`, `INTERNAL_ERROR`).
+
+        '
+      properties:
+        error:
+          type: object
+          additionalProperties: false
+          required:
+          - code
+          - message
+          properties:
+            requestId:
+              type: string
+              description: 'Identifier for this request, echoed so a bug report can quote it.
+
+                Absent when the request never reached the middleware that assigns one.
+
+                '
+            code:
+              type: string
+              description: 'Machine-readable error code. For application errors it takes the form `HTTP_<VARIANT>`
+
+                For unhandled runtime errors (e.g. database unavailable) it is `INTERNAL_ERROR`.
+
+                '
+              example: HTTP_BAD_REQUEST
+            message:
+              type: string
+              description: Human-readable description of the error
+              example: Admin access required
+            metadata:
+              type: object
+              description: Additional context (only present in development environments)
+              additionalProperties: true
+      required:
+      - error
+    AIModelProviderHealthCheckErrorEnvelope:
+      type: object
+      additionalProperties: false
+      description: Health-check failure from the Python AI backend
+      required:
+      - error
+      properties:
+        error:
+          type: object
+          additionalProperties: false
+          required:
+          - status
+          - message
+          properties:
+            status:
+              type: string
+              enum:
+              - error
+            message:
+              type: string
+              description: 'User-facing reason from the Node controller, derived from the Python
+
+                body (`message`, or `error` / `error.message` when present).
+
+                '
+            details:
+              $ref: '#/components/schemas/AIModelProviderHealthCheckBackendPayload'
   securitySchemes:
     bearerAuth:
       type: http
@@ -2144,6 +2014,3 @@ components:
             config:write: Update system configuration
             crawl:read: Read crawling jobs
             crawl:write: Create and manage crawling jobs
-x-refined-from:
-- pipeshub-openapi.yaml
-- pipeshub-openapi.yml

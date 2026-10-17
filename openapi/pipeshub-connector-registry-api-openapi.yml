@@ -1,11 +1,11 @@
 openapi: 3.2.0
 info:
-  title: Pipeshub Connector Registry API
+  title: PipesHub Connector Registry API
+  description: Unified API documentation for PipesHub services.
   version: 1.0.0
   contact:
     name: API Support
     email: support@pipeshub.com
-  description: 'Operations tagged Connector Registry across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: '{instance_url}/api/v1'
   description: Base API URL
@@ -115,19 +115,6 @@ paths:
                     $ref: '#/components/schemas/ConnectorPagination'
         '401':
           description: Unauthorized
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /connectors/registry/{connectorType}/schema:
     get:
       tags:
@@ -183,19 +170,6 @@ paths:
           description: Unauthorized
         '404':
           description: Connector type not found
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
 components:
   schemas:
     ConnectorSchema:
@@ -218,6 +192,39 @@ components:
           items:
             type: string
           description: Required field names
+    ConnectorPagination:
+      type: object
+      description: Pagination information for connector lists
+      properties:
+        page:
+          type: integer
+          description: Current page number
+        limit:
+          type: integer
+          description: Items per page
+        total:
+          type: integer
+          description: Total number of items
+        hasMore:
+          type: boolean
+          description: Whether more pages exist
+    ConnectorScope:
+      type: string
+      description: 'Scope determines visibility and access control for connectors:<br>
+
+        <ul>
+
+        <li><code>team</code> - Available to all users in the organization (admin-only creation)</li>
+
+        <li><code>personal</code> - Private to the creating user only</li>
+
+        </ul>
+
+        '
+      enum:
+      - team
+      - personal
+      example: team
     ConnectorType:
       type: object
       description: 'A connector type from the registry. Represents an available integration
@@ -298,39 +305,6 @@ components:
       - API_TOKEN
       - USERNAME_PASSWORD
       - NONE
-    ConnectorScope:
-      type: string
-      description: 'Scope determines visibility and access control for connectors:<br>
-
-        <ul>
-
-        <li><code>team</code> - Available to all users in the organization (admin-only creation)</li>
-
-        <li><code>personal</code> - Private to the creating user only</li>
-
-        </ul>
-
-        '
-      enum:
-      - team
-      - personal
-      example: team
-    ConnectorPagination:
-      type: object
-      description: Pagination information for connector lists
-      properties:
-        page:
-          type: integer
-          description: Current page number
-        limit:
-          type: integer
-          description: Items per page
-        total:
-          type: integer
-          description: Total number of items
-        hasMore:
-          type: boolean
-          description: Whether more pages exist
   securitySchemes:
     bearerAuth:
       type: http
@@ -460,6 +434,3 @@ components:
             config:write: Update system configuration
             crawl:read: Read crawling jobs
             crawl:write: Create and manage crawling jobs
-x-refined-from:
-- pipeshub-openapi.yaml
-- pipeshub-openapi.yml

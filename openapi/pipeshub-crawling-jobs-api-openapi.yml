@@ -1,11 +1,11 @@
 openapi: 3.2.0
 info:
-  title: Pipeshub Crawling Jobs API
+  title: PipesHub Crawling Jobs API
+  description: Unified API documentation for PipesHub services.
   version: 1.0.0
   contact:
     name: API Support
     email: support@pipeshub.com
-  description: 'Operations tagged Crawling Jobs across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: '{instance_url}/api/v1'
   description: Base API URL
@@ -358,19 +358,6 @@ paths:
           description: Forbidden - Insufficient permissions for this connector
         '404':
           description: No scheduled job found for this connector
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /crawlingManager/{connector}/{connectorId}/remove:
     delete:
       tags:
@@ -449,19 +436,6 @@ paths:
           description: Forbidden - Insufficient permissions for this connector
         '404':
           description: Job not found for this connector
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /crawlingManager/schedule/all:
     get:
       tags:
@@ -529,19 +503,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /crawlingManager/{connector}/{connectorId}/pause:
     post:
       tags:
@@ -578,19 +539,6 @@ paths:
           description: Unauthorized
         '404':
           description: Job not found
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /crawlingManager/{connector}/{connectorId}/resume:
     post:
       tags:
@@ -627,19 +575,6 @@ paths:
           description: Unauthorized
         '404':
           description: Job not found
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /crawlingManager/stats:
     get:
       tags:
@@ -660,21 +595,87 @@ paths:
                 type: object
         '401':
           description: Unauthorized
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
 components:
   schemas:
+    OnceScheduleConfig:
+      allOf:
+      - $ref: '#/components/schemas/BaseScheduleConfig'
+      - type: object
+        description: Run crawling job once at a specific future datetime
+        properties:
+          scheduleType:
+            type: string
+            enum:
+            - once
+          scheduledTime:
+            type: string
+            format: date-time
+            description: ISO 8601 datetime when the job should run. Must be in the future.
+            example: '2024-12-25T10:00:00Z'
+        required:
+        - scheduledTime
+    HourlyScheduleConfig:
+      allOf:
+      - $ref: '#/components/schemas/BaseScheduleConfig'
+      - type: object
+        description: Run crawling job every X hours at a specified minute
+        properties:
+          scheduleType:
+            type: string
+            enum:
+            - hourly
+          minute:
+            type: integer
+            minimum: 0
+            maximum: 59
+            description: Minute of the hour to run (0-59)
+            example: 30
+          interval:
+            type: integer
+            minimum: 1
+            maximum: 24
+            default: 1
+            description: Run every X hours (1 = every hour, 2 = every 2 hours, etc.)
+            example: 1
+        required:
+        - minute
+    CustomScheduleConfig:
+      allOf:
+      - $ref: '#/components/schemas/BaseScheduleConfig'
+      - type: object
+        description: Run crawling job using a custom cron expression for complex schedules
+        properties:
+          scheduleType:
+            type: string
+            enum:
+            - custom
+          cronExpression:
+            type: string
+            pattern: ^(\S+\s+){4}\S+$
+            description: 'Standard 5-field cron expression: minute hour day-of-month month day-of-week.<br>
+
+              Examples:<br>
+
+              <ul>
+
+              <li><code>0 2 * * *</code> - Every day at 2:00 AM</li>
+
+              <li><code>30 */4 * * *</code> - Every 4 hours at minute 30</li>
+
+              <li><code>0 9 * * 1-5</code> - Weekdays at 9:00 AM</li>
+
+              <li><code>0 0 1,15 * *</code> - 1st and 15th of each month at midnight</li>
+
+              </ul>
+
+              '
+            example: 0 2 * * *
+          description:
+            type: string
+            description: Human-readable description of the cron schedule
+            example: Run daily at 2:00 AM
+        required:
+        - cronExpression
     CrawlingScheduleType:
       type: string
       enum:
@@ -706,23 +707,40 @@ components:
         </ul>
 
         '
-    BaseScheduleConfig:
-      type: object
-      description: Base configuration fields common to all schedule types
-      properties:
-        scheduleType:
-          $ref: '#/components/schemas/CrawlingScheduleType'
-        isEnabled:
-          type: boolean
-          default: true
-          description: Whether the schedule is active. Disabled schedules won't create new jobs.
-        timezone:
-          type: string
-          default: UTC
-          description: IANA timezone identifier (e.g., "America/New_York", "Europe/London", "Asia/Tokyo")
-          example: UTC
-      required:
-      - scheduleType
+    IntervalScheduleConfig:
+      allOf:
+      - $ref: '#/components/schemas/BaseScheduleConfig'
+      - type: object
+        description: 'Repeat every N minutes using BullMQ''s millisecond-based <code>every</code> repeat option.
+
+          Unlike cron-based schedules this fires relative to the previous run, not at a fixed
+
+          wall-clock time. Used by the connector sync scheduler when
+
+          <code>selectedStrategy = SCHEDULED</code> with an <code>intervalMinutes</code> config.
+
+          '
+        properties:
+          scheduleType:
+            type: string
+            enum:
+            - interval
+          intervalMinutes:
+            type: integer
+            minimum: 1
+            maximum: 525600
+            description: 'How often to repeat, in minutes. Maximum is 525 600 (one year).
+
+              BullMQ stores this as <code>every: intervalMinutes * 60 * 1000</code> ms;
+
+              the <code>pattern</code> field will be <code>null</code> on repeatable-job
+
+              listings for this schedule type.
+
+              '
+            example: 5
+        required:
+        - intervalMinutes
     JobStatus:
       type: object
       description: Complete status information for a crawling job
@@ -827,38 +845,6 @@ components:
       - timestamp
       - attemptsMade
       - state
-    MonthlyScheduleConfig:
-      allOf:
-      - $ref: '#/components/schemas/BaseScheduleConfig'
-      - type: object
-        description: Run crawling job on a specified day of each month
-        properties:
-          scheduleType:
-            type: string
-            enum:
-            - monthly
-          dayOfMonth:
-            type: integer
-            minimum: 1
-            maximum: 31
-            description: Day of the month to run (1-31). If day doesn't exist in month, job runs on last day.
-            example: 1
-          hour:
-            type: integer
-            minimum: 0
-            maximum: 23
-            description: Hour of the day to run (0-23)
-            example: 4
-          minute:
-            type: integer
-            minimum: 0
-            maximum: 59
-            description: Minute of the hour to run (0-59)
-            example: 0
-        required:
-        - dayOfMonth
-        - hour
-        - minute
     ScheduleConfig:
       description: 'Schedule configuration for crawling jobs. The structure varies based on <code>scheduleType</code>.<br><br>
 
@@ -901,223 +887,6 @@ components:
           custom: '#/components/schemas/CustomScheduleConfig'
           once: '#/components/schemas/OnceScheduleConfig'
           interval: '#/components/schemas/IntervalScheduleConfig'
-    CustomScheduleConfig:
-      allOf:
-      - $ref: '#/components/schemas/BaseScheduleConfig'
-      - type: object
-        description: Run crawling job using a custom cron expression for complex schedules
-        properties:
-          scheduleType:
-            type: string
-            enum:
-            - custom
-          cronExpression:
-            type: string
-            pattern: ^(\S+\s+){4}\S+$
-            description: 'Standard 5-field cron expression: minute hour day-of-month month day-of-week.<br>
-
-              Examples:<br>
-
-              <ul>
-
-              <li><code>0 2 * * *</code> - Every day at 2:00 AM</li>
-
-              <li><code>30 */4 * * *</code> - Every 4 hours at minute 30</li>
-
-              <li><code>0 9 * * 1-5</code> - Weekdays at 9:00 AM</li>
-
-              <li><code>0 0 1,15 * *</code> - 1st and 15th of each month at midnight</li>
-
-              </ul>
-
-              '
-            example: 0 2 * * *
-          description:
-            type: string
-            description: Human-readable description of the cron schedule
-            example: Run daily at 2:00 AM
-        required:
-        - cronExpression
-    HourlyScheduleConfig:
-      allOf:
-      - $ref: '#/components/schemas/BaseScheduleConfig'
-      - type: object
-        description: Run crawling job every X hours at a specified minute
-        properties:
-          scheduleType:
-            type: string
-            enum:
-            - hourly
-          minute:
-            type: integer
-            minimum: 0
-            maximum: 59
-            description: Minute of the hour to run (0-59)
-            example: 30
-          interval:
-            type: integer
-            minimum: 1
-            maximum: 24
-            default: 1
-            description: Run every X hours (1 = every hour, 2 = every 2 hours, etc.)
-            example: 1
-        required:
-        - minute
-    OnceScheduleConfig:
-      allOf:
-      - $ref: '#/components/schemas/BaseScheduleConfig'
-      - type: object
-        description: Run crawling job once at a specific future datetime
-        properties:
-          scheduleType:
-            type: string
-            enum:
-            - once
-          scheduledTime:
-            type: string
-            format: date-time
-            description: ISO 8601 datetime when the job should run. Must be in the future.
-            example: '2024-12-25T10:00:00Z'
-        required:
-        - scheduledTime
-    CrawlingJobData:
-      type: object
-      description: Data payload stored with each crawling job in the queue
-      properties:
-        connector:
-          type: string
-          description: Connector type identifier (e.g., "drive", "onedrive", "slack")
-          example: drive
-        connectorId:
-          type: string
-          description: Unique identifier of the connector instance
-          example: 507f1f77bcf86cd799439011
-        scheduleConfig:
-          $ref: '#/components/schemas/ScheduleConfig'
-        orgId:
-          type: string
-          description: Organization ID that owns this crawling job
-          example: 507f1f77bcf86cd799439012
-        userId:
-          type: string
-          description: User ID who created/scheduled this job
-          example: 507f1f77bcf86cd799439013
-        timestamp:
-          type: string
-          format: date-time
-          description: When the job was created/scheduled
-        metadata:
-          type: object
-          additionalProperties: true
-          description: Optional additional metadata for the job
-      required:
-      - connector
-      - connectorId
-      - scheduleConfig
-      - orgId
-      - userId
-      - timestamp
-    WeeklyScheduleConfig:
-      allOf:
-      - $ref: '#/components/schemas/BaseScheduleConfig'
-      - type: object
-        description: Run crawling job on specified days of the week
-        properties:
-          scheduleType:
-            type: string
-            enum:
-            - weekly
-          daysOfWeek:
-            type: array
-            items:
-              type: integer
-              minimum: 0
-              maximum: 6
-            minItems: 1
-            description: 'Days of the week to run (0=Sunday, 1=Monday, ..., 6=Saturday).<br>
-
-              Example: [1, 3, 5] runs on Monday, Wednesday, Friday
-
-              '
-            example:
-            - 1
-            - 3
-            - 5
-          hour:
-            type: integer
-            minimum: 0
-            maximum: 23
-            description: Hour of the day to run (0-23)
-            example: 3
-          minute:
-            type: integer
-            minimum: 0
-            maximum: 59
-            description: Minute of the hour to run (0-59)
-            example: 0
-        required:
-        - daysOfWeek
-        - hour
-        - minute
-    DailyScheduleConfig:
-      allOf:
-      - $ref: '#/components/schemas/BaseScheduleConfig'
-      - type: object
-        description: Run crawling job once per day at a specified time
-        properties:
-          scheduleType:
-            type: string
-            enum:
-            - daily
-          hour:
-            type: integer
-            minimum: 0
-            maximum: 23
-            description: Hour of the day to run (0-23, 24-hour format)
-            example: 2
-          minute:
-            type: integer
-            minimum: 0
-            maximum: 59
-            description: Minute of the hour to run (0-59)
-            example: 0
-        required:
-        - hour
-        - minute
-    IntervalScheduleConfig:
-      allOf:
-      - $ref: '#/components/schemas/BaseScheduleConfig'
-      - type: object
-        description: 'Repeat every N minutes using BullMQ''s millisecond-based <code>every</code> repeat option.
-
-          Unlike cron-based schedules this fires relative to the previous run, not at a fixed
-
-          wall-clock time. Used by the connector sync scheduler when
-
-          <code>selectedStrategy = SCHEDULED</code> with an <code>intervalMinutes</code> config.
-
-          '
-        properties:
-          scheduleType:
-            type: string
-            enum:
-            - interval
-          intervalMinutes:
-            type: integer
-            minimum: 1
-            maximum: 525600
-            description: 'How often to repeat, in minutes. Maximum is 525 600 (one year).
-
-              BullMQ stores this as <code>every: intervalMinutes * 60 * 1000</code> ms;
-
-              the <code>pattern</code> field will be <code>null</code> on repeatable-job
-
-              listings for this schedule type.
-
-              '
-            example: 5
-        required:
-        - intervalMinutes
     ErrorResponse:
       type: object
       additionalProperties: false
@@ -1163,6 +932,159 @@ components:
               additionalProperties: true
       required:
       - error
+    WeeklyScheduleConfig:
+      allOf:
+      - $ref: '#/components/schemas/BaseScheduleConfig'
+      - type: object
+        description: Run crawling job on specified days of the week
+        properties:
+          scheduleType:
+            type: string
+            enum:
+            - weekly
+          daysOfWeek:
+            type: array
+            items:
+              type: integer
+              minimum: 0
+              maximum: 6
+            minItems: 1
+            description: 'Days of the week to run (0=Sunday, 1=Monday, ..., 6=Saturday).<br>
+
+              Example: [1, 3, 5] runs on Monday, Wednesday, Friday
+
+              '
+            example:
+            - 1
+            - 3
+            - 5
+          hour:
+            type: integer
+            minimum: 0
+            maximum: 23
+            description: Hour of the day to run (0-23)
+            example: 3
+          minute:
+            type: integer
+            minimum: 0
+            maximum: 59
+            description: Minute of the hour to run (0-59)
+            example: 0
+        required:
+        - daysOfWeek
+        - hour
+        - minute
+    BaseScheduleConfig:
+      type: object
+      description: Base configuration fields common to all schedule types
+      properties:
+        scheduleType:
+          $ref: '#/components/schemas/CrawlingScheduleType'
+        isEnabled:
+          type: boolean
+          default: true
+          description: Whether the schedule is active. Disabled schedules won't create new jobs.
+        timezone:
+          type: string
+          default: UTC
+          description: IANA timezone identifier (e.g., "America/New_York", "Europe/London", "Asia/Tokyo")
+          example: UTC
+      required:
+      - scheduleType
+    CrawlingJobData:
+      type: object
+      description: Data payload stored with each crawling job in the queue
+      properties:
+        connector:
+          type: string
+          description: Connector type identifier (e.g., "drive", "onedrive", "slack")
+          example: drive
+        connectorId:
+          type: string
+          description: Unique identifier of the connector instance
+          example: 507f1f77bcf86cd799439011
+        scheduleConfig:
+          $ref: '#/components/schemas/ScheduleConfig'
+        orgId:
+          type: string
+          description: Organization ID that owns this crawling job
+          example: 507f1f77bcf86cd799439012
+        userId:
+          type: string
+          description: User ID who created/scheduled this job
+          example: 507f1f77bcf86cd799439013
+        timestamp:
+          type: string
+          format: date-time
+          description: When the job was created/scheduled
+        metadata:
+          type: object
+          additionalProperties: true
+          description: Optional additional metadata for the job
+      required:
+      - connector
+      - connectorId
+      - scheduleConfig
+      - orgId
+      - userId
+      - timestamp
+    MonthlyScheduleConfig:
+      allOf:
+      - $ref: '#/components/schemas/BaseScheduleConfig'
+      - type: object
+        description: Run crawling job on a specified day of each month
+        properties:
+          scheduleType:
+            type: string
+            enum:
+            - monthly
+          dayOfMonth:
+            type: integer
+            minimum: 1
+            maximum: 31
+            description: Day of the month to run (1-31). If day doesn't exist in month, job runs on last day.
+            example: 1
+          hour:
+            type: integer
+            minimum: 0
+            maximum: 23
+            description: Hour of the day to run (0-23)
+            example: 4
+          minute:
+            type: integer
+            minimum: 0
+            maximum: 59
+            description: Minute of the hour to run (0-59)
+            example: 0
+        required:
+        - dayOfMonth
+        - hour
+        - minute
+    DailyScheduleConfig:
+      allOf:
+      - $ref: '#/components/schemas/BaseScheduleConfig'
+      - type: object
+        description: Run crawling job once per day at a specified time
+        properties:
+          scheduleType:
+            type: string
+            enum:
+            - daily
+          hour:
+            type: integer
+            minimum: 0
+            maximum: 23
+            description: Hour of the day to run (0-23, 24-hour format)
+            example: 2
+          minute:
+            type: integer
+            minimum: 0
+            maximum: 59
+            description: Minute of the hour to run (0-59)
+            example: 0
+        required:
+        - hour
+        - minute
   securitySchemes:
     bearerAuth:
       type: http
@@ -1292,6 +1214,3 @@ components:
             config:write: Update system configuration
             crawl:read: Read crawling jobs
             crawl:write: Create and manage crawling jobs
-x-refined-from:
-- pipeshub-openapi.yaml
-- pipeshub-openapi.yml

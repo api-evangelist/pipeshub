@@ -1,11 +1,11 @@
 openapi: 3.2.0
 info:
-  title: Pipeshub Knowledge Hub API
+  title: PipesHub Knowledge Hub API
+  description: Unified API documentation for PipesHub services.
   version: 1.0.0
   contact:
     name: API Support
     email: support@pipeshub.com
-  description: 'Operations tagged Knowledge Hub across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: '{instance_url}/api/v1'
   description: Base API URL
@@ -624,19 +624,6 @@ paths:
                 error:
                   code: HTTP_INTERNAL_SERVER_ERROR
                   message: An unexpected error occurred
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /knowledgeBase/knowledge-hub/nodes/{parentType}/{parentId}:
     get:
       deprecated: true
@@ -1278,49 +1265,8 @@ paths:
                 error:
                   code: HTTP_INTERNAL_SERVER_ERROR
                   message: An unexpected error occurred
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
 components:
   schemas:
-    DateRangeFilter:
-      type: object
-      description: Date range filter with optional inclusive bounds (epoch ms).
-      properties:
-        gte:
-          type:
-          - integer
-          - 'null'
-          description: Greater-than-or-equal bound (epoch ms).
-        lte:
-          type:
-          - integer
-          - 'null'
-          description: Less-than-or-equal bound (epoch ms).
-    SizeRangeFilter:
-      type: object
-      description: Size range filter with optional inclusive bounds (bytes).
-      properties:
-        gte:
-          type:
-          - integer
-          - 'null'
-          description: Greater-than-or-equal bound (bytes).
-        lte:
-          type:
-          - integer
-          - 'null'
-          description: Less-than-or-equal bound (bytes).
     FilterOption:
       type: object
       description: A single filter option for knowledge hub filters.
@@ -1344,6 +1290,168 @@ components:
           - string
           - 'null'
           description: Connector type/name. Set only for entries in the `connectors` list.
+    KnowledgeHubNode:
+      type: object
+      description: 'One element of `items`. The live API keeps keys stable and sets
+
+        inapplicable values to JSON `null` (not omitted).
+
+        '
+      required:
+      - id
+      - name
+      - nodeType
+      - parentId
+      - origin
+      - connector
+      - connectorId
+      - recordType
+      - recordGroupType
+      - indexingStatus
+      - reason
+      - createdAt
+      - updatedAt
+      - sizeInBytes
+      - mimeType
+      - extension
+      - webUrl
+      - hasChildren
+      - previewRenderable
+      - permission
+      - sharingStatus
+      - isInternal
+      - isPlaceholder
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the node.
+        name:
+          type: string
+          description: Display name of the node.
+        nodeType:
+          type: string
+          enum:
+          - app
+          - recordGroup
+          - folder
+          - record
+          description: Type of the node (app, recordGroup, folder, or record).
+        parentId:
+          type:
+          - string
+          - 'null'
+          description: Parent node ID, or `null` at the root browse level.
+        origin:
+          type: string
+          enum:
+          - COLLECTION
+          - CONNECTOR
+          description: Origin type.
+        connector:
+          type:
+          - string
+          - 'null'
+          description: Connector display name / key when applicable; otherwise `null`.
+        connectorId:
+          type:
+          - string
+          - 'null'
+          description: Connector instance id for records and groups that come from a connector; otherwise `null` (Collections, and app nodes).
+        recordType:
+          type:
+          - string
+          - 'null'
+          description: Record type when `nodeType` is `record`; otherwise `null`.
+        recordGroupType:
+          type:
+          - string
+          - 'null'
+          description: Record group type when `nodeType` is `recordGroup`; otherwise `null`.
+        indexingStatus:
+          type:
+          - string
+          - 'null'
+          description: Indexing status when `nodeType` is `record`; otherwise `null`.
+        reason:
+          type:
+          - string
+          - 'null'
+          description: Failure or status reason when set; otherwise `null`.
+        isInternal:
+          type: boolean
+          description: True for internal/system nodes that do not originate from a source.
+        isPlaceholder:
+          type: boolean
+          description: True for placeholder/stub nodes standing in for an out-of-scope ancestor (rendered read-only, no content actions; excluded from search and indexing).
+        createdAt:
+          type: integer
+          description: Creation timestamp (epoch ms).
+        updatedAt:
+          type: integer
+          description: Update timestamp (epoch ms).
+        sizeInBytes:
+          type:
+          - integer
+          - 'null'
+          description: File size in bytes for file records; otherwise `null`.
+        mimeType:
+          type:
+          - string
+          - 'null'
+        extension:
+          type:
+          - string
+          - 'null'
+        webUrl:
+          type:
+          - string
+          - 'null'
+        hasChildren:
+          type: boolean
+          description: Whether the node has children (sidebar / tree).
+        previewRenderable:
+          type:
+          - boolean
+          - 'null'
+        permission:
+          type:
+          - object
+          - 'null'
+          description: Per-item permission when `include=permissions` is requested; otherwise `null`.
+          required:
+          - role
+          - canEdit
+          - canDelete
+          properties:
+            role:
+              type: string
+            canEdit:
+              type: boolean
+            canDelete:
+              type: boolean
+        sharingStatus:
+          type:
+          - string
+          - 'null'
+          description: 'Sharing status (e.g. `private`, `shared`, `team`, `workspace`) when
+
+            applicable; otherwise `null`.
+
+            '
+    SizeRangeFilter:
+      type: object
+      description: Size range filter with optional inclusive bounds (bytes).
+      properties:
+        gte:
+          type:
+          - integer
+          - 'null'
+          description: Greater-than-or-equal bound (bytes).
+        lte:
+          type:
+          - integer
+          - 'null'
+          description: Less-than-or-equal bound (bytes).
     KnowledgeHubNodesResponse:
       type: object
       description: 'Response body for the Knowledge Hub nodes API. The deployed service
@@ -1639,154 +1747,20 @@ components:
               type: boolean
             canManagePermissions:
               type: boolean
-    KnowledgeHubNode:
+    DateRangeFilter:
       type: object
-      description: 'One element of `items`. The live API keeps keys stable and sets
-
-        inapplicable values to JSON `null` (not omitted).
-
-        '
-      required:
-      - id
-      - name
-      - nodeType
-      - parentId
-      - origin
-      - connector
-      - connectorId
-      - recordType
-      - recordGroupType
-      - indexingStatus
-      - reason
-      - createdAt
-      - updatedAt
-      - sizeInBytes
-      - mimeType
-      - extension
-      - webUrl
-      - hasChildren
-      - previewRenderable
-      - permission
-      - sharingStatus
-      - isInternal
-      - isPlaceholder
+      description: Date range filter with optional inclusive bounds (epoch ms).
       properties:
-        id:
-          type: string
-          description: Unique identifier for the node.
-        name:
-          type: string
-          description: Display name of the node.
-        nodeType:
-          type: string
-          enum:
-          - app
-          - recordGroup
-          - folder
-          - record
-          description: Type of the node (app, recordGroup, folder, or record).
-        parentId:
-          type:
-          - string
-          - 'null'
-          description: Parent node ID, or `null` at the root browse level.
-        origin:
-          type: string
-          enum:
-          - COLLECTION
-          - CONNECTOR
-          description: Origin type.
-        connector:
-          type:
-          - string
-          - 'null'
-          description: Connector display name / key when applicable; otherwise `null`.
-        connectorId:
-          type:
-          - string
-          - 'null'
-          description: Connector instance id for records and groups that come from a connector; otherwise `null` (Collections, and app nodes).
-        recordType:
-          type:
-          - string
-          - 'null'
-          description: Record type when `nodeType` is `record`; otherwise `null`.
-        recordGroupType:
-          type:
-          - string
-          - 'null'
-          description: Record group type when `nodeType` is `recordGroup`; otherwise `null`.
-        indexingStatus:
-          type:
-          - string
-          - 'null'
-          description: Indexing status when `nodeType` is `record`; otherwise `null`.
-        reason:
-          type:
-          - string
-          - 'null'
-          description: Failure or status reason when set; otherwise `null`.
-        isInternal:
-          type: boolean
-          description: True for internal/system nodes that do not originate from a source.
-        isPlaceholder:
-          type: boolean
-          description: True for placeholder/stub nodes standing in for an out-of-scope ancestor (rendered read-only, no content actions; excluded from search and indexing).
-        createdAt:
-          type: integer
-          description: Creation timestamp (epoch ms).
-        updatedAt:
-          type: integer
-          description: Update timestamp (epoch ms).
-        sizeInBytes:
+        gte:
           type:
           - integer
           - 'null'
-          description: File size in bytes for file records; otherwise `null`.
-        mimeType:
+          description: Greater-than-or-equal bound (epoch ms).
+        lte:
           type:
-          - string
+          - integer
           - 'null'
-        extension:
-          type:
-          - string
-          - 'null'
-        webUrl:
-          type:
-          - string
-          - 'null'
-        hasChildren:
-          type: boolean
-          description: Whether the node has children (sidebar / tree).
-        previewRenderable:
-          type:
-          - boolean
-          - 'null'
-        permission:
-          type:
-          - object
-          - 'null'
-          description: Per-item permission when `include=permissions` is requested; otherwise `null`.
-          required:
-          - role
-          - canEdit
-          - canDelete
-          properties:
-            role:
-              type: string
-            canEdit:
-              type: boolean
-            canDelete:
-              type: boolean
-        sharingStatus:
-          type:
-          - string
-          - 'null'
-          description: 'Sharing status (e.g. `private`, `shared`, `team`, `workspace`) when
-
-            applicable; otherwise `null`.
-
-            '
+          description: Less-than-or-equal bound (epoch ms).
   securitySchemes:
     bearerAuth:
       type: http
@@ -1916,6 +1890,3 @@ components:
             config:write: Update system configuration
             crawl:read: Read crawling jobs
             crawl:write: Create and manage crawling jobs
-x-refined-from:
-- pipeshub-openapi.yaml
-- pipeshub-openapi.yml

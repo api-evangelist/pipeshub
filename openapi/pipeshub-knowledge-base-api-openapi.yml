@@ -1,11 +1,11 @@
 openapi: 3.2.0
 info:
-  title: Pipeshub Knowledge Base API
+  title: PipesHub Knowledge Base API
+  description: Unified API documentation for PipesHub services.
   version: 1.0.0
   contact:
     name: API Support
     email: support@pipeshub.com
-  description: 'Operations tagged Knowledge Base across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: '{instance_url}/api/v1'
   description: Base API URL
@@ -325,19 +325,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /knowledgeBase/{kbId}:
     get:
       tags:
@@ -645,19 +632,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /knowledgeBase/record/{recordId}:
     get:
       tags:
@@ -942,19 +916,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /knowledgeBase/stream/record/{recordId}:
     get:
       tags:
@@ -1057,19 +1018,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/StreamRecordErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /knowledgeBase/{kbId}/folder:
     post:
       tags:
@@ -1208,19 +1156,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /knowledgeBase/{kbId}/folder/{folderId}:
     put:
       tags:
@@ -1398,19 +1333,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /knowledgeBase/{kbId}/upload:
     post:
       tags:
@@ -1571,19 +1493,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /knowledgeBase/limits:
     get:
       tags:
@@ -1614,19 +1523,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /knowledgeBase/demo-data/status:
     get:
       tags:
@@ -1657,19 +1553,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /knowledgeBase/demo-data/preference:
     put:
       tags:
@@ -1716,19 +1599,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /knowledgeBase/demo-data/workspace:
     put:
       tags:
@@ -1783,19 +1653,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /knowledgeBase/reindex/record/{recordId}:
     post:
       tags:
@@ -1889,19 +1746,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /knowledgeBase/reindex/record-group/{recordGroupId}:
     post:
       tags:
@@ -1988,19 +1832,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /knowledgeBase/{kbId}/record/{recordId}/move:
     put:
       tags:
@@ -2113,19 +1944,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /knowledgeBase/knowledge-hub/nodes:
     get:
       deprecated: true
@@ -2724,19 +2542,6 @@ paths:
                 error:
                   code: HTTP_INTERNAL_SERVER_ERROR
                   message: An unexpected error occurred
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /knowledgeBase/knowledge-hub/nodes/{parentType}/{parentId}:
     get:
       deprecated: true
@@ -3378,711 +3183,8 @@ paths:
                 error:
                   code: HTTP_INTERNAL_SERVER_ERROR
                   message: An unexpected error occurred
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
 components:
   schemas:
-    SizeRangeFilter:
-      type: object
-      description: Size range filter with optional inclusive bounds (bytes).
-      properties:
-        gte:
-          type:
-          - integer
-          - 'null'
-          description: Greater-than-or-equal bound (bytes).
-        lte:
-          type:
-          - integer
-          - 'null'
-          description: Less-than-or-equal bound (bytes).
-    RecordTypeEnum:
-      type: string
-      description: 'Type of content. Mirrors the backend `RecordType` enum
-
-        (`backend/python/app/models/entities.py`); connector-sourced records
-
-        may use any of the connector-specific types below.
-
-        - FILE: Uploaded or synced documents (PDF, DOCX, etc.)
-
-        - DRIVE: Drive/folder container (Google Drive, OneDrive, etc.)
-
-        - WEBPAGE: Web pages crawled or bookmarked
-
-        - DATABASE: Database object (e.g. Notion database)
-
-        - DATASOURCE: Data source object
-
-        - MESSAGE: Chat/messaging content (Slack, Teams)
-
-        - MAIL: Email messages (Gmail, Outlook)
-
-        - GROUP_MAIL: Group/shared mailbox email messages
-
-        - TICKET: Support/issue tickets (Jira, ServiceNow)
-
-        - COMMENT: Comments from collaboration tools
-
-        - INLINE_COMMENT: Inline comments anchored to content (e.g. Confluence)
-
-        - CONFLUENCE_PAGE: Confluence page
-
-        - CONFLUENCE_BLOGPOST: Confluence blog post
-
-        - SHAREPOINT_PAGE: SharePoint page
-
-        - SHAREPOINT_LIST: SharePoint list
-
-        - SHAREPOINT_LIST_ITEM: SharePoint list item
-
-        - SHAREPOINT_DOCUMENT_LIBRARY: SharePoint document library
-
-        - LINK: Web link / bookmark
-
-        - PROJECT: Project entity (e.g. Jira project)
-
-        - PULL_REQUEST: Source-control pull request
-
-        - MEETING: Meeting record (e.g. Zoom)
-
-        - PRODUCT: Product entity (CRM)
-
-        - DEAL: Deal/opportunity entity (CRM)
-
-        - CASE: Case entity (CRM/support)
-
-        - TASK: Task entity
-
-        - ARTIFACT: Generated/derived artifact
-
-        - CODE_FILE: Source-code file
-
-        - SQL_TABLE: SQL table object
-
-        - SQL_VIEW: SQL view object
-
-        - OTHERS: Miscellaneous content types
-
-        '
-      enum:
-      - FILE
-      - DRIVE
-      - WEBPAGE
-      - DATABASE
-      - DATASOURCE
-      - MESSAGE
-      - MAIL
-      - GROUP_MAIL
-      - TICKET
-      - COMMENT
-      - INLINE_COMMENT
-      - CONFLUENCE_PAGE
-      - CONFLUENCE_BLOGPOST
-      - SHAREPOINT_PAGE
-      - SHAREPOINT_LIST
-      - SHAREPOINT_LIST_ITEM
-      - SHAREPOINT_DOCUMENT_LIBRARY
-      - LINK
-      - PROJECT
-      - PULL_REQUEST
-      - MEETING
-      - PRODUCT
-      - DEAL
-      - CASE
-      - TASK
-      - ARTIFACT
-      - CODE_FILE
-      - SQL_TABLE
-      - SQL_VIEW
-      - OTHERS
-      example: FILE
-    ReindexRecordGroupRequestBody:
-      type: object
-      description: Optional body for record-group (folder/KB container) reindex.
-      properties:
-        depth:
-          type: integer
-          minimum: -1
-          maximum: 100
-          default: 0
-          description: Depth of records under the record group to include.
-        force:
-          type: boolean
-          default: false
-          description: Force reindex for all matched records in the group.
-        statusFilters:
-          type: array
-          items:
-            $ref: '#/components/schemas/IndexingStatusFilter'
-          description: 'When set, only records matching these indexing statuses are reindexed.
-
-            '
-    StreamRecordErrorResponse:
-      type: object
-      additionalProperties: false
-      description: 'Error payload returned by the legacy record-stream proxy when the downstream
-
-        streaming request fails after route middleware has passed.
-
-        '
-      required:
-      - error
-      properties:
-        error:
-          type: string
-          description: Human-readable error message from the gateway or downstream stream service
-    ReindexRecordRequestBody:
-      type: object
-      description: Optional body for single-record reindex.
-      properties:
-        depth:
-          type: integer
-          minimum: -1
-          maximum: 100
-          default: 0
-          description: 'Child traversal depth (`0` = record only; higher values include
-
-            descendants; `100` is used by clients for folder-like reindex).
-
-            '
-        force:
-          type: boolean
-          default: false
-          description: Force reindex even when the connector considers the record unchanged.
-        statusFilters:
-          type: array
-          items:
-            $ref: '#/components/schemas/IndexingStatusFilter'
-          description: 'When set, only records whose indexing status matches one of these
-
-            values are reindexed (applies to the record and its descendants per `depth`).
-
-            '
-    UpdateRecordEnrichment:
-      type: object
-      description: 'Fields merged into successful record-update responses (Node gateway and Local KB connector).
-
-        '
-      properties:
-        timestamp:
-          type: integer
-          format: int64
-          description: Epoch milliseconds when the response was generated
-        fileUpdated:
-          type: boolean
-        location:
-          type: string
-          enum:
-          - kb_root
-          - folder
-        kb:
-          type: object
-          additionalProperties: true
-        userPermission:
-          type: string
-    FolderCreateResponseSchema:
-      type: object
-      additionalProperties: false
-      description: Response returned when a folder is created (root or nested subfolder)
-      properties:
-        id:
-          type: string
-          description: Unique folder identifier
-        name:
-          type: string
-          description: Name of the folder
-      required:
-      - id
-      - name
-    GetKnowledgeBaseById:
-      type: object
-      additionalProperties: false
-      description: Response returned by GET /knowledgeBase/{kbId} (getKnowledgeBase).
-      required:
-      - id
-      - name
-      - connectorId
-      - createdAtTimestamp
-      - updatedAtTimestamp
-      - createdBy
-      - userRole
-      - folders
-      properties:
-        id:
-          type: string
-          description: Knowledge base ID
-        name:
-          type: string
-          description: Knowledge base name
-        connectorId:
-          type:
-          - string
-          - 'null'
-          description: Associated connector ID (null for manual KBs)
-        createdAtTimestamp:
-          type: integer
-          format: int64
-          description: Creation timestamp in milliseconds
-        updatedAtTimestamp:
-          type: integer
-          format: int64
-          description: Last update timestamp in milliseconds
-        createdBy:
-          type: string
-          description: User ID of the creator
-        userRole:
-          type: string
-          enum:
-          - OWNER
-          - WRITER
-          - READER
-          description: User's role in this knowledge base
-        folders:
-          type: array
-          description: Root-level folders in this knowledge base
-          items:
-            type: object
-            additionalProperties: false
-            required:
-            - id
-            - name
-            properties:
-              id:
-                type: string
-                description: Folder ID
-              name:
-                type: string
-                description: Folder name
-              createdAtTimestamp:
-                type: integer
-                format: int64
-                description: Creation timestamp in milliseconds
-    KnowledgeBaseMoveRecordResponse:
-      type: object
-      additionalProperties: false
-      description: Response returned by PUT /knowledgeBase/{kbId}/record/{recordId}/move (moveRecord).
-      required:
-      - success
-      - message
-      properties:
-        success:
-          type: boolean
-          example: true
-        message:
-          type: string
-          example: Record moved successfully
-    ErrorResponse:
-      type: object
-      additionalProperties: false
-      description: 'Standard error envelope returned by all errors routed through `ErrorMiddleware`.
-
-        Applies to all `BaseError` subclasses including `HttpError`, `ValidationError`, and others.
-
-        The `code` field is a machine-readable string identifying the error type (e.g.
-
-        `HTTP_UNAUTHORIZED`, `HTTP_NOT_FOUND`, `VALIDATION_ERROR`, `INTERNAL_ERROR`).
-
-        '
-      properties:
-        error:
-          type: object
-          additionalProperties: false
-          required:
-          - code
-          - message
-          properties:
-            requestId:
-              type: string
-              description: 'Identifier for this request, echoed so a bug report can quote it.
-
-                Absent when the request never reached the middleware that assigns one.
-
-                '
-            code:
-              type: string
-              description: 'Machine-readable error code. For application errors it takes the form `HTTP_<VARIANT>`
-
-                For unhandled runtime errors (e.g. database unavailable) it is `INTERNAL_ERROR`.
-
-                '
-              example: HTTP_BAD_REQUEST
-            message:
-              type: string
-              description: Human-readable description of the error
-              example: Admin access required
-            metadata:
-              type: object
-              description: Additional context (only present in development environments)
-              additionalProperties: true
-      required:
-      - error
-    IndexingStatusFilter:
-      type: string
-      description: 'Indexing status used to filter which records are included in a scoped
-
-        reindex (record or record-group). Omit `statusFilters` to reindex all
-
-        descendants regardless of status.
-
-        '
-      enum:
-      - NOT_STARTED
-      - QUEUED
-      - IN_PROGRESS
-      - COMPLETED
-      - FAILED
-      - FILE_TYPE_NOT_SUPPORTED
-      - AUTO_INDEX_OFF
-      - EMPTY
-    KnowledgeBaseCreateResponse:
-      type: object
-      additionalProperties: false
-      description: Response returned when a knowledge base is created
-      properties:
-        id:
-          type: string
-          description: Knowledge base ID
-        name:
-          type: string
-          description: Knowledge base name
-        createdAtTimestamp:
-          type: integer
-          format: int64
-          description: Creation timestamp in milliseconds
-        updatedAtTimestamp:
-          type: integer
-          format: int64
-          description: Last update timestamp in milliseconds
-        userRole:
-          type: string
-          enum:
-          - OWNER
-          - WRITER
-          - READER
-          description: User's role in this knowledge base
-      required:
-      - id
-      - name
-      - createdAtTimestamp
-      - updatedAtTimestamp
-      - userRole
-    Record:
-      type: object
-      description: 'A record represents a single document, file, or content item within a knowledge base.
-
-        Records can originate from file uploads or external connectors (Google Drive, OneDrive, etc.).
-
-        '
-      properties:
-        id:
-          type: string
-          description: Unique record identifier (UUID format)
-          example: 550e8400-e29b-41d4-a716-446655440000
-        recordName:
-          type: string
-          description: Display name of the record
-          example: Q4 Financial Report.pdf
-        name:
-          type: string
-          description: Display name (alias for recordName)
-        externalRecordId:
-          type: string
-          description: External storage document ID (links to Storage module)
-          example: 507f1f77bcf86cd799439011
-        recordType:
-          $ref: '#/components/schemas/RecordTypeEnum'
-        origin:
-          type: string
-          enum:
-          - UPLOAD
-          - CONNECTOR
-          description: 'Source of the record:
-
-            - UPLOAD: Manually uploaded via API/UI
-
-            - CONNECTOR: Synced from external connector
-
-            '
-          example: UPLOAD
-        connectorId:
-          type: string
-          description: ID of the connector that synced this record (null for uploads)
-          example: conn_123456
-        connectorName:
-          $ref: '#/components/schemas/ConnectorNameEnum'
-        orgId:
-          type: string
-          description: Organization ID that owns this record
-          example: org_abc123
-        kbId:
-          type: string
-          description: Knowledge base ID containing this record
-          example: kb_xyz789
-        folderId:
-          type:
-          - string
-          - 'null'
-          description: Parent folder ID (null if at KB root)
-          example: folder_456
-        version:
-          type: integer
-          description: Current version number (increments on updates)
-          default: 0
-          example: 3
-        isLatestVersion:
-          type: boolean
-          description: Whether this is the latest version
-        createdAtTimestamp:
-          type: integer
-          format: int64
-          description: Creation timestamp in milliseconds
-          example: 1704153600000
-        updatedAtTimestamp:
-          type: integer
-          format: int64
-          description: Last update timestamp in milliseconds
-          example: 1704240000000
-        sourceCreatedAtTimestamp:
-          type: integer
-          format: int64
-          description: Source creation timestamp (from connector)
-        sourceLastModifiedTimestamp:
-          type: integer
-          format: int64
-          description: Source last modified timestamp (from connector)
-        processingStartedAt:
-          type:
-          - integer
-          - 'null'
-          format: int64
-          description: Epoch ms when parse/index processing began for the current attempt; null when idle
-        queuedAtTimestamp:
-          type:
-          - integer
-          - 'null'
-          format: int64
-          description: Epoch ms the platform last queued this record for indexing; absent until first queued. Platform-owned, unlike updatedAtTimestamp
-        parsingStatus:
-          type: string
-          enum:
-          - NOT_STARTED
-          - IN_PROGRESS
-          - FAILED
-          - COMPLETED
-          - FILE_TYPE_NOT_SUPPORTED
-          - AUTO_INDEX_OFF
-          - EMPTY
-          - QUEUED
-          description: 'Parse-phase status (ahead of indexing/extraction):
-
-            - NOT_STARTED: Awaiting parsing
-
-            - QUEUED: In parsing queue
-
-            - IN_PROGRESS: Currently being parsed
-
-            - COMPLETED: Successfully parsed
-
-            - FAILED: Parsing failed
-
-            - FILE_TYPE_NOT_SUPPORTED: Unsupported file format
-
-            - AUTO_INDEX_OFF: Auto-indexing disabled for this record
-
-            - EMPTY: File has no extractable content
-
-            '
-          example: COMPLETED
-        indexingStatus:
-          type: string
-          enum:
-          - NOT_STARTED
-          - PAUSED
-          - IN_PROGRESS
-          - COMPLETED
-          - FAILED
-          - FILE_TYPE_NOT_SUPPORTED
-          - AUTO_INDEX_OFF
-          - EMPTY
-          - ENABLE_MULTIMODAL_MODELS
-          - QUEUED
-          description: 'Current indexing/processing status:
-
-            - NOT_STARTED: Awaiting indexing
-
-            - QUEUED: In indexing queue
-
-            - IN_PROGRESS: Currently being indexed
-
-            - COMPLETED: Successfully indexed and searchable
-
-            - FAILED: Indexing failed (check error details)
-
-            - PAUSED: Indexing paused by user
-
-            - FILE_TYPE_NOT_SUPPORTED: Unsupported file format
-
-            - AUTO_INDEX_OFF: Auto-indexing disabled for this record
-
-            - EMPTY: File has no extractable content
-
-            - ENABLE_MULTIMODAL_MODELS: Requires multimodal AI models
-
-            '
-          example: COMPLETED
-        isDeleted:
-          type: boolean
-          description: Soft delete flag
-          default: false
-        isArchived:
-          type: boolean
-          description: Archive flag for inactive records
-          default: false
-        webUrl:
-          type: string
-          format: uri
-          description: Direct URL to access the original content
-          example: https://drive.google.com/file/d/abc123
-        mimeType:
-          type: string
-          description: MIME type of the file content
-          example: application/pdf
-        sizeInBytes:
-          type: integer
-          format: int64
-          description: File size in bytes
-          example: 1048576
-        extension:
-          type: string
-          description: File extension (without dot)
-          example: pdf
-        sha256Hash:
-          type: string
-          description: SHA-256 hash for content deduplication
-        type:
-          type: string
-          description: Node type identifier
-          example: record
-        fileRecord:
-          type:
-          - object
-          - 'null'
-          description: File-specific metadata (present when recordType is FILE)
-          properties:
-            id:
-              type: string
-            name:
-              type: string
-            extension:
-              type: string
-            mimeType:
-              type: string
-            sizeInBytes:
-              type: integer
-              format: int64
-            webUrl:
-              type: string
-            path:
-              type:
-              - string
-              - 'null'
-            isFile:
-              type: boolean
-        mailRecord:
-          type:
-          - object
-          - 'null'
-          description: Email-specific metadata (present when recordType is MAIL or GROUP_MAIL)
-        ticketRecord:
-          type:
-          - object
-          - 'null'
-          description: Ticket-specific metadata (present when recordType is TICKET)
-          additionalProperties: true
-      required:
-      - recordName
-      - recordType
-      - origin
-      - orgId
-    ReIndexRecordGroupResponseSchema:
-      type: object
-      additionalProperties: false
-      description: Response returned by POST /knowledgeBase/reindex/record-group/{recordGroupId}.
-      required:
-      - success
-      - message
-      - recordGroupId
-      - depth
-      - eventPublished
-      properties:
-        success:
-          type: boolean
-          enum:
-          - true
-        message:
-          type: string
-        recordGroupId:
-          type: string
-        depth:
-          type: integer
-        connector:
-          type:
-          - string
-          - 'null'
-        eventPublished:
-          type: boolean
-    FolderDeleteResponseSchema:
-      type: object
-      additionalProperties: false
-      description: Response returned by DELETE /knowledgeBase/{kbId}/folder/{folderId} (deleteFolder).
-      required:
-      - success
-      - message
-      properties:
-        success:
-          type: boolean
-          example: true
-        message:
-          type: string
-          example: Folder deleted successfully
-    DeleteRecordResponseSchema:
-      type: object
-      additionalProperties: false
-      description: Response returned by DELETE /knowledgeBase/record/{recordId}.
-      required:
-      - success
-      - message
-      - recordId
-      properties:
-        success:
-          type: boolean
-          enum:
-          - true
-        message:
-          type: string
-        recordId:
-          type: string
-        connector:
-          type:
-          - string
-          - 'null'
-        timestamp:
-          type:
-          - integer
-          - 'null'
-          format: int64
     FilterOption:
       type: object
       description: A single filter option for knowledge hub filters.
@@ -4106,822 +3208,41 @@ components:
           - string
           - 'null'
           description: Connector type/name. Set only for entries in the `connectors` list.
-    KnowledgeHubNodesResponse:
-      type: object
-      description: 'Response body for the Knowledge Hub nodes API. The deployed service
-
-        serialises optional values as JSON `null` and always includes the keys
-
-        listed in `required` (Swagger / clients will see stable shapes, not
-
-        omitted properties).
-
-        '
-      required:
-      - success
-      - error
-      - id
-      - currentNode
-      - parentNode
-      - items
-      - pagination
-      - filters
-      - breadcrumbs
-      - counts
-      - permissions
-      properties:
-        success:
-          type: boolean
-          enum:
-          - true
-          description: Always `true` on HTTP 200. Failures use 4xx/5xx error envelopes, not this body shape.
-        error:
-          type:
-          - string
-          - 'null'
-          description: Always `null` on HTTP 200.
-        id:
-          type:
-          - string
-          - 'null'
-          description: Current parent node ID when browsing children; `null` at root.
-        currentNode:
-          type:
-          - object
-          - 'null'
-          description: Node being browsed when `parentId` is in the path; `null` at root.
-          required:
-          - id
-          - name
-          - nodeType
-          properties:
-            id:
-              type: string
-            name:
-              type: string
-            nodeType:
-              type: string
-              description: One of `app`, `recordGroup`, `folder`, `record`.
-            subType:
-              type:
-              - string
-              - 'null'
-              description: Connector name or record type when applicable; otherwise `null`.
-        parentNode:
-          type:
-          - object
-          - 'null'
-          description: Parent of `currentNode` when present; `null` when not applicable.
-          required:
-          - id
-          - name
-          - nodeType
-          properties:
-            id:
-              type: string
-            name:
-              type: string
-            nodeType:
-              type: string
-              description: One of `app`, `recordGroup`, `folder`, `record`.
-            subType:
-              type:
-              - string
-              - 'null'
-        items:
-          type: array
-          description: Page of nodes for the current browse or search.
-          items:
-            $ref: '#/components/schemas/KnowledgeHubNode'
-        pagination:
-          type: object
-          required:
-          - page
-          - limit
-          - totalItems
-          - totalPages
-          - hasNext
-          - hasPrev
-          properties:
-            page:
-              type: integer
-              description: Current page (1-indexed).
-            limit:
-              type: integer
-              description: Page size.
-            totalItems:
-              type: integer
-            totalPages:
-              type: integer
-            hasNext:
-              type: boolean
-            hasPrev:
-              type: boolean
-        filters:
-          type: object
-          required:
-          - applied
-          - available
-          properties:
-            applied:
-              type: object
-              description: Echo of applied filters; unused slots are JSON `null`.
-              required:
-              - q
-              - nodeTypes
-              - recordTypes
-              - origins
-              - connectorIds
-              - indexingStatus
-              - createdAt
-              - updatedAt
-              - size
-              - sortBy
-              - sortOrder
-              properties:
-                q:
-                  type:
-                  - string
-                  - 'null'
-                nodeTypes:
-                  type:
-                  - array
-                  - 'null'
-                  items:
-                    type: string
-                recordTypes:
-                  type:
-                  - array
-                  - 'null'
-                  items:
-                    type: string
-                origins:
-                  type:
-                  - array
-                  - 'null'
-                  items:
-                    type: string
-                connectorIds:
-                  type:
-                  - array
-                  - 'null'
-                  items:
-                    type: string
-                indexingStatus:
-                  type:
-                  - array
-                  - 'null'
-                  items:
-                    type: string
-                createdAt:
-                  allOf:
-                  - $ref: '#/components/schemas/DateRangeFilter'
-                updatedAt:
-                  allOf:
-                  - $ref: '#/components/schemas/DateRangeFilter'
-                size:
-                  allOf:
-                  - $ref: '#/components/schemas/SizeRangeFilter'
-                sortBy:
-                  type: string
-                  description: Effective sort field after server normalisation.
-                sortOrder:
-                  type: string
-                  description: Effective sort order after server normalisation.
-            available:
-              type:
-              - object
-              - 'null'
-              description: Populated when `include=availableFilters`; otherwise `null`.
-              required:
-              - nodeTypes
-              - recordTypes
-              - origins
-              - connectors
-              - indexingStatus
-              - sortBy
-              - sortOrder
-              properties:
-                nodeTypes:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/FilterOption'
-                recordTypes:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/FilterOption'
-                origins:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/FilterOption'
-                connectors:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/FilterOption'
-                indexingStatus:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/FilterOption'
-                sortBy:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/FilterOption'
-                sortOrder:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/FilterOption'
-        breadcrumbs:
-          type:
-          - array
-          - 'null'
-          description: Present when `include=breadcrumbs`; otherwise `null`.
-          items:
-            type: object
-            required:
-            - id
-            - name
-            - nodeType
-            properties:
-              id:
-                type: string
-              name:
-                type: string
-              nodeType:
-                type: string
-                description: One of `app`, `recordGroup`, `folder`, `record`.
-              subType:
-                type:
-                - string
-                - 'null'
-        counts:
-          type:
-          - object
-          - 'null'
-          description: Present when `include=counts`; otherwise `null`.
-          required:
-          - items
-          - total
-          properties:
-            items:
-              type: array
-              items:
-                type: object
-                required:
-                - label
-                - count
-                properties:
-                  label:
-                    type: string
-                  count:
-                    type: integer
-            total:
-              type: integer
-        permissions:
-          type:
-          - object
-          - 'null'
-          description: Present when `include=permissions`; otherwise `null`.
-          required:
-          - role
-          - canUpload
-          - canCreateFolders
-          - canEdit
-          - canDelete
-          - canManagePermissions
-          properties:
-            role:
-              type: string
-            canUpload:
-              type: boolean
-            canCreateFolders:
-              type: boolean
-            canEdit:
-              type: boolean
-            canDelete:
-              type: boolean
-            canManagePermissions:
-              type: boolean
-    UploadStreamSSEEvent:
-      type: object
-      description: "Server-Sent Event envelope for the KB streaming upload endpoint\n(`POST /knowledgeBase/{kbId}/upload`, with optional `folderId` query param).\n\nThese endpoints respond with `Content-Type: text/event-stream`: the upload\nand its per-file progress are a single request. The body streams one\nterminal event per file, then a final `done` summary, then closes. `data`\nis a JSON-encoded string whose decoded shape depends on `event`:\n\n- `file:succeeded` — see `UploadSucceededFileDetail`. The file was\n  uploaded and its record created; content indexing then continues\n  asynchronously.\n- `file:failed` — see `UploadFailedFileDetail`. Covers files rejected up\n  front (oversize / unsupported type — these carry `reason`), files that\n  failed the storage upload (`stage: \"upload\"`), and files the indexing\n  service could not create (`stage: \"index\"`).\n- `done` — see `UploadDoneSummary`. Final event; the stream closes after it.\n- `error` — `{ \"message\": string }`. Emitted only on a catastrophic\n  mid-stream failure (after the 200 headers were already sent), then the\n  stream closes. Clients MUST treat any file without a terminal\n  `file:succeeded` / `file:failed` as failed when this is received.\n\nThe stream also emits SSE comment heartbeats (`: keepalive`) roughly every\n1s during slow work; these carry no `event`/`data` and should be ignored.\nAuthentication, permission, and request-shape failures occur BEFORE the\nstream starts and are returned as ordinary 4xx JSON errors (not stream\nevents).\n"
-      properties:
-        event:
-          type: string
-          enum:
-          - file:succeeded
-          - file:failed
-          - done
-          - error
-        data:
-          type: string
-          description: JSON-encoded event payload. Shape depends on `event`.
-    ConnectorNameEnum:
-      type: string
-      description: 'Name of the source connector. Mirrors the values of the backend
-
-        `Connectors` enum (`backend/python/app/config/constants/arangodb.py`);
-
-        records store the enum value (e.g. Google Drive is `DRIVE`,
-
-        SharePoint Online is `SHAREPOINT ONLINE`), not the enum member name.
-
-        '
-      enum:
-      - DRIVE
-      - DRIVE WORKSPACE
-      - GMAIL
-      - GMAIL WORKSPACE
-      - CALENDAR
-      - ONEDRIVE
-      - SHAREPOINT ONLINE
-      - OUTLOOK
-      - OUTLOOK PERSONAL
-      - OUTLOOK CALENDAR
-      - MICROSOFT TEAMS
-      - NOTION
-      - NOTION PERSONAL
-      - SLACK
-      - SLACK WORKSPACE
-      - KB
-      - CONFLUENCE
-      - CONFLUENCE DATA CENTER
-      - CONFLUENCE DATA CENTER PERSONAL
-      - JIRA
-      - JIRA PERSONAL
-      - JIRA DATA CENTER
-      - JIRA DATA CENTER PERSONAL
-      - BOX
-      - NEXTCLOUD
-      - DROPBOX
-      - DROPBOX PERSONAL
-      - WEB
-      - BOOKSTACK
-      - DRUPAL WIKI
-      - GITHUB
-      - GITHUB TEAMS
-      - SERVICENOW
-      - SALESFORCE
-      - S3
-      - MINIO
-      - GCS
-      - AZURE BLOB
-      - AZURE FILES
-      - LINEAR
-      - ZAMMAD
-      - ZOOM
-      - GITLAB
-      - GITLAB PERSONAL
-      - SNOWFLAKE
-      - POSTGRESQL
-      - MARIADB
-      - UNKNOWN
-      - RSS
-      - LOCAL_FS
-      - CODING_SANDBOX
-      - DATABASE_SANDBOX
-      - IMAGE_GENERATION
-      - ATTACHMENTS
-      example: DRIVE
-    GetAllKnowledgeBaseResponseSchema:
+    KnowledgeBaseMoveRecordResponse:
       type: object
       additionalProperties: false
-      description: Response returned by GET /knowledgeBase (listKnowledgeBases).
-      required:
-      - knowledgeBases
-      - pagination
-      - filters
-      properties:
-        knowledgeBases:
-          type: array
-          items:
-            type: object
-            additionalProperties: false
-            required:
-            - id
-            - name
-            - connectorId
-            - createdAtTimestamp
-            - updatedAtTimestamp
-            - createdBy
-            - userRole
-            - folders
-            properties:
-              id:
-                type: string
-              name:
-                type: string
-              connectorId:
-                type:
-                - string
-                - 'null'
-              createdAtTimestamp:
-                type: integer
-                format: int64
-              updatedAtTimestamp:
-                type: integer
-                format: int64
-              createdBy:
-                type: string
-              userRole:
-                type: string
-                enum:
-                - OWNER
-                - WRITER
-                - READER
-              folders:
-                type: array
-                items:
-                  type: object
-                  additionalProperties: false
-                  required:
-                  - id
-                  - name
-                  properties:
-                    id:
-                      type: string
-                    name:
-                      type: string
-                    createdAtTimestamp:
-                      type: integer
-                      format: int64
-                    path:
-                      type: string
-        pagination:
-          type: object
-          additionalProperties: false
-          required:
-          - page
-          - limit
-          - totalCount
-          - totalPages
-          - hasNext
-          - hasPrev
-          properties:
-            page:
-              type: integer
-            limit:
-              type: integer
-            totalCount:
-              type: integer
-            totalPages:
-              type: integer
-            hasNext:
-              type: boolean
-            hasPrev:
-              type: boolean
-        filters:
-          type: object
-          additionalProperties: false
-          required:
-          - applied
-          - available
-          properties:
-            applied:
-              type: object
-              additionalProperties: false
-              description: 'Active filters. Empty `{}` when defaults. Keys use snake_case for sort
-
-                fields (backend convention in kb_service.py).
-
-                '
-              properties:
-                search:
-                  type: string
-                permissions:
-                  type: array
-                  items:
-                    type: string
-                    enum:
-                    - OWNER
-                    - WRITER
-                    - READER
-                sort_by:
-                  type: string
-                  enum:
-                  - name
-                  - createdAtTimestamp
-                  - updatedAtTimestamp
-                  - userRole
-                sort_order:
-                  type: string
-                  enum:
-                  - asc
-                  - desc
-            available:
-              type: object
-              additionalProperties: false
-              required:
-              - permissions
-              - sortFields
-              - sortOrders
-              properties:
-                permissions:
-                  type: array
-                  items:
-                    type: string
-                    enum:
-                    - OWNER
-                    - WRITER
-                    - READER
-                sortFields:
-                  type: array
-                  items:
-                    type: string
-                    enum:
-                    - name
-                    - createdAtTimestamp
-                    - updatedAtTimestamp
-                    - userRole
-                sortOrders:
-                  type: array
-                  items:
-                    type: string
-                    enum:
-                    - asc
-                    - desc
-    DemoDataStatus:
-      type: object
-      required:
-      - hasDemo
-      - include
-      - chosen
-      - realData
-      - offForEveryone
-      - demoConnectorIds
-      properties:
-        hasDemo:
-          type: boolean
-          description: Whether the organization has the Acme Corp demo connector.
-        include:
-          type: boolean
-          description: Whether the demo reaches the caller's answers, search and listings.
-        chosen:
-          type:
-          - boolean
-          - 'null'
-          description: The caller's own choice; null while they use the default.
-        realData:
-          type: boolean
-          description: Whether any source other than the demo has indexed records.
-        offForEveryone:
-          type: boolean
-          description: An admin turned the demo off for the whole organization; overrides every choice.
-        demoConnectorIds:
-          type: array
-          items:
-            type: string
-    reIndexRecordResponseSchema:
-      type: object
-      additionalProperties: false
-      description: Response returned by POST /knowledgeBase/reindex/record/{recordId}.
+      description: Response returned by PUT /knowledgeBase/{kbId}/record/{recordId}/move (moveRecord).
       required:
       - success
       - message
-      - eventPublished
-      - depth
       properties:
         success:
           type: boolean
-          enum:
-          - true
+          example: true
         message:
           type: string
-        recordId:
-          type:
-          - string
-          - 'null'
-        recordName:
-          type:
-          - string
-          - 'null'
-        connector:
-          type:
-          - string
-          - 'null'
-        eventPublished:
-          type: boolean
-        userRole:
-          type:
-          - string
-          - 'null'
+          example: Record moved successfully
+    ReindexRecordGroupRequestBody:
+      type: object
+      description: Optional body for record-group (folder/KB container) reindex.
+      properties:
         depth:
           type: integer
-    FolderUpdateResponseSchema:
-      type: object
-      additionalProperties: false
-      description: Response returned by PUT /knowledgeBase/{kbId}/folder/{folderId} (updateFolder).
-      required:
-      - success
-      - message
-      properties:
-        success:
+          minimum: -1
+          maximum: 100
+          default: 0
+          description: Depth of records under the record group to include.
+        force:
           type: boolean
-          example: true
-        message:
-          type: string
-          example: Folder updated successfully
-    UpdateKnowledgeBaseById:
-      type: object
-      additionalProperties: false
-      description: Response returned by PUT /knowledgeBase/{kbId} (updateKnowledgeBase).
-      required:
-      - success
-      - message
-      properties:
-        success:
-          type: boolean
-          example: true
-        message:
-          type: string
-          example: Knowledge base updated successfully
-    KnowledgeBaseMoveRecordRequestBody:
-      type: object
-      additionalProperties: false
-      description: Request body for PUT /knowledgeBase/{kbId}/record/{recordId}/move (moveRecord).
-      required:
-      - newParentId
-      properties:
-        newParentId:
-          type:
-          - string
-          - 'null'
-          description: Target folder ID, or null to move the record to the knowledge base root
-    KnowledgeHubNode:
-      type: object
-      description: 'One element of `items`. The live API keeps keys stable and sets
-
-        inapplicable values to JSON `null` (not omitted).
-
-        '
-      required:
-      - id
-      - name
-      - nodeType
-      - parentId
-      - origin
-      - connector
-      - connectorId
-      - recordType
-      - recordGroupType
-      - indexingStatus
-      - reason
-      - createdAt
-      - updatedAt
-      - sizeInBytes
-      - mimeType
-      - extension
-      - webUrl
-      - hasChildren
-      - previewRenderable
-      - permission
-      - sharingStatus
-      - isInternal
-      - isPlaceholder
-      properties:
-        id:
-          type: string
-          description: Unique identifier for the node.
-        name:
-          type: string
-          description: Display name of the node.
-        nodeType:
-          type: string
-          enum:
-          - app
-          - recordGroup
-          - folder
-          - record
-          description: Type of the node (app, recordGroup, folder, or record).
-        parentId:
-          type:
-          - string
-          - 'null'
-          description: Parent node ID, or `null` at the root browse level.
-        origin:
-          type: string
-          enum:
-          - COLLECTION
-          - CONNECTOR
-          description: Origin type.
-        connector:
-          type:
-          - string
-          - 'null'
-          description: Connector display name / key when applicable; otherwise `null`.
-        connectorId:
-          type:
-          - string
-          - 'null'
-          description: Connector instance id for records and groups that come from a connector; otherwise `null` (Collections, and app nodes).
-        recordType:
-          type:
-          - string
-          - 'null'
-          description: Record type when `nodeType` is `record`; otherwise `null`.
-        recordGroupType:
-          type:
-          - string
-          - 'null'
-          description: Record group type when `nodeType` is `recordGroup`; otherwise `null`.
-        indexingStatus:
-          type:
-          - string
-          - 'null'
-          description: Indexing status when `nodeType` is `record`; otherwise `null`.
-        reason:
-          type:
-          - string
-          - 'null'
-          description: Failure or status reason when set; otherwise `null`.
-        isInternal:
-          type: boolean
-          description: True for internal/system nodes that do not originate from a source.
-        isPlaceholder:
-          type: boolean
-          description: True for placeholder/stub nodes standing in for an out-of-scope ancestor (rendered read-only, no content actions; excluded from search and indexing).
-        createdAt:
-          type: integer
-          description: Creation timestamp (epoch ms).
-        updatedAt:
-          type: integer
-          description: Update timestamp (epoch ms).
-        sizeInBytes:
-          type:
-          - integer
-          - 'null'
-          description: File size in bytes for file records; otherwise `null`.
-        mimeType:
-          type:
-          - string
-          - 'null'
-        extension:
-          type:
-          - string
-          - 'null'
-        webUrl:
-          type:
-          - string
-          - 'null'
-        hasChildren:
-          type: boolean
-          description: Whether the node has children (sidebar / tree).
-        previewRenderable:
-          type:
-          - boolean
-          - 'null'
-        permission:
-          type:
-          - object
-          - 'null'
-          description: Per-item permission when `include=permissions` is requested; otherwise `null`.
-          required:
-          - role
-          - canEdit
-          - canDelete
-          properties:
-            role:
-              type: string
-            canEdit:
-              type: boolean
-            canDelete:
-              type: boolean
-        sharingStatus:
-          type:
-          - string
-          - 'null'
-          description: 'Sharing status (e.g. `private`, `shared`, `team`, `workspace`) when
-
-            applicable; otherwise `null`.
+          default: false
+          description: Force reindex for all matched records in the group.
+        statusFilters:
+          type: array
+          items:
+            $ref: '#/components/schemas/IndexingStatusFilter'
+          description: 'When set, only records matching these indexing statuses are reindexed.
 
             '
-    DateRangeFilter:
-      type: object
-      description: Date range filter with optional inclusive bounds (epoch ms).
-      properties:
-        gte:
-          type:
-          - integer
-          - 'null'
-          description: Greater-than-or-equal bound (epoch ms).
-        lte:
-          type:
-          - integer
-          - 'null'
-          description: Less-than-or-equal bound (epoch ms).
-    DeleteKnowledgeBaseById:
-      type: object
-      additionalProperties: false
-      description: Response returned by DELETE /knowledgeBase/{kbId} (deleteKnowledgeBase).
-      required:
-      - success
-      - message
-      properties:
-        success:
-          type: boolean
-          example: true
-        message:
-          type: string
-          example: Knowledge base deleted successfully
     GetRecordByIdResponseSchema:
       type: object
       additionalProperties: false
@@ -5377,6 +3698,1009 @@ components:
                 - READER
               accessType:
                 type: string
+    KnowledgeBaseCreateResponse:
+      type: object
+      additionalProperties: false
+      description: Response returned when a knowledge base is created
+      properties:
+        id:
+          type: string
+          description: Knowledge base ID
+        name:
+          type: string
+          description: Knowledge base name
+        createdAtTimestamp:
+          type: integer
+          format: int64
+          description: Creation timestamp in milliseconds
+        updatedAtTimestamp:
+          type: integer
+          format: int64
+          description: Last update timestamp in milliseconds
+        userRole:
+          type: string
+          enum:
+          - OWNER
+          - WRITER
+          - READER
+          description: User's role in this knowledge base
+      required:
+      - id
+      - name
+      - createdAtTimestamp
+      - updatedAtTimestamp
+      - userRole
+    DeleteKnowledgeBaseById:
+      type: object
+      additionalProperties: false
+      description: Response returned by DELETE /knowledgeBase/{kbId} (deleteKnowledgeBase).
+      required:
+      - success
+      - message
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Knowledge base deleted successfully
+    Record:
+      type: object
+      description: 'A record represents a single document, file, or content item within a knowledge base.
+
+        Records can originate from file uploads or external connectors (Google Drive, OneDrive, etc.).
+
+        '
+      properties:
+        id:
+          type: string
+          description: Unique record identifier (UUID format)
+          example: 550e8400-e29b-41d4-a716-446655440000
+        recordName:
+          type: string
+          description: Display name of the record
+          example: Q4 Financial Report.pdf
+        name:
+          type: string
+          description: Display name (alias for recordName)
+        externalRecordId:
+          type: string
+          description: External storage document ID (links to Storage module)
+          example: 507f1f77bcf86cd799439011
+        recordType:
+          $ref: '#/components/schemas/RecordTypeEnum'
+        origin:
+          type: string
+          enum:
+          - UPLOAD
+          - CONNECTOR
+          description: 'Source of the record:
+
+            - UPLOAD: Manually uploaded via API/UI
+
+            - CONNECTOR: Synced from external connector
+
+            '
+          example: UPLOAD
+        connectorId:
+          type: string
+          description: ID of the connector that synced this record (null for uploads)
+          example: conn_123456
+        connectorName:
+          $ref: '#/components/schemas/ConnectorNameEnum'
+        orgId:
+          type: string
+          description: Organization ID that owns this record
+          example: org_abc123
+        kbId:
+          type: string
+          description: Knowledge base ID containing this record
+          example: kb_xyz789
+        folderId:
+          type:
+          - string
+          - 'null'
+          description: Parent folder ID (null if at KB root)
+          example: folder_456
+        version:
+          type: integer
+          description: Current version number (increments on updates)
+          default: 0
+          example: 3
+        isLatestVersion:
+          type: boolean
+          description: Whether this is the latest version
+        createdAtTimestamp:
+          type: integer
+          format: int64
+          description: Creation timestamp in milliseconds
+          example: 1704153600000
+        updatedAtTimestamp:
+          type: integer
+          format: int64
+          description: Last update timestamp in milliseconds
+          example: 1704240000000
+        sourceCreatedAtTimestamp:
+          type: integer
+          format: int64
+          description: Source creation timestamp (from connector)
+        sourceLastModifiedTimestamp:
+          type: integer
+          format: int64
+          description: Source last modified timestamp (from connector)
+        processingStartedAt:
+          type:
+          - integer
+          - 'null'
+          format: int64
+          description: Epoch ms when parse/index processing began for the current attempt; null when idle
+        queuedAtTimestamp:
+          type:
+          - integer
+          - 'null'
+          format: int64
+          description: Epoch ms the platform last queued this record for indexing; absent until first queued. Platform-owned, unlike updatedAtTimestamp
+        parsingStatus:
+          type: string
+          enum:
+          - NOT_STARTED
+          - IN_PROGRESS
+          - FAILED
+          - COMPLETED
+          - FILE_TYPE_NOT_SUPPORTED
+          - AUTO_INDEX_OFF
+          - EMPTY
+          - QUEUED
+          description: 'Parse-phase status (ahead of indexing/extraction):
+
+            - NOT_STARTED: Awaiting parsing
+
+            - QUEUED: In parsing queue
+
+            - IN_PROGRESS: Currently being parsed
+
+            - COMPLETED: Successfully parsed
+
+            - FAILED: Parsing failed
+
+            - FILE_TYPE_NOT_SUPPORTED: Unsupported file format
+
+            - AUTO_INDEX_OFF: Auto-indexing disabled for this record
+
+            - EMPTY: File has no extractable content
+
+            '
+          example: COMPLETED
+        indexingStatus:
+          type: string
+          enum:
+          - NOT_STARTED
+          - PAUSED
+          - IN_PROGRESS
+          - COMPLETED
+          - FAILED
+          - FILE_TYPE_NOT_SUPPORTED
+          - AUTO_INDEX_OFF
+          - EMPTY
+          - ENABLE_MULTIMODAL_MODELS
+          - QUEUED
+          description: 'Current indexing/processing status:
+
+            - NOT_STARTED: Awaiting indexing
+
+            - QUEUED: In indexing queue
+
+            - IN_PROGRESS: Currently being indexed
+
+            - COMPLETED: Successfully indexed and searchable
+
+            - FAILED: Indexing failed (check error details)
+
+            - PAUSED: Indexing paused by user
+
+            - FILE_TYPE_NOT_SUPPORTED: Unsupported file format
+
+            - AUTO_INDEX_OFF: Auto-indexing disabled for this record
+
+            - EMPTY: File has no extractable content
+
+            - ENABLE_MULTIMODAL_MODELS: Requires multimodal AI models
+
+            '
+          example: COMPLETED
+        isDeleted:
+          type: boolean
+          description: Soft delete flag
+          default: false
+        isArchived:
+          type: boolean
+          description: Archive flag for inactive records
+          default: false
+        webUrl:
+          type: string
+          format: uri
+          description: Direct URL to access the original content
+          example: https://drive.google.com/file/d/abc123
+        mimeType:
+          type: string
+          description: MIME type of the file content
+          example: application/pdf
+        sizeInBytes:
+          type: integer
+          format: int64
+          description: File size in bytes
+          example: 1048576
+        extension:
+          type: string
+          description: File extension (without dot)
+          example: pdf
+        sha256Hash:
+          type: string
+          description: SHA-256 hash for content deduplication
+        type:
+          type: string
+          description: Node type identifier
+          example: record
+        fileRecord:
+          type:
+          - object
+          - 'null'
+          description: File-specific metadata (present when recordType is FILE)
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            extension:
+              type: string
+            mimeType:
+              type: string
+            sizeInBytes:
+              type: integer
+              format: int64
+            webUrl:
+              type: string
+            path:
+              type:
+              - string
+              - 'null'
+            isFile:
+              type: boolean
+        mailRecord:
+          type:
+          - object
+          - 'null'
+          description: Email-specific metadata (present when recordType is MAIL or GROUP_MAIL)
+        ticketRecord:
+          type:
+          - object
+          - 'null'
+          description: Ticket-specific metadata (present when recordType is TICKET)
+          additionalProperties: true
+      required:
+      - recordName
+      - recordType
+      - origin
+      - orgId
+    DateRangeFilter:
+      type: object
+      description: Date range filter with optional inclusive bounds (epoch ms).
+      properties:
+        gte:
+          type:
+          - integer
+          - 'null'
+          description: Greater-than-or-equal bound (epoch ms).
+        lte:
+          type:
+          - integer
+          - 'null'
+          description: Less-than-or-equal bound (epoch ms).
+    DemoDataStatus:
+      type: object
+      required:
+      - hasDemo
+      - include
+      - chosen
+      - realData
+      - offForEveryone
+      - demoConnectorIds
+      properties:
+        hasDemo:
+          type: boolean
+          description: Whether the organization has the Acme Corp demo connector.
+        include:
+          type: boolean
+          description: Whether the demo reaches the caller's answers, search and listings.
+        chosen:
+          type:
+          - boolean
+          - 'null'
+          description: The caller's own choice; null while they use the default.
+        realData:
+          type: boolean
+          description: Whether any source other than the demo has indexed records.
+        offForEveryone:
+          type: boolean
+          description: An admin turned the demo off for the whole organization; overrides every choice.
+        demoConnectorIds:
+          type: array
+          items:
+            type: string
+    KnowledgeHubNode:
+      type: object
+      description: 'One element of `items`. The live API keeps keys stable and sets
+
+        inapplicable values to JSON `null` (not omitted).
+
+        '
+      required:
+      - id
+      - name
+      - nodeType
+      - parentId
+      - origin
+      - connector
+      - connectorId
+      - recordType
+      - recordGroupType
+      - indexingStatus
+      - reason
+      - createdAt
+      - updatedAt
+      - sizeInBytes
+      - mimeType
+      - extension
+      - webUrl
+      - hasChildren
+      - previewRenderable
+      - permission
+      - sharingStatus
+      - isInternal
+      - isPlaceholder
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the node.
+        name:
+          type: string
+          description: Display name of the node.
+        nodeType:
+          type: string
+          enum:
+          - app
+          - recordGroup
+          - folder
+          - record
+          description: Type of the node (app, recordGroup, folder, or record).
+        parentId:
+          type:
+          - string
+          - 'null'
+          description: Parent node ID, or `null` at the root browse level.
+        origin:
+          type: string
+          enum:
+          - COLLECTION
+          - CONNECTOR
+          description: Origin type.
+        connector:
+          type:
+          - string
+          - 'null'
+          description: Connector display name / key when applicable; otherwise `null`.
+        connectorId:
+          type:
+          - string
+          - 'null'
+          description: Connector instance id for records and groups that come from a connector; otherwise `null` (Collections, and app nodes).
+        recordType:
+          type:
+          - string
+          - 'null'
+          description: Record type when `nodeType` is `record`; otherwise `null`.
+        recordGroupType:
+          type:
+          - string
+          - 'null'
+          description: Record group type when `nodeType` is `recordGroup`; otherwise `null`.
+        indexingStatus:
+          type:
+          - string
+          - 'null'
+          description: Indexing status when `nodeType` is `record`; otherwise `null`.
+        reason:
+          type:
+          - string
+          - 'null'
+          description: Failure or status reason when set; otherwise `null`.
+        isInternal:
+          type: boolean
+          description: True for internal/system nodes that do not originate from a source.
+        isPlaceholder:
+          type: boolean
+          description: True for placeholder/stub nodes standing in for an out-of-scope ancestor (rendered read-only, no content actions; excluded from search and indexing).
+        createdAt:
+          type: integer
+          description: Creation timestamp (epoch ms).
+        updatedAt:
+          type: integer
+          description: Update timestamp (epoch ms).
+        sizeInBytes:
+          type:
+          - integer
+          - 'null'
+          description: File size in bytes for file records; otherwise `null`.
+        mimeType:
+          type:
+          - string
+          - 'null'
+        extension:
+          type:
+          - string
+          - 'null'
+        webUrl:
+          type:
+          - string
+          - 'null'
+        hasChildren:
+          type: boolean
+          description: Whether the node has children (sidebar / tree).
+        previewRenderable:
+          type:
+          - boolean
+          - 'null'
+        permission:
+          type:
+          - object
+          - 'null'
+          description: Per-item permission when `include=permissions` is requested; otherwise `null`.
+          required:
+          - role
+          - canEdit
+          - canDelete
+          properties:
+            role:
+              type: string
+            canEdit:
+              type: boolean
+            canDelete:
+              type: boolean
+        sharingStatus:
+          type:
+          - string
+          - 'null'
+          description: 'Sharing status (e.g. `private`, `shared`, `team`, `workspace`) when
+
+            applicable; otherwise `null`.
+
+            '
+    GetKnowledgeBaseById:
+      type: object
+      additionalProperties: false
+      description: Response returned by GET /knowledgeBase/{kbId} (getKnowledgeBase).
+      required:
+      - id
+      - name
+      - connectorId
+      - createdAtTimestamp
+      - updatedAtTimestamp
+      - createdBy
+      - userRole
+      - folders
+      properties:
+        id:
+          type: string
+          description: Knowledge base ID
+        name:
+          type: string
+          description: Knowledge base name
+        connectorId:
+          type:
+          - string
+          - 'null'
+          description: Associated connector ID (null for manual KBs)
+        createdAtTimestamp:
+          type: integer
+          format: int64
+          description: Creation timestamp in milliseconds
+        updatedAtTimestamp:
+          type: integer
+          format: int64
+          description: Last update timestamp in milliseconds
+        createdBy:
+          type: string
+          description: User ID of the creator
+        userRole:
+          type: string
+          enum:
+          - OWNER
+          - WRITER
+          - READER
+          description: User's role in this knowledge base
+        folders:
+          type: array
+          description: Root-level folders in this knowledge base
+          items:
+            type: object
+            additionalProperties: false
+            required:
+            - id
+            - name
+            properties:
+              id:
+                type: string
+                description: Folder ID
+              name:
+                type: string
+                description: Folder name
+              createdAtTimestamp:
+                type: integer
+                format: int64
+                description: Creation timestamp in milliseconds
+    SizeRangeFilter:
+      type: object
+      description: Size range filter with optional inclusive bounds (bytes).
+      properties:
+        gte:
+          type:
+          - integer
+          - 'null'
+          description: Greater-than-or-equal bound (bytes).
+        lte:
+          type:
+          - integer
+          - 'null'
+          description: Less-than-or-equal bound (bytes).
+    UpdateRecordEnrichment:
+      type: object
+      description: 'Fields merged into successful record-update responses (Node gateway and Local KB connector).
+
+        '
+      properties:
+        timestamp:
+          type: integer
+          format: int64
+          description: Epoch milliseconds when the response was generated
+        fileUpdated:
+          type: boolean
+        location:
+          type: string
+          enum:
+          - kb_root
+          - folder
+        kb:
+          type: object
+          additionalProperties: true
+        userPermission:
+          type: string
+    UpdateKnowledgeBaseById:
+      type: object
+      additionalProperties: false
+      description: Response returned by PUT /knowledgeBase/{kbId} (updateKnowledgeBase).
+      required:
+      - success
+      - message
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Knowledge base updated successfully
+    FolderUpdateResponseSchema:
+      type: object
+      additionalProperties: false
+      description: Response returned by PUT /knowledgeBase/{kbId}/folder/{folderId} (updateFolder).
+      required:
+      - success
+      - message
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Folder updated successfully
+    GetAllKnowledgeBaseResponseSchema:
+      type: object
+      additionalProperties: false
+      description: Response returned by GET /knowledgeBase (listKnowledgeBases).
+      required:
+      - knowledgeBases
+      - pagination
+      - filters
+      properties:
+        knowledgeBases:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            required:
+            - id
+            - name
+            - connectorId
+            - createdAtTimestamp
+            - updatedAtTimestamp
+            - createdBy
+            - userRole
+            - folders
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              connectorId:
+                type:
+                - string
+                - 'null'
+              createdAtTimestamp:
+                type: integer
+                format: int64
+              updatedAtTimestamp:
+                type: integer
+                format: int64
+              createdBy:
+                type: string
+              userRole:
+                type: string
+                enum:
+                - OWNER
+                - WRITER
+                - READER
+              folders:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: false
+                  required:
+                  - id
+                  - name
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    createdAtTimestamp:
+                      type: integer
+                      format: int64
+                    path:
+                      type: string
+        pagination:
+          type: object
+          additionalProperties: false
+          required:
+          - page
+          - limit
+          - totalCount
+          - totalPages
+          - hasNext
+          - hasPrev
+          properties:
+            page:
+              type: integer
+            limit:
+              type: integer
+            totalCount:
+              type: integer
+            totalPages:
+              type: integer
+            hasNext:
+              type: boolean
+            hasPrev:
+              type: boolean
+        filters:
+          type: object
+          additionalProperties: false
+          required:
+          - applied
+          - available
+          properties:
+            applied:
+              type: object
+              additionalProperties: false
+              description: 'Active filters. Empty `{}` when defaults. Keys use snake_case for sort
+
+                fields (backend convention in kb_service.py).
+
+                '
+              properties:
+                search:
+                  type: string
+                permissions:
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                    - OWNER
+                    - WRITER
+                    - READER
+                sort_by:
+                  type: string
+                  enum:
+                  - name
+                  - createdAtTimestamp
+                  - updatedAtTimestamp
+                  - userRole
+                sort_order:
+                  type: string
+                  enum:
+                  - asc
+                  - desc
+            available:
+              type: object
+              additionalProperties: false
+              required:
+              - permissions
+              - sortFields
+              - sortOrders
+              properties:
+                permissions:
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                    - OWNER
+                    - WRITER
+                    - READER
+                sortFields:
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                    - name
+                    - createdAtTimestamp
+                    - updatedAtTimestamp
+                    - userRole
+                sortOrders:
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                    - asc
+                    - desc
+    ConnectorNameEnum:
+      type: string
+      description: 'Name of the source connector. Mirrors the values of the backend
+
+        `Connectors` enum (`backend/python/app/config/constants/arangodb.py`);
+
+        records store the enum value (e.g. Google Drive is `DRIVE`,
+
+        SharePoint Online is `SHAREPOINT ONLINE`), not the enum member name.
+
+        '
+      enum:
+      - DRIVE
+      - DRIVE WORKSPACE
+      - GMAIL
+      - GMAIL WORKSPACE
+      - CALENDAR
+      - ONEDRIVE
+      - SHAREPOINT ONLINE
+      - OUTLOOK
+      - OUTLOOK PERSONAL
+      - OUTLOOK CALENDAR
+      - MICROSOFT TEAMS
+      - NOTION
+      - NOTION PERSONAL
+      - SLACK
+      - SLACK WORKSPACE
+      - KB
+      - CONFLUENCE
+      - CONFLUENCE DATA CENTER
+      - CONFLUENCE DATA CENTER PERSONAL
+      - JIRA
+      - JIRA PERSONAL
+      - JIRA DATA CENTER
+      - JIRA DATA CENTER PERSONAL
+      - BOX
+      - NEXTCLOUD
+      - DROPBOX
+      - DROPBOX PERSONAL
+      - WEB
+      - BOOKSTACK
+      - DRUPAL WIKI
+      - GITHUB
+      - GITHUB TEAMS
+      - SERVICENOW
+      - SALESFORCE
+      - S3
+      - MINIO
+      - GCS
+      - AZURE BLOB
+      - AZURE FILES
+      - LINEAR
+      - ZAMMAD
+      - ZOOM
+      - GITLAB
+      - GITLAB PERSONAL
+      - SNOWFLAKE
+      - POSTGRESQL
+      - MARIADB
+      - UNKNOWN
+      - RSS
+      - LOCAL_FS
+      - CODING_SANDBOX
+      - DATABASE_SANDBOX
+      - IMAGE_GENERATION
+      - ATTACHMENTS
+      example: DRIVE
+    FolderCreateResponseSchema:
+      type: object
+      additionalProperties: false
+      description: Response returned when a folder is created (root or nested subfolder)
+      properties:
+        id:
+          type: string
+          description: Unique folder identifier
+        name:
+          type: string
+          description: Name of the folder
+      required:
+      - id
+      - name
+    IndexingStatusFilter:
+      type: string
+      description: 'Indexing status used to filter which records are included in a scoped
+
+        reindex (record or record-group). Omit `statusFilters` to reindex all
+
+        descendants regardless of status.
+
+        '
+      enum:
+      - NOT_STARTED
+      - QUEUED
+      - IN_PROGRESS
+      - COMPLETED
+      - FAILED
+      - FILE_TYPE_NOT_SUPPORTED
+      - AUTO_INDEX_OFF
+      - EMPTY
+    UploadStreamSSEEvent:
+      type: object
+      description: "Server-Sent Event envelope for the KB streaming upload endpoint\n(`POST /knowledgeBase/{kbId}/upload`, with optional `folderId` query param).\n\nThese endpoints respond with `Content-Type: text/event-stream`: the upload\nand its per-file progress are a single request. The body streams one\nterminal event per file, then a final `done` summary, then closes. `data`\nis a JSON-encoded string whose decoded shape depends on `event`:\n\n- `file:succeeded` — see `UploadSucceededFileDetail`. The file was\n  uploaded and its record created; content indexing then continues\n  asynchronously.\n- `file:failed` — see `UploadFailedFileDetail`. Covers files rejected up\n  front (oversize / unsupported type — these carry `reason`), files that\n  failed the storage upload (`stage: \"upload\"`), and files the indexing\n  service could not create (`stage: \"index\"`).\n- `done` — see `UploadDoneSummary`. Final event; the stream closes after it.\n- `error` — `{ \"message\": string }`. Emitted only on a catastrophic\n  mid-stream failure (after the 200 headers were already sent), then the\n  stream closes. Clients MUST treat any file without a terminal\n  `file:succeeded` / `file:failed` as failed when this is received.\n\nThe stream also emits SSE comment heartbeats (`: keepalive`) roughly every\n1s during slow work; these carry no `event`/`data` and should be ignored.\nAuthentication, permission, and request-shape failures occur BEFORE the\nstream starts and are returned as ordinary 4xx JSON errors (not stream\nevents).\n"
+      properties:
+        event:
+          type: string
+          enum:
+          - file:succeeded
+          - file:failed
+          - done
+          - error
+        data:
+          type: string
+          description: JSON-encoded event payload. Shape depends on `event`.
+    StreamRecordErrorResponse:
+      type: object
+      additionalProperties: false
+      description: 'Error payload returned by the legacy record-stream proxy when the downstream
+
+        streaming request fails after route middleware has passed.
+
+        '
+      required:
+      - error
+      properties:
+        error:
+          type: string
+          description: Human-readable error message from the gateway or downstream stream service
+    FolderDeleteResponseSchema:
+      type: object
+      additionalProperties: false
+      description: Response returned by DELETE /knowledgeBase/{kbId}/folder/{folderId} (deleteFolder).
+      required:
+      - success
+      - message
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: Folder deleted successfully
+    RecordTypeEnum:
+      type: string
+      description: 'Type of content. Mirrors the backend `RecordType` enum
+
+        (`backend/python/app/models/entities.py`); connector-sourced records
+
+        may use any of the connector-specific types below.
+
+        - FILE: Uploaded or synced documents (PDF, DOCX, etc.)
+
+        - DRIVE: Drive/folder container (Google Drive, OneDrive, etc.)
+
+        - WEBPAGE: Web pages crawled or bookmarked
+
+        - DATABASE: Database object (e.g. Notion database)
+
+        - DATASOURCE: Data source object
+
+        - MESSAGE: Chat/messaging content (Slack, Teams)
+
+        - MAIL: Email messages (Gmail, Outlook)
+
+        - GROUP_MAIL: Group/shared mailbox email messages
+
+        - TICKET: Support/issue tickets (Jira, ServiceNow)
+
+        - COMMENT: Comments from collaboration tools
+
+        - INLINE_COMMENT: Inline comments anchored to content (e.g. Confluence)
+
+        - CONFLUENCE_PAGE: Confluence page
+
+        - CONFLUENCE_BLOGPOST: Confluence blog post
+
+        - SHAREPOINT_PAGE: SharePoint page
+
+        - SHAREPOINT_LIST: SharePoint list
+
+        - SHAREPOINT_LIST_ITEM: SharePoint list item
+
+        - SHAREPOINT_DOCUMENT_LIBRARY: SharePoint document library
+
+        - LINK: Web link / bookmark
+
+        - PROJECT: Project entity (e.g. Jira project)
+
+        - PULL_REQUEST: Source-control pull request
+
+        - MEETING: Meeting record (e.g. Zoom)
+
+        - PRODUCT: Product entity (CRM)
+
+        - DEAL: Deal/opportunity entity (CRM)
+
+        - CASE: Case entity (CRM/support)
+
+        - TASK: Task entity
+
+        - ARTIFACT: Generated/derived artifact
+
+        - CODE_FILE: Source-code file
+
+        - SQL_TABLE: SQL table object
+
+        - SQL_VIEW: SQL view object
+
+        - OTHERS: Miscellaneous content types
+
+        '
+      enum:
+      - FILE
+      - DRIVE
+      - WEBPAGE
+      - DATABASE
+      - DATASOURCE
+      - MESSAGE
+      - MAIL
+      - GROUP_MAIL
+      - TICKET
+      - COMMENT
+      - INLINE_COMMENT
+      - CONFLUENCE_PAGE
+      - CONFLUENCE_BLOGPOST
+      - SHAREPOINT_PAGE
+      - SHAREPOINT_LIST
+      - SHAREPOINT_LIST_ITEM
+      - SHAREPOINT_DOCUMENT_LIBRARY
+      - LINK
+      - PROJECT
+      - PULL_REQUEST
+      - MEETING
+      - PRODUCT
+      - DEAL
+      - CASE
+      - TASK
+      - ARTIFACT
+      - CODE_FILE
+      - SQL_TABLE
+      - SQL_VIEW
+      - OTHERS
+      example: FILE
     UploadLimitsResponseSchema:
       type: object
       additionalProperties: false
@@ -5395,6 +4719,474 @@ components:
           minimum: 1
           example: 31457280
           description: Maximum file size in bytes (default 30MB when platform settings unavailable)
+    DeleteRecordResponseSchema:
+      type: object
+      additionalProperties: false
+      description: Response returned by DELETE /knowledgeBase/record/{recordId}.
+      required:
+      - success
+      - message
+      - recordId
+      properties:
+        success:
+          type: boolean
+          enum:
+          - true
+        message:
+          type: string
+        recordId:
+          type: string
+        connector:
+          type:
+          - string
+          - 'null'
+        timestamp:
+          type:
+          - integer
+          - 'null'
+          format: int64
+    ReindexRecordRequestBody:
+      type: object
+      description: Optional body for single-record reindex.
+      properties:
+        depth:
+          type: integer
+          minimum: -1
+          maximum: 100
+          default: 0
+          description: 'Child traversal depth (`0` = record only; higher values include
+
+            descendants; `100` is used by clients for folder-like reindex).
+
+            '
+        force:
+          type: boolean
+          default: false
+          description: Force reindex even when the connector considers the record unchanged.
+        statusFilters:
+          type: array
+          items:
+            $ref: '#/components/schemas/IndexingStatusFilter'
+          description: 'When set, only records whose indexing status matches one of these
+
+            values are reindexed (applies to the record and its descendants per `depth`).
+
+            '
+    KnowledgeHubNodesResponse:
+      type: object
+      description: 'Response body for the Knowledge Hub nodes API. The deployed service
+
+        serialises optional values as JSON `null` and always includes the keys
+
+        listed in `required` (Swagger / clients will see stable shapes, not
+
+        omitted properties).
+
+        '
+      required:
+      - success
+      - error
+      - id
+      - currentNode
+      - parentNode
+      - items
+      - pagination
+      - filters
+      - breadcrumbs
+      - counts
+      - permissions
+      properties:
+        success:
+          type: boolean
+          enum:
+          - true
+          description: Always `true` on HTTP 200. Failures use 4xx/5xx error envelopes, not this body shape.
+        error:
+          type:
+          - string
+          - 'null'
+          description: Always `null` on HTTP 200.
+        id:
+          type:
+          - string
+          - 'null'
+          description: Current parent node ID when browsing children; `null` at root.
+        currentNode:
+          type:
+          - object
+          - 'null'
+          description: Node being browsed when `parentId` is in the path; `null` at root.
+          required:
+          - id
+          - name
+          - nodeType
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            nodeType:
+              type: string
+              description: One of `app`, `recordGroup`, `folder`, `record`.
+            subType:
+              type:
+              - string
+              - 'null'
+              description: Connector name or record type when applicable; otherwise `null`.
+        parentNode:
+          type:
+          - object
+          - 'null'
+          description: Parent of `currentNode` when present; `null` when not applicable.
+          required:
+          - id
+          - name
+          - nodeType
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            nodeType:
+              type: string
+              description: One of `app`, `recordGroup`, `folder`, `record`.
+            subType:
+              type:
+              - string
+              - 'null'
+        items:
+          type: array
+          description: Page of nodes for the current browse or search.
+          items:
+            $ref: '#/components/schemas/KnowledgeHubNode'
+        pagination:
+          type: object
+          required:
+          - page
+          - limit
+          - totalItems
+          - totalPages
+          - hasNext
+          - hasPrev
+          properties:
+            page:
+              type: integer
+              description: Current page (1-indexed).
+            limit:
+              type: integer
+              description: Page size.
+            totalItems:
+              type: integer
+            totalPages:
+              type: integer
+            hasNext:
+              type: boolean
+            hasPrev:
+              type: boolean
+        filters:
+          type: object
+          required:
+          - applied
+          - available
+          properties:
+            applied:
+              type: object
+              description: Echo of applied filters; unused slots are JSON `null`.
+              required:
+              - q
+              - nodeTypes
+              - recordTypes
+              - origins
+              - connectorIds
+              - indexingStatus
+              - createdAt
+              - updatedAt
+              - size
+              - sortBy
+              - sortOrder
+              properties:
+                q:
+                  type:
+                  - string
+                  - 'null'
+                nodeTypes:
+                  type:
+                  - array
+                  - 'null'
+                  items:
+                    type: string
+                recordTypes:
+                  type:
+                  - array
+                  - 'null'
+                  items:
+                    type: string
+                origins:
+                  type:
+                  - array
+                  - 'null'
+                  items:
+                    type: string
+                connectorIds:
+                  type:
+                  - array
+                  - 'null'
+                  items:
+                    type: string
+                indexingStatus:
+                  type:
+                  - array
+                  - 'null'
+                  items:
+                    type: string
+                createdAt:
+                  allOf:
+                  - $ref: '#/components/schemas/DateRangeFilter'
+                updatedAt:
+                  allOf:
+                  - $ref: '#/components/schemas/DateRangeFilter'
+                size:
+                  allOf:
+                  - $ref: '#/components/schemas/SizeRangeFilter'
+                sortBy:
+                  type: string
+                  description: Effective sort field after server normalisation.
+                sortOrder:
+                  type: string
+                  description: Effective sort order after server normalisation.
+            available:
+              type:
+              - object
+              - 'null'
+              description: Populated when `include=availableFilters`; otherwise `null`.
+              required:
+              - nodeTypes
+              - recordTypes
+              - origins
+              - connectors
+              - indexingStatus
+              - sortBy
+              - sortOrder
+              properties:
+                nodeTypes:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/FilterOption'
+                recordTypes:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/FilterOption'
+                origins:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/FilterOption'
+                connectors:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/FilterOption'
+                indexingStatus:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/FilterOption'
+                sortBy:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/FilterOption'
+                sortOrder:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/FilterOption'
+        breadcrumbs:
+          type:
+          - array
+          - 'null'
+          description: Present when `include=breadcrumbs`; otherwise `null`.
+          items:
+            type: object
+            required:
+            - id
+            - name
+            - nodeType
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              nodeType:
+                type: string
+                description: One of `app`, `recordGroup`, `folder`, `record`.
+              subType:
+                type:
+                - string
+                - 'null'
+        counts:
+          type:
+          - object
+          - 'null'
+          description: Present when `include=counts`; otherwise `null`.
+          required:
+          - items
+          - total
+          properties:
+            items:
+              type: array
+              items:
+                type: object
+                required:
+                - label
+                - count
+                properties:
+                  label:
+                    type: string
+                  count:
+                    type: integer
+            total:
+              type: integer
+        permissions:
+          type:
+          - object
+          - 'null'
+          description: Present when `include=permissions`; otherwise `null`.
+          required:
+          - role
+          - canUpload
+          - canCreateFolders
+          - canEdit
+          - canDelete
+          - canManagePermissions
+          properties:
+            role:
+              type: string
+            canUpload:
+              type: boolean
+            canCreateFolders:
+              type: boolean
+            canEdit:
+              type: boolean
+            canDelete:
+              type: boolean
+            canManagePermissions:
+              type: boolean
+    ErrorResponse:
+      type: object
+      additionalProperties: false
+      description: 'Standard error envelope returned by all errors routed through `ErrorMiddleware`.
+
+        Applies to all `BaseError` subclasses including `HttpError`, `ValidationError`, and others.
+
+        The `code` field is a machine-readable string identifying the error type (e.g.
+
+        `HTTP_UNAUTHORIZED`, `HTTP_NOT_FOUND`, `VALIDATION_ERROR`, `INTERNAL_ERROR`).
+
+        '
+      properties:
+        error:
+          type: object
+          additionalProperties: false
+          required:
+          - code
+          - message
+          properties:
+            requestId:
+              type: string
+              description: 'Identifier for this request, echoed so a bug report can quote it.
+
+                Absent when the request never reached the middleware that assigns one.
+
+                '
+            code:
+              type: string
+              description: 'Machine-readable error code. For application errors it takes the form `HTTP_<VARIANT>`
+
+                For unhandled runtime errors (e.g. database unavailable) it is `INTERNAL_ERROR`.
+
+                '
+              example: HTTP_BAD_REQUEST
+            message:
+              type: string
+              description: Human-readable description of the error
+              example: Admin access required
+            metadata:
+              type: object
+              description: Additional context (only present in development environments)
+              additionalProperties: true
+      required:
+      - error
+    KnowledgeBaseMoveRecordRequestBody:
+      type: object
+      additionalProperties: false
+      description: Request body for PUT /knowledgeBase/{kbId}/record/{recordId}/move (moveRecord).
+      required:
+      - newParentId
+      properties:
+        newParentId:
+          type:
+          - string
+          - 'null'
+          description: Target folder ID, or null to move the record to the knowledge base root
+    reIndexRecordResponseSchema:
+      type: object
+      additionalProperties: false
+      description: Response returned by POST /knowledgeBase/reindex/record/{recordId}.
+      required:
+      - success
+      - message
+      - eventPublished
+      - depth
+      properties:
+        success:
+          type: boolean
+          enum:
+          - true
+        message:
+          type: string
+        recordId:
+          type:
+          - string
+          - 'null'
+        recordName:
+          type:
+          - string
+          - 'null'
+        connector:
+          type:
+          - string
+          - 'null'
+        eventPublished:
+          type: boolean
+        userRole:
+          type:
+          - string
+          - 'null'
+        depth:
+          type: integer
+    ReIndexRecordGroupResponseSchema:
+      type: object
+      additionalProperties: false
+      description: Response returned by POST /knowledgeBase/reindex/record-group/{recordGroupId}.
+      required:
+      - success
+      - message
+      - recordGroupId
+      - depth
+      - eventPublished
+      properties:
+        success:
+          type: boolean
+          enum:
+          - true
+        message:
+          type: string
+        recordGroupId:
+          type: string
+        depth:
+          type: integer
+        connector:
+          type:
+          - string
+          - 'null'
+        eventPublished:
+          type: boolean
   securitySchemes:
     bearerAuth:
       type: http
@@ -5524,6 +5316,3 @@ components:
             config:write: Update system configuration
             crawl:read: Read crawling jobs
             crawl:write: Create and manage crawling jobs
-x-refined-from:
-- pipeshub-openapi.yaml
-- pipeshub-openapi.yml

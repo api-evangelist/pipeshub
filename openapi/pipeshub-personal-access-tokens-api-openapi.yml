@@ -1,11 +1,11 @@
 openapi: 3.2.0
 info:
-  title: Pipeshub Personal Access Tokens API
+  title: PipesHub Personal Access Tokens API
+  description: Unified API documentation for PipesHub services.
   version: 1.0.0
   contact:
     name: API Support
     email: support@pipeshub.com
-  description: 'Operations tagged Personal Access Tokens across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: '{instance_url}/api/v1'
   description: Base API URL
@@ -153,19 +153,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OAuthClientManagementRateLimitError'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /personal-access-tokens/scopes:
     get:
       tags:
@@ -203,19 +190,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OAuthClientManagementRateLimitError'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /personal-access-tokens/{tokenId}:
     delete:
       tags:
@@ -276,19 +250,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OAuthClientManagementRateLimitError'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /personal-access-tokens/admin:
     get:
       tags:
@@ -357,19 +318,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OAuthClientManagementRateLimitError'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /personal-access-tokens/admin/{tokenId}:
     delete:
       tags:
@@ -434,71 +382,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/OAuthClientManagementRateLimitError'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
 components:
   schemas:
-    PatListItem:
-      type: object
-      description: 'A personal access token as seen by its own creator (one element of
-
-        `GET /personal-access-tokens`''s `tokens` array, or the `token` object
-
-        returned by `POST /personal-access-tokens` before `accessToken` is added).
-
-        '
-      required:
-      - id
-      - name
-      - scopes
-      - createdAt
-      - expiresAt
-      properties:
-        id:
-          type: string
-          description: Token ID
-        name:
-          type: string
-          description: Token name
-        scopes:
-          type: array
-          items:
-            type: string
-          description: Granted scopes
-        createdAt:
-          type: string
-          format: date-time
-        expiresAt:
-          type: string
-          format: date-time
-          description: 'Expiry timestamp. A `"never"`-expiry token is stored as a
-
-            ~100-year-out date, not a literal null — treat anything decades
-
-            out as "never" rather than a real deadline.
-
-            '
-        lastUsedAt:
-          type: string
-          format: date-time
-          description: 'Last time this token successfully authenticated a request.
-
-            Throttled server-side to update at most once per 5 minutes per
-
-            token; absent if the token has never been used.
-
-            '
     AdminPatListItem:
       description: 'A personal access token as seen by an org admin — extends
 
@@ -539,44 +424,13 @@ components:
               visible here so an admin can audit/clean them up.
 
               '
-    PatScopesListResponse:
+    ApplicationJsonErrorResponse:
       type: object
-      description: 'Response body for `GET /personal-access-tokens/scopes` (`listScopes`).
+      description: 'Standard JSON error envelope from `ErrorMiddleware` for `BaseError` subclasses (`error.middleware.ts`).
 
-        Unlike `GET /oauth-clients/scopes`, this is a **flat array**, not
-
-        grouped by category, and reflects the org''s configured `MCP_SCOPES`
-
-        rather than the full role-aware OAuth-app scope catalog.
+        Returned for most API 4xx errors (unauthorized, forbidden, not found, validation failures, etc.).
 
         '
-      required:
-      - scopes
-      properties:
-        scopes:
-          type: array
-          items:
-            $ref: '#/components/schemas/OAuthScopeInfo'
-    PatWithSecret:
-      allOf:
-      - $ref: '#/components/schemas/PatListItem'
-      - type: object
-        required:
-        - accessToken
-        properties:
-          accessToken:
-            type: string
-            description: 'The raw token, `phpat_`-prefixed. Returned **only** in this
-
-              creation response — only its hash is stored server-side, so
-
-              it cannot be retrieved again later.
-
-              '
-            example: phpat_eyJhbGciOiJIUzI1NiIs...
-    OAuthClientManagementRateLimitError:
-      type: object
-      description: JSON body when OAuth client management routes exceed the per-minute rate limit (same limiter as other `/oauth-clients/*` routes).
       required:
       - error
       properties:
@@ -588,15 +442,13 @@ components:
           properties:
             code:
               type: string
-              example: TOO_MANY_REQUESTS
+              description: Machine-readable code (e.g. `HTTP_UNAUTHORIZED`, `HTTP_FORBIDDEN`).
             message:
               type: string
-              example: Too many OAuth client requests. Please try again later.
-            retryAfter:
-              type:
-              - integer
-              - 'null'
-              description: Seconds until the limit window resets (when `Retry-After` is present); may be null.
+            metadata:
+              type: object
+              description: Optional; may appear in non-production for some errors.
+              additionalProperties: true
     CreatePatRequest:
       type: object
       description: 'Request to create a personal access token (`createPatTokenSchema` in `pat.validators.ts`).
@@ -649,24 +501,131 @@ components:
             '
           default: 30
           example: 30
-    ListPatResponse:
+    OAuthClientManagementRateLimitError:
       type: object
-      description: 'Response body for `GET /personal-access-tokens` (`listTokens`) — the
+      description: JSON body when OAuth client management routes exceed the per-minute rate limit (same limiter as other `/oauth-clients/*` routes).
+      required:
+      - error
+      properties:
+        error:
+          type: object
+          required:
+          - code
+          - message
+          properties:
+            code:
+              type: string
+              example: TOO_MANY_REQUESTS
+            message:
+              type: string
+              example: Too many OAuth client requests. Please try again later.
+            retryAfter:
+              type:
+              - integer
+              - 'null'
+              description: Seconds until the limit window resets (when `Retry-After` is present); may be null.
+    PatWithSecret:
+      allOf:
+      - $ref: '#/components/schemas/PatListItem'
+      - type: object
+        required:
+        - accessToken
+        properties:
+          accessToken:
+            type: string
+            description: 'The raw token, `phpat_`-prefixed. Returned **only** in this
 
-        caller''s own active tokens, capped at 100 most-recent server-side.
+              creation response — only its hash is stored server-side, so
 
-        Unlike the admin list, this is a flat array with no pagination
+              it cannot be retrieved again later.
 
-        envelope and no owner fields (it''s implicitly scoped to the caller).
+              '
+            example: phpat_eyJhbGciOiJIUzI1NiIs...
+    RevokePatResponse:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          example: Personal access token revoked successfully
+    CreatePatResponse:
+      type: object
+      description: Response body for `POST /personal-access-tokens` (`pat.controller.ts` `createToken`).
+      required:
+      - message
+      - token
+      properties:
+        message:
+          type: string
+          example: Personal access token created successfully
+        token:
+          $ref: '#/components/schemas/PatWithSecret'
+    PatListItem:
+      type: object
+      description: 'A personal access token as seen by its own creator (one element of
+
+        `GET /personal-access-tokens`''s `tokens` array, or the `token` object
+
+        returned by `POST /personal-access-tokens` before `accessToken` is added).
 
         '
       required:
-      - tokens
+      - id
+      - name
+      - scopes
+      - createdAt
+      - expiresAt
       properties:
-        tokens:
+        id:
+          type: string
+          description: Token ID
+        name:
+          type: string
+          description: Token name
+        scopes:
           type: array
           items:
-            $ref: '#/components/schemas/PatListItem'
+            type: string
+          description: Granted scopes
+        createdAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+          description: 'Expiry timestamp. A `"never"`-expiry token is stored as a
+
+            ~100-year-out date, not a literal null — treat anything decades
+
+            out as "never" rather than a real deadline.
+
+            '
+        lastUsedAt:
+          type: string
+          format: date-time
+          description: 'Last time this token successfully authenticated a request.
+
+            Throttled server-side to update at most once per 5 minutes per
+
+            token; absent if the token has never been used.
+
+            '
+    RevokePatRequest:
+      type: object
+      description: 'Optional request body for `DELETE /personal-access-tokens/{tokenId}`
+
+        and `DELETE /personal-access-tokens/admin/{tokenId}`. The body itself
+
+        is optional; `reason`, if present, is stored on the revocation for
+
+        auditing.
+
+        '
+      properties:
+        reason:
+          type: string
+          example: rotated
     OAuthScopeInfo:
       type: object
       description: Information about an OAuth scope
@@ -692,66 +651,24 @@ components:
       - description
       - category
       - requiresUserConsent
-    RevokePatRequest:
+    ListPatResponse:
       type: object
-      description: 'Optional request body for `DELETE /personal-access-tokens/{tokenId}`
+      description: 'Response body for `GET /personal-access-tokens` (`listTokens`) — the
 
-        and `DELETE /personal-access-tokens/admin/{tokenId}`. The body itself
+        caller''s own active tokens, capped at 100 most-recent server-side.
 
-        is optional; `reason`, if present, is stored on the revocation for
+        Unlike the admin list, this is a flat array with no pagination
 
-        auditing.
-
-        '
-      properties:
-        reason:
-          type: string
-          example: rotated
-    RevokePatResponse:
-      type: object
-      required:
-      - message
-      properties:
-        message:
-          type: string
-          example: Personal access token revoked successfully
-    CreatePatResponse:
-      type: object
-      description: Response body for `POST /personal-access-tokens` (`pat.controller.ts` `createToken`).
-      required:
-      - message
-      - token
-      properties:
-        message:
-          type: string
-          example: Personal access token created successfully
-        token:
-          $ref: '#/components/schemas/PatWithSecret'
-    ApplicationJsonErrorResponse:
-      type: object
-      description: 'Standard JSON error envelope from `ErrorMiddleware` for `BaseError` subclasses (`error.middleware.ts`).
-
-        Returned for most API 4xx errors (unauthorized, forbidden, not found, validation failures, etc.).
+        envelope and no owner fields (it''s implicitly scoped to the caller).
 
         '
       required:
-      - error
+      - tokens
       properties:
-        error:
-          type: object
-          required:
-          - code
-          - message
-          properties:
-            code:
-              type: string
-              description: Machine-readable code (e.g. `HTTP_UNAUTHORIZED`, `HTTP_FORBIDDEN`).
-            message:
-              type: string
-            metadata:
-              type: object
-              description: Optional; may appear in non-production for some errors.
-              additionalProperties: true
+        tokens:
+          type: array
+          items:
+            $ref: '#/components/schemas/PatListItem'
     AdminPatListResponse:
       type: object
       description: 'Response body for `GET /personal-access-tokens/admin` (`adminListTokens`).
@@ -786,6 +703,24 @@ components:
               type: integer
             totalPages:
               type: integer
+    PatScopesListResponse:
+      type: object
+      description: 'Response body for `GET /personal-access-tokens/scopes` (`listScopes`).
+
+        Unlike `GET /oauth-clients/scopes`, this is a **flat array**, not
+
+        grouped by category, and reflects the org''s configured `MCP_SCOPES`
+
+        rather than the full role-aware OAuth-app scope catalog.
+
+        '
+      required:
+      - scopes
+      properties:
+        scopes:
+          type: array
+          items:
+            $ref: '#/components/schemas/OAuthScopeInfo'
   securitySchemes:
     bearerAuth:
       type: http
@@ -915,6 +850,3 @@ components:
             config:write: Update system configuration
             crawl:read: Read crawling jobs
             crawl:write: Create and manage crawling jobs
-x-refined-from:
-- pipeshub-openapi.yaml
-- pipeshub-openapi.yml

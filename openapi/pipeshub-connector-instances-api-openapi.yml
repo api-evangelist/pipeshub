@@ -1,11 +1,11 @@
 openapi: 3.2.0
 info:
-  title: Pipeshub Connector Instances API
+  title: PipesHub Connector Instances API
+  description: Unified API documentation for PipesHub services.
   version: 1.0.0
   contact:
     name: API Support
     email: support@pipeshub.com
-  description: 'Operations tagged Connector Instances across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: '{instance_url}/api/v1'
   description: Base API URL
@@ -266,19 +266,6 @@ paths:
             '
         '404':
           description: Selected OAuth App not found or not accessible
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /connectors/active:
     get:
       tags:
@@ -314,19 +301,6 @@ paths:
                       $ref: '#/components/schemas/ConnectorInstance'
         '401':
           description: Unauthorized
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /connectors/inactive:
     get:
       tags:
@@ -354,19 +328,6 @@ paths:
                       $ref: '#/components/schemas/ConnectorInstance'
         '401':
           description: Unauthorized
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /connectors/configured:
     get:
       tags:
@@ -426,19 +387,6 @@ paths:
                     $ref: '#/components/schemas/ConnectorPagination'
         '401':
           description: Unauthorized
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /connectors/agents/active:
     get:
       tags:
@@ -498,19 +446,6 @@ paths:
                     $ref: '#/components/schemas/ConnectorPagination'
         '401':
           description: Unauthorized
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /connectors/{connectorId}:
     get:
       tags:
@@ -599,19 +534,6 @@ paths:
           description: Permission denied
         '404':
           description: Connector not found
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /connectors/{connectorId}/stats:
     get:
       tags:
@@ -645,19 +567,6 @@ paths:
           description: Insufficient OAuth scope or no access to connector stats
         '404':
           description: Connector not found
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /connectors/{connectorId}/reindex:
     post:
       tags:
@@ -716,19 +625,6 @@ paths:
           description: Connector not found
         '409':
           description: Conflict — the connector instance is disabled or locked.
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /connectors/{connectorId}/resync:
     post:
       tags:
@@ -798,19 +694,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LocalFsDesktopRefusal'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /connectors/{connectorId}/name:
     put:
       tags:
@@ -857,77 +740,53 @@ paths:
           description: Unauthorized
         '404':
           description: Connector not found
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
 components:
   schemas:
-    ConnectorSyncConfig:
+    LocalFsDesktopRefusal:
       type: object
-      description: Synchronization configuration for a connector instance
+      description: '409 body returned when a Local FS connector cannot sync because of its
+
+        owner device.
+
+        '
+      required:
+      - success
+      - code
+      - message
+      - details
       properties:
-        selectedStrategy:
+        success:
+          type: boolean
+          example: false
+        code:
           type: string
           enum:
-          - MANUAL
-          - SCHEDULED
-          - WEBHOOK
-          - REALTIME
-          description: 'Sync strategy: MANUAL (user-triggered), SCHEDULED (interval/cron), WEBHOOK (event-driven), REALTIME (WebSocket)'
-          default: MANUAL
-        scheduledConfig:
+          - DESKTOP_OFFLINE
+          - DESKTOP_UNCLAIMED
+          - DESKTOP_OWNED_BY_OTHER_DEVICE
+        message:
+          type: string
+          example: No desktop is connected for connector conn_abc123. Open the Pipeshub desktop app on the machine that owns this folder.
+        details:
           type: object
-          description: Configuration for scheduled sync strategy
+          required:
+          - code
+          - connectorId
+          - retryable
           properties:
-            intervalMinutes:
-              type: integer
-              description: Sync interval in minutes
-              minimum: 5
-              default: 60
-              example: 60
-            cronExpression:
+            code:
               type: string
-              description: Cron expression for advanced scheduling
-              example: 0 */6 * * *
-            timezone:
+              enum:
+              - DESKTOP_OFFLINE
+              - DESKTOP_UNCLAIMED
+              - DESKTOP_OWNED_BY_OTHER_DEVICE
+            connectorId:
               type: string
-              description: Timezone for scheduled sync
-              default: UTC
-              example: America/New_York
-        webhookConfig:
-          type: object
-          description: Configuration for webhook-based sync
-          properties:
-            webhookUrl:
+            retryable:
+              type: boolean
+            ownerDeviceName:
               type: string
-              description: URL to receive webhook events (auto-generated)
-            events:
-              type: array
-              items:
-                type: string
-              description: Subscribed event types
-              example:
-              - file.created
-              - file.modified
-              - file.deleted
-        values:
-          type: object
-          description: Sync setting values specific to the connector
-          additionalProperties: true
-        customValues:
-          type: object
-          description: Custom sync values
-          additionalProperties: true
+              description: Name of the owner device, when the connector has one.
     ReindexConnectorRequestBody:
       type: object
       properties:
@@ -940,19 +799,34 @@ components:
             connector; other connector types default server-side to `FAILED`.
 
             '
-    ResyncConnectorRequestBody:
+    ConnectorStats:
       type: object
-      required:
-      - connectorName
+      description: Statistics for a connector's records
       properties:
-        connectorName:
-          type: string
-          description: Connector type name (e.g. `Google Drive`, `DRIVE`).
-          example: DRIVE
-        fullSync:
+        success:
           type: boolean
-          description: When true, triggers a full sync instead of incremental.
-          default: false
+        data:
+          type: object
+          properties:
+            orgId:
+              type: string
+            connectorId:
+              type: string
+            origin:
+              type: string
+            stats:
+              type: object
+              properties:
+                total:
+                  type: integer
+                indexingStatus:
+                  type: object
+                  additionalProperties:
+                    type: integer
+            byRecordType:
+              type: array
+              items:
+                type: object
     CreateConnectorRequest:
       type: object
       description: Request to create a new connector instance
@@ -1002,113 +876,39 @@ components:
           description: Base URL for self-hosted instances (e.g., Confluence Server, GitLab Self-Managed)
           format: uri
           example: https://confluence.mycompany.com
-    ConnectorAuthConfig:
+    ConnectorPagination:
       type: object
-      description: Authentication configuration for a connector instance
+      description: Pagination information for connector lists
       properties:
-        values:
-          type: object
-          description: Authentication values (keys depend on connector's auth schema)
-          additionalProperties: true
-          example:
-            apiKey: sk-xxxxx
-            baseUrl: https://api.example.com
-        oauthConfigId:
-          type: string
-          description: ID of admin-created OAuth configuration to use
-          example: oauth_config_123
-        customValues:
-          type: object
-          description: Custom authentication values specific to the connector
-          additionalProperties: true
-    LocalFsDesktopRefusal:
-      type: object
-      description: '409 body returned when a Local FS connector cannot sync because of its
-
-        owner device.
-
-        '
-      required:
-      - success
-      - code
-      - message
-      - details
-      properties:
-        success:
+        page:
+          type: integer
+          description: Current page number
+        limit:
+          type: integer
+          description: Items per page
+        total:
+          type: integer
+          description: Total number of items
+        hasMore:
           type: boolean
-          example: false
-        code:
-          type: string
-          enum:
-          - DESKTOP_OFFLINE
-          - DESKTOP_UNCLAIMED
-          - DESKTOP_OWNED_BY_OTHER_DEVICE
-        message:
-          type: string
-          example: No desktop is connected for connector conn_abc123. Open the Pipeshub desktop app on the machine that owns this folder.
-        details:
-          type: object
-          required:
-          - code
-          - connectorId
-          - retryable
-          properties:
-            code:
-              type: string
-              enum:
-              - DESKTOP_OFFLINE
-              - DESKTOP_UNCLAIMED
-              - DESKTOP_OWNED_BY_OTHER_DEVICE
-            connectorId:
-              type: string
-            retryable:
-              type: boolean
-            ownerDeviceName:
-              type: string
-              description: Name of the owner device, when the connector has one.
-    IndexingStatusFilter:
+          description: Whether more pages exist
+    ConnectorScope:
       type: string
-      description: 'Indexing status used to filter which records are included in a scoped
-
-        reindex (record or record-group). Omit `statusFilters` to reindex all
-
-        descendants regardless of status.
-
-        '
-      enum:
-      - NOT_STARTED
-      - QUEUED
-      - IN_PROGRESS
-      - COMPLETED
-      - FAILED
-      - FILE_TYPE_NOT_SUPPORTED
-      - AUTO_INDEX_OFF
-      - EMPTY
-    ConnectorAuthType:
-      type: string
-      description: 'Authentication method required by the connector:<br>
+      description: 'Scope determines visibility and access control for connectors:<br>
 
         <ul>
 
-        <li><code>OAUTH</code> - User OAuth consent flow</li>
+        <li><code>team</code> - Available to all users in the organization (admin-only creation)</li>
 
-        <li><code>OAUTH_ADMIN_CONSENT</code> - Admin OAuth with org-wide consent</li>
-
-        <li><code>API_TOKEN</code> - API key or token authentication</li>
-
-        <li><code>USERNAME_PASSWORD</code> - Username/password credentials</li>
-
-        <li><code>NONE</code> - No authentication required</li>
+        <li><code>personal</code> - Private to the creating user only</li>
 
         </ul>
 
         '
       enum:
-      - OAUTH
-      - OAUTH_ADMIN_CONSENT
-      - API_TOKEN
-      - USERNAME_PASSWORD
-      - NONE
+      - team
+      - personal
+      example: team
     ConnectorInstance:
       type: object
       description: 'A configured connector instance. Represents an active or configured
@@ -1189,67 +989,6 @@ components:
         updatedAt:
           type: string
           format: date-time
-    ConnectorStats:
-      type: object
-      description: Statistics for a connector's records
-      properties:
-        success:
-          type: boolean
-        data:
-          type: object
-          properties:
-            orgId:
-              type: string
-            connectorId:
-              type: string
-            origin:
-              type: string
-            stats:
-              type: object
-              properties:
-                total:
-                  type: integer
-                indexingStatus:
-                  type: object
-                  additionalProperties:
-                    type: integer
-            byRecordType:
-              type: array
-              items:
-                type: object
-    ConnectorScope:
-      type: string
-      description: 'Scope determines visibility and access control for connectors:<br>
-
-        <ul>
-
-        <li><code>team</code> - Available to all users in the organization (admin-only creation)</li>
-
-        <li><code>personal</code> - Private to the creating user only</li>
-
-        </ul>
-
-        '
-      enum:
-      - team
-      - personal
-      example: team
-    ConnectorPagination:
-      type: object
-      description: Pagination information for connector lists
-      properties:
-        page:
-          type: integer
-          description: Current page number
-        limit:
-          type: integer
-          description: Items per page
-        total:
-          type: integer
-          description: Total number of items
-        hasMore:
-          type: boolean
-          description: Whether more pages exist
     UpdateConnectorNameRequest:
       type: object
       description: Request to update connector instance name
@@ -1262,6 +1001,31 @@ components:
           minLength: 1
           maxLength: 100
           example: Sales Team Drive (Updated)
+    ConnectorAuthType:
+      type: string
+      description: 'Authentication method required by the connector:<br>
+
+        <ul>
+
+        <li><code>OAUTH</code> - User OAuth consent flow</li>
+
+        <li><code>OAUTH_ADMIN_CONSENT</code> - Admin OAuth with org-wide consent</li>
+
+        <li><code>API_TOKEN</code> - API key or token authentication</li>
+
+        <li><code>USERNAME_PASSWORD</code> - Username/password credentials</li>
+
+        <li><code>NONE</code> - No authentication required</li>
+
+        </ul>
+
+        '
+      enum:
+      - OAUTH
+      - OAUTH_ADMIN_CONSENT
+      - API_TOKEN
+      - USERNAME_PASSWORD
+      - NONE
     ConnectorFiltersConfig:
       type: object
       description: Filter configuration to control what data is synced (sync filters and indexing filters)
@@ -1290,6 +1054,112 @@ components:
             values:
               type: object
               additionalProperties: true
+    ResyncConnectorRequestBody:
+      type: object
+      required:
+      - connectorName
+      properties:
+        connectorName:
+          type: string
+          description: Connector type name (e.g. `Google Drive`, `DRIVE`).
+          example: DRIVE
+        fullSync:
+          type: boolean
+          description: When true, triggers a full sync instead of incremental.
+          default: false
+    ConnectorSyncConfig:
+      type: object
+      description: Synchronization configuration for a connector instance
+      properties:
+        selectedStrategy:
+          type: string
+          enum:
+          - MANUAL
+          - SCHEDULED
+          - WEBHOOK
+          - REALTIME
+          description: 'Sync strategy: MANUAL (user-triggered), SCHEDULED (interval/cron), WEBHOOK (event-driven), REALTIME (WebSocket)'
+          default: MANUAL
+        scheduledConfig:
+          type: object
+          description: Configuration for scheduled sync strategy
+          properties:
+            intervalMinutes:
+              type: integer
+              description: Sync interval in minutes
+              minimum: 5
+              default: 60
+              example: 60
+            cronExpression:
+              type: string
+              description: Cron expression for advanced scheduling
+              example: 0 */6 * * *
+            timezone:
+              type: string
+              description: Timezone for scheduled sync
+              default: UTC
+              example: America/New_York
+        webhookConfig:
+          type: object
+          description: Configuration for webhook-based sync
+          properties:
+            webhookUrl:
+              type: string
+              description: URL to receive webhook events (auto-generated)
+            events:
+              type: array
+              items:
+                type: string
+              description: Subscribed event types
+              example:
+              - file.created
+              - file.modified
+              - file.deleted
+        values:
+          type: object
+          description: Sync setting values specific to the connector
+          additionalProperties: true
+        customValues:
+          type: object
+          description: Custom sync values
+          additionalProperties: true
+    ConnectorAuthConfig:
+      type: object
+      description: Authentication configuration for a connector instance
+      properties:
+        values:
+          type: object
+          description: Authentication values (keys depend on connector's auth schema)
+          additionalProperties: true
+          example:
+            apiKey: sk-xxxxx
+            baseUrl: https://api.example.com
+        oauthConfigId:
+          type: string
+          description: ID of admin-created OAuth configuration to use
+          example: oauth_config_123
+        customValues:
+          type: object
+          description: Custom authentication values specific to the connector
+          additionalProperties: true
+    IndexingStatusFilter:
+      type: string
+      description: 'Indexing status used to filter which records are included in a scoped
+
+        reindex (record or record-group). Omit `statusFilters` to reindex all
+
+        descendants regardless of status.
+
+        '
+      enum:
+      - NOT_STARTED
+      - QUEUED
+      - IN_PROGRESS
+      - COMPLETED
+      - FAILED
+      - FILE_TYPE_NOT_SUPPORTED
+      - AUTO_INDEX_OFF
+      - EMPTY
   securitySchemes:
     bearerAuth:
       type: http
@@ -1419,6 +1289,3 @@ components:
             config:write: Update system configuration
             crawl:read: Read crawling jobs
             crawl:write: Create and manage crawling jobs
-x-refined-from:
-- pipeshub-openapi.yaml
-- pipeshub-openapi.yml

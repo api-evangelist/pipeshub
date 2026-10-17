@@ -1,11 +1,11 @@
 openapi: 3.2.0
 info:
-  title: Pipeshub Conversational Speech API
+  title: PipesHub Conversational Speech API
+  description: Unified API documentation for PipesHub services.
   version: 1.0.0
   contact:
     name: API Support
     email: support@pipeshub.com
-  description: 'Operations tagged Conversational Speech across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: '{instance_url}/api/v1'
   description: Base API URL
@@ -179,19 +179,6 @@ paths:
             '
         '502':
           description: Upstream provider failure (message is intentionally generic; see server logs for details).
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /chat/speak:
     post:
       tags:
@@ -307,19 +294,6 @@ paths:
           description: Text exceeds the 4096-character limit.
         '502':
           description: Upstream provider failure.
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /chat/speech/capabilities:
     get:
       tags:
@@ -346,21 +320,95 @@ paths:
                 $ref: '#/components/schemas/SpeechCapabilitiesResponse'
         '401':
           description: Unauthorized — valid bearer token required.
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
 components:
   schemas:
+    SpeechCapabilitySummary:
+      type: object
+      description: 'Public summary of an active speech provider. Secrets (api keys,
+
+        organization ids, etc.) are never included. The server always picks
+
+        the config flagged `isDefault` in `aiModels`; when no entry is
+
+        flagged, the first configured entry is used and `isDefault` is
+
+        reported as `false` so the chat UI can surface the fallback.
+
+        '
+      required:
+      - provider
+      properties:
+        provider:
+          type: string
+          description: Provider id (e.g. `openAI`, `gemini`, `whisper`, `wispr`).
+          example: openAI
+        model:
+          type:
+          - string
+          - 'null'
+          description: 'Active (default) model id the server will dispatch to. Same
+
+            value as `defaultModel`; retained for backwards compatibility
+
+            with older chat clients.
+
+            '
+          example: gpt-4o-mini-tts
+        defaultModel:
+          type:
+          - string
+          - 'null'
+          description: 'Model id the server will use when no explicit `model` is passed
+
+            to `/chat/speak` or `/chat/transcribe`. Chosen as the first
+
+            entry from the configured comma-separated `configuration.model`
+
+            list.
+
+            '
+          example: gpt-4o-mini-tts
+        models:
+          type: array
+          items:
+            type: string
+          description: 'All model ids the active provider config exposes. Order matches
+
+            the admin''s comma-separated `configuration.model` value; the
+
+            first entry is the default.
+
+            '
+          example:
+          - gpt-4o-mini-tts
+          - tts-1
+        isDefault:
+          type: boolean
+          description: '`true` when the returned config was picked because it is
+
+            flagged `isDefault` in `aiModels`; `false` when no entry was
+
+            flagged and the server fell back to the first configured one.
+
+            '
+          example: true
+        modelKey:
+          type:
+          - string
+          - 'null'
+          description: 'Stable identifier assigned to the config entry by the admin
+
+            UI. Useful for tying the capability summary back to a specific
+
+            row under `/services/aiModels`.
+
+            '
+        friendlyName:
+          type:
+          - string
+          - 'null'
+          description: Optional display name configured by the admin.
+          example: Production TTS
     SpeechCapabilitiesResponse:
       type: object
       description: 'Reports whether the server has a TTS/STT provider configured. When a
@@ -489,93 +537,6 @@ components:
 
             '
           example: 1.0
-    SpeechCapabilitySummary:
-      type: object
-      description: 'Public summary of an active speech provider. Secrets (api keys,
-
-        organization ids, etc.) are never included. The server always picks
-
-        the config flagged `isDefault` in `aiModels`; when no entry is
-
-        flagged, the first configured entry is used and `isDefault` is
-
-        reported as `false` so the chat UI can surface the fallback.
-
-        '
-      required:
-      - provider
-      properties:
-        provider:
-          type: string
-          description: Provider id (e.g. `openAI`, `gemini`, `whisper`, `wispr`).
-          example: openAI
-        model:
-          type:
-          - string
-          - 'null'
-          description: 'Active (default) model id the server will dispatch to. Same
-
-            value as `defaultModel`; retained for backwards compatibility
-
-            with older chat clients.
-
-            '
-          example: gpt-4o-mini-tts
-        defaultModel:
-          type:
-          - string
-          - 'null'
-          description: 'Model id the server will use when no explicit `model` is passed
-
-            to `/chat/speak` or `/chat/transcribe`. Chosen as the first
-
-            entry from the configured comma-separated `configuration.model`
-
-            list.
-
-            '
-          example: gpt-4o-mini-tts
-        models:
-          type: array
-          items:
-            type: string
-          description: 'All model ids the active provider config exposes. Order matches
-
-            the admin''s comma-separated `configuration.model` value; the
-
-            first entry is the default.
-
-            '
-          example:
-          - gpt-4o-mini-tts
-          - tts-1
-        isDefault:
-          type: boolean
-          description: '`true` when the returned config was picked because it is
-
-            flagged `isDefault` in `aiModels`; `false` when no entry was
-
-            flagged and the server fell back to the first configured one.
-
-            '
-          example: true
-        modelKey:
-          type:
-          - string
-          - 'null'
-          description: 'Stable identifier assigned to the config entry by the admin
-
-            UI. Useful for tying the capability summary back to a specific
-
-            row under `/services/aiModels`.
-
-            '
-        friendlyName:
-          type:
-          - string
-          - 'null'
-          description: Optional display name configured by the admin.
-          example: Production TTS
   securitySchemes:
     bearerAuth:
       type: http
@@ -705,6 +666,3 @@ components:
             config:write: Update system configuration
             crawl:read: Read crawling jobs
             crawl:write: Create and manage crawling jobs
-x-refined-from:
-- pipeshub-openapi.yaml
-- pipeshub-openapi.yml

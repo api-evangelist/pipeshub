@@ -1,11 +1,11 @@
 openapi: 3.2.0
 info:
-  title: Pipeshub Semantic Search API
+  title: PipesHub Semantic Search API
+  description: Unified API documentation for PipesHub services.
   version: 1.0.0
   contact:
     name: API Support
     email: support@pipeshub.com
-  description: 'Operations tagged Semantic Search across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: '{instance_url}/api/v1'
   description: Base API URL
@@ -521,19 +521,6 @@ paths:
             '
         '500':
           description: "Server error. Possible causes:\n\n- Explicit `InternalServerError`\n  or any other 500 `BaseError` thrown by the handler.\n- Non-`BaseError` exception caught by the\n  global error middleware.\n- Response serializer fallback.\n"
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /search/{searchId}:
     get:
       tags:
@@ -878,19 +865,6 @@ paths:
             '
         '500':
           description: "Server error. Possible causes:\n\n- Explicit `InternalServerError`\n  or any other 500 `BaseError` thrown by the handler.\n- Non-`BaseError` exception caught by the\n  global error middleware.\n- Response serializer fallback.\n"
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /search/{searchId}/archive:
     patch:
       tags:
@@ -989,19 +963,6 @@ paths:
           description: 'Persistence layer failed to update the search document.
 
             '
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
   /search/{searchId}/unarchive:
     patch:
       tags:
@@ -1098,21 +1059,1044 @@ paths:
           description: 'Unexpected server error while unarchiving the search.
 
             '
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
 components:
   schemas:
+    SemanticSearchHistoryFiltersApplied:
+      type: object
+      additionalProperties: false
+      description: 'Echo of which filters the caller actually supplied, built by
+
+        `buildFiltersMetadata` (utils.ts:430-486). `page` and `limit` always
+
+        appear because they are normalised to defaults before being recorded,
+
+        so `filters` is never empty and `values` always contains at least
+
+        `{ page, limit }`. Other keys appear only when the matching query
+
+        param was non-empty (or, for `dateRange`, when `createdAt` was set
+
+        on the Mongo filter).
+
+
+        `values` keys are scalar strings rather than typed primitives
+
+        (`''true''`/`''false''`, `''5''`, etc.) because they are passed through
+
+        from `req.query` as Express parsed them — only `page` and `limit`
+
+        are coerced to integers via `safeParsePagination`.
+
+        '
+      required:
+      - filters
+      - values
+      properties:
+        filters:
+          type: array
+          items:
+            type: string
+            enum:
+            - page
+            - limit
+            - search
+            - shared
+            - tags
+            - minMessages
+            - sortBy
+            - sortOrder
+            - startDate
+            - endDate
+            - messageType
+            - dateRange
+        values:
+          type: object
+          additionalProperties: false
+          properties:
+            page:
+              type: integer
+            limit:
+              type: integer
+            search:
+              type: string
+            shared:
+              type: string
+            tags:
+              type: string
+            minMessages:
+              type: string
+            sortBy:
+              type: string
+            sortOrder:
+              type: string
+            startDate:
+              type: string
+            endDate:
+              type: string
+            messageType:
+              type: string
+            dateRange:
+              $ref: '#/components/schemas/SemanticSearchHistoryAppliedDateRange'
+    SemanticSearchHistoryPaginationField:
+      type: object
+      additionalProperties: false
+      required:
+      - type
+      - current
+      - min
+      - max
+      - default
+      - description
+      - applied
+      properties:
+        type:
+          type: string
+        current:
+          type: integer
+        min:
+          type: integer
+        max:
+          type: integer
+        default:
+          type: integer
+        description:
+          type: string
+        applied:
+          type: boolean
+    SemanticSearchRequest:
+      type: object
+      description: 'Request body for performing semantic search across the enterprise knowledge base.
+
+
+        **How Semantic Search Works:**
+
+
+        1. Query is converted to vector embeddings
+
+        2. Similar content is found using vector similarity
+
+        3. Results are ranked by relevance score
+
+        4. Matching chunks with metadata are returned
+
+
+        **Filtering:**
+
+
+        Use filters to narrow search scope to specific apps or knowledge bases.
+
+        '
+      required:
+      - query
+      properties:
+        query:
+          type: string
+          minLength: 1
+          description: 'Natural language search query. The system understands
+
+            semantic meaning, not just keywords.
+
+            '
+          example: employee onboarding procedures
+        filters:
+          $ref: '#/components/schemas/Filters'
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 10
+          description: Maximum number of results to return
+    SemanticSearchHistoryFiltersAvailable:
+      type: object
+      additionalProperties: false
+      description: 'Catalogue of filters the endpoint supports, plus their current values
+
+        and `applied` flags. Built by `buildFiltersMetadata` (utils.ts:430-624).
+
+        '
+      required:
+      - shared
+      - tags
+      - minMessages
+      - search
+      - pagination
+      - sorting
+      - dateFilters
+      - messageFilters
+      - sortingMessages
+      properties:
+        shared:
+          $ref: '#/components/schemas/SemanticSearchHistoryFilterToggle'
+        tags:
+          $ref: '#/components/schemas/SemanticSearchHistoryFilterToggle'
+        minMessages:
+          $ref: '#/components/schemas/SemanticSearchHistoryFilterToggle'
+        search:
+          $ref: '#/components/schemas/SemanticSearchHistoryFilterToggle'
+        pagination:
+          type: object
+          additionalProperties: false
+          required:
+          - page
+          - limit
+          properties:
+            page:
+              $ref: '#/components/schemas/SemanticSearchHistoryPaginationField'
+            limit:
+              $ref: '#/components/schemas/SemanticSearchHistoryPaginationField'
+        sorting:
+          type: object
+          additionalProperties: false
+          required:
+          - sortBy
+          - sortOrder
+          properties:
+            sortBy:
+              $ref: '#/components/schemas/SemanticSearchHistorySortField'
+            sortOrder:
+              $ref: '#/components/schemas/SemanticSearchHistorySortField'
+        dateFilters:
+          type: object
+          additionalProperties: false
+          required:
+          - dateRange
+          properties:
+            dateRange:
+              $ref: '#/components/schemas/SemanticSearchHistoryDateRange'
+        messageFilters:
+          type: object
+          additionalProperties: false
+          required:
+          - messageType
+          properties:
+            messageType:
+              $ref: '#/components/schemas/SemanticSearchHistoryFilterToggle'
+        sortingMessages:
+          type: object
+          additionalProperties: false
+          required:
+          - sortBy
+          - sortOrder
+          properties:
+            sortBy:
+              $ref: '#/components/schemas/SemanticSearchHistorySortField'
+            sortOrder:
+              $ref: '#/components/schemas/SemanticSearchHistorySortField'
+    SemanticSearchHistorySortField:
+      type: object
+      additionalProperties: false
+      description: 'Used for `available.sorting.{sortBy,sortOrder}` and
+
+        `available.sortingMessages.{sortBy,sortOrder}`. The `applied` flag
+
+        is present on `sorting.*` and absent on `sortingMessages.*`, so it
+
+        is optional here.
+
+        '
+      required:
+      - values
+      - default
+      - description
+      - current
+      properties:
+        values:
+          type: array
+          items:
+            type: string
+        default:
+          type: string
+        description:
+          type: string
+        current:
+          type: string
+        applied:
+          type: boolean
+    SemanticSearchHit:
+      type: object
+      additionalProperties: false
+      description: 'One search hit returned by the retrieval service. Most hits use string `content`;
+
+        table or grouped blocks may serialize structured payloads as JSON arrays.
+
+        Listed fields are the documented contract; extend this schema when new stable top-level keys are introduced.
+
+        '
+      properties:
+        score:
+          type:
+          - number
+          - 'null'
+        citationType:
+          type:
+          - string
+          - 'null'
+        chunkIndex:
+          type:
+          - integer
+          - 'null'
+        metadata:
+          $ref: '#/components/schemas/SemanticSearchHitMetadata'
+        content:
+          type:
+          - string
+          - 'null'
+        virtual_record_id:
+          type:
+          - string
+          - 'null'
+        block_type:
+          type:
+          - string
+          - 'null'
+          description: 'Block type for this hit. Common values: `text`, `image`, `table_row`, `table`,
+
+            `record_summary` (whole-record semantic summary — `block_index` is `null` for these hits).
+
+            '
+        block_index:
+          type:
+          - integer
+          - 'null'
+    SemanticSearchExecuteResponse:
+      type: object
+      additionalProperties: false
+      description: 'Immediate POST `/search` response: persisted search id plus the raw retrieval payload.
+
+        SDK-oriented modeling: named fields only at this level; dynamic-key maps inside `searchResponse` use
+
+        `additionalProperties` with a `$ref` (e.g. `virtual_to_record_map`) rather than boolean `additionalProperties: true`,
+
+        so generated clients retain typed values where possible.
+
+        '
+      required:
+      - searchId
+      - searchResponse
+      properties:
+        searchId:
+          type: string
+          format: objectId
+        searchResponse:
+          $ref: '#/components/schemas/SemanticSearchAiResponse'
+    SemanticSearchHistoryAppliedDateRange:
+      type: object
+      additionalProperties: false
+      description: 'Echoed back only when the caller passed `startDate` and/or `endDate`.
+
+        Each bound is an ISO 8601 string when set; the field is absent when
+
+        the corresponding query param was omitted (utils.ts:480-486 reads
+
+        `appliedFilters.createdAt.$gte?.toISOString()` directly, so missing
+
+        bounds become `undefined` and drop out of the JSON).
+
+        '
+      properties:
+        start:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
+    PersistedSemanticSearchSharedWithEntry:
+      type: object
+      additionalProperties: false
+      description: 'Entry inside `sharedWith[]`. The schema sets `_id: false` on these
+
+        sub-docs, so no auto-injected `_id` is present.
+
+        '
+      required:
+      - userId
+      - accessLevel
+      properties:
+        userId:
+          type: string
+          format: objectId
+        accessLevel:
+          type: string
+          enum:
+          - read
+          - write
+    PersistedSemanticSearchEnvelope:
+      type: array
+      description: 'GET `/search/{searchId}` calls `Model.find()` (not `findOne()`) and sends
+
+        the result as-is, so the wire format is an array of zero or one
+
+        persisted search docs. A non-existent id returns `200 []`, **not** `404`.
+
+        '
+      items:
+        $ref: '#/components/schemas/PersistedSemanticSearch'
+    SemanticSearchHistoryItem:
+      type: object
+      additionalProperties: false
+      description: 'One persisted search row as returned by `GET /search`. Mirrors the
+
+        persisted search document except `citationIds` is an array of
+
+        ObjectId strings (citations are not populated on the list endpoint,
+
+        unlike `GET /search/{searchId}`).
+
+
+        `shareLink` is absent from the JSON when the search has not been
+
+        shared. `archivedBy` is `null` on rows that were previously archived
+
+        and then unarchived, and absent on rows that have never been
+
+        archived. The list endpoint already filters out currently-archived
+
+        rows, so a string user-id value never appears here in practice.
+
+        '
+      required:
+      - _id
+      - __v
+      - query
+      - limit
+      - orgId
+      - userId
+      - citationIds
+      - records
+      - isShared
+      - sharedWith
+      - isArchived
+      - createdAt
+      - updatedAt
+      properties:
+        _id:
+          type: string
+          format: objectId
+        __v:
+          type: integer
+        query:
+          type: string
+        limit:
+          type: integer
+        orgId:
+          type: string
+          format: objectId
+        userId:
+          type: string
+          format: objectId
+        citationIds:
+          type: array
+          items:
+            type: string
+            format: objectId
+        records:
+          type: object
+          description: 'Map of source-record id (or `_key`) to `JSON.stringify(<record>)`.
+
+            Clients must `JSON.parse` each value to recover the underlying
+
+            record object. Populated at write-time in the POST `/search` handler.
+
+            '
+          additionalProperties:
+            type: string
+        isShared:
+          type: boolean
+        shareLink:
+          type: string
+          description: Set once the search has been shared via `/search/{searchId}/share`.
+        sharedWith:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersistedSemanticSearchSharedWithEntry'
+        isArchived:
+          type: boolean
+        archivedBy:
+          type:
+          - string
+          - 'null'
+          format: objectId
+          description: 'User ID of the last user who archived this row, or `null` after
+
+            an unarchive cleared the archive state. Absent on rows that have
+
+            never been archived.
+
+            '
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    SemanticSearchHistoryPagination:
+      type: object
+      additionalProperties: false
+      description: 'Pagination block emitted by `buildPaginationMetadata` (utils.ts:417).
+
+        `totalPages` is `Math.ceil(totalCount / limit)`, so an empty result
+
+        has `totalPages: 0`, not `1`.
+
+        '
+      required:
+      - page
+      - limit
+      - totalCount
+      - totalPages
+      - hasNextPage
+      - hasPrevPage
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        totalCount:
+          type: integer
+        totalPages:
+          type: integer
+        hasNextPage:
+          type: boolean
+        hasPrevPage:
+          type: boolean
+    SemanticSearchHitMetadata:
+      type: object
+      additionalProperties: false
+      description: 'Per-hit metadata after retrieval enrichment (record + vector context).
+
+        Listed fields are the documented contract; Qdrant or pipeline updates may add more keys over time—extend this schema when new stable fields appear.
+
+        '
+      properties:
+        orgId:
+          type:
+          - string
+          - 'null'
+        recordId:
+          type:
+          - string
+          - 'null'
+        virtualRecordId:
+          type:
+          - string
+          - 'null'
+        recordName:
+          type:
+          - string
+          - 'null'
+        recordType:
+          type:
+          - string
+          - 'null'
+        recordVersion:
+          oneOf:
+          - type: string
+          - type: number
+        origin:
+          type:
+          - string
+          - 'null'
+        connector:
+          type:
+          - string
+          - 'null'
+        connectorId:
+          type:
+          - string
+          - 'null'
+        connectorName:
+          type:
+          - string
+          - 'null'
+        blockText:
+          type:
+          - string
+          - 'null'
+        blockType:
+          type:
+          - string
+          - 'null'
+          description: 'Block type for this hit. Common values: `text`, `image`, `table_row`, `table`,
+
+            `record_summary` (whole-record semantic summary chunk — no block index).
+
+            '
+        bounding_box:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/SemanticSearchBoundingBox'
+        pageNum:
+          type:
+          - array
+          - 'null'
+          items:
+            type:
+            - integer
+            - 'null'
+        extension:
+          type:
+          - string
+          - 'null'
+        mimeType:
+          type:
+          - string
+          - 'null'
+        blockNum:
+          type:
+          - array
+          - 'null'
+          items:
+            type: number
+        chunkIndex:
+          type:
+          - integer
+          - 'null'
+        sheetName:
+          type:
+          - string
+          - 'null'
+        sheetNum:
+          type:
+          - integer
+          - 'null'
+        webUrl:
+          type:
+          - string
+          - 'null'
+        previewRenderable:
+          type:
+          - boolean
+          - 'null'
+        hideWeburl:
+          type:
+          - boolean
+          - 'null'
+        updatedAt:
+          type:
+          - string
+          - 'null'
+          format: date-time
+        categories:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+        departments:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+        topics:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+        languages:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+        subcategoryLevel1:
+          type:
+          - string
+          - 'null'
+        subcategoryLevel2:
+          type:
+          - string
+          - 'null'
+        subcategoryLevel3:
+          type:
+          - string
+          - 'null'
+        score:
+          type:
+          - number
+          - 'null'
+        _id:
+          type:
+          - string
+          - 'null'
+        _collection_name:
+          type:
+          - string
+          - 'null'
+        blockIndex:
+          type:
+          - integer
+          - 'null'
+        blockId:
+          type:
+          - string
+          - 'null'
+        isBlock:
+          type:
+          - boolean
+          - 'null'
+        isBlockGroup:
+          type:
+          - boolean
+          - 'null'
+        isRecordSummary:
+          type:
+          - boolean
+          - 'null'
+          description: 'Set to `true` by the indexing pipeline when this vector chunk represents a
+
+            whole-record semantic summary rather than an individual block. When true,
+
+            `blockIndex` is absent and `block_type` on the parent hit is `record_summary`.
+
+            '
+        kbId:
+          type:
+          - string
+          - 'null'
+          description: Knowledge base id merged from graph record during retrieval (when present).
+        point_id:
+          description: Qdrant point identifier attached during vector lookup (shape varies by deployment).
+          oneOf:
+          - type: string
+          - type: integer
+          - type: number
+    SemanticSearchAppliedFilters:
+      type: object
+      additionalProperties: false
+      description: Present when KB filters were applied to the search request.
+      required:
+      - kb
+      - kb_count
+      properties:
+        kb:
+          type: array
+          items:
+            type: string
+        kb_count:
+          type: integer
+    PersistedSemanticSearchCitation:
+      type: object
+      additionalProperties: false
+      description: 'Populated citation document referenced from a persisted search.
+
+        The controller strips `__v` via `populate({ select: ''-__v'' })`.
+
+        '
+      required:
+      - _id
+      - content
+      - chunkIndex
+      - citationType
+      - metadata
+      - createdAt
+      - updatedAt
+      properties:
+        _id:
+          type: string
+          format: objectId
+        content:
+          type: string
+        chunkIndex:
+          type: integer
+        citationType:
+          type: string
+        metadata:
+          $ref: '#/components/schemas/PersistedSemanticSearchCitationMetadata'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    SemanticSearchAiResponse:
+      type: object
+      additionalProperties: false
+      description: 'Payload returned by the AI retrieval service for a semantic search (embedded in `searchResponse`).
+
+        Optional `virtual_to_record_map` maps each virtual record id (string key) to one resolved graph record document.
+
+        Empty responses from the retrieval layer omit `virtual_to_record_map`; success payloads may include it alongside hits and records.
+
+        '
+      required:
+      - searchResults
+      - records
+      - status
+      - status_code
+      - message
+      properties:
+        searchResults:
+          type: array
+          items:
+            $ref: '#/components/schemas/SemanticSearchHit'
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/SemanticSearchGraphRecord'
+        status:
+          type: string
+        status_code:
+          type: integer
+        message:
+          type: string
+        appliedFilters:
+          $ref: '#/components/schemas/SemanticSearchAppliedFilters'
+        virtual_to_record_map:
+          type: object
+          description: Maps virtual record id (object property name) to the accessible graph record document for that id.
+          additionalProperties:
+            $ref: '#/components/schemas/SemanticSearchGraphRecord'
+    SemanticSearchHistoryFilterToggle:
+      type: object
+      additionalProperties: false
+      description: 'Generic "filter X is available, current value is Y" block used for
+
+        `shared`, `tags`, `minMessages`, `search`, and `messageType`. Either
+
+        `type` (free-form value) or `values` (enum of allowed strings) is
+
+        present, not both. `current` is the caller-supplied value passed
+
+        through from `req.query`, hence string-or-null even when `type` is
+
+        `''number''`.
+
+        '
+      required:
+      - description
+      - current
+      - applied
+      properties:
+        type:
+          type: string
+        values:
+          type: array
+          items:
+            type: string
+        description:
+          type: string
+        current:
+          type:
+          - string
+          - 'null'
+        applied:
+          type: boolean
+    SemanticSearchHistoryResponse:
+      type: object
+      additionalProperties: false
+      description: 'Envelope returned by `GET /search`. The handler runs `find()` plus
+
+        `countDocuments()` in parallel and assembles `{ searchHistory,
+
+        pagination, filters, meta }` (es_controller.ts:3925-3973).
+
+        '
+      required:
+      - searchHistory
+      - pagination
+      - filters
+      - meta
+      properties:
+        searchHistory:
+          type: array
+          items:
+            $ref: '#/components/schemas/SemanticSearchHistoryItem'
+        pagination:
+          $ref: '#/components/schemas/SemanticSearchHistoryPagination'
+        filters:
+          $ref: '#/components/schemas/SemanticSearchHistoryFilters'
+        meta:
+          $ref: '#/components/schemas/SemanticSearchHistoryMeta'
+    Filters:
+      type: object
+      additionalProperties: false
+      description: 'App connector instance ids and knowledge-base / record-group ids that narrow retrieval
+
+        for a turn. For **org assistant** chat streams, send explicit `apps` / `kb` lists.
+
+        For **agent** chat streams, send explicit id lists, or **omit** `filters` (and `tools`)
+
+        to let the service use the agent’s stored knowledge and tool configuration. Sending
+
+        `{ "apps": [], "kb": [] }` on an agent stream means **no** knowledge sources for that
+
+        turn (it is not “full org default”).
+
+        '
+      properties:
+        apps:
+          type: array
+          items:
+            type: string
+          description: 'Connector instance ids to scope retrieval for this turn. Each element
+
+            must be a valid UUID (connector app id, KB app id, record-group id, etc.).
+
+            Gateway validation matches Zod `appOrKbIdSchema`.
+
+            '
+        kb:
+          type: array
+          items:
+            type: string
+          description: 'Knowledge-base app ids to scope retrieval for this turn.
+
+            Each element must be a valid UUID.
+
+            '
+    PersistedSemanticSearchCitationMetadata:
+      type: object
+      additionalProperties: false
+      description: 'Citation metadata as persisted in MongoDB. Required fields mirror the
+
+        Mongoose schema''s `required: true` flags; the rest are optional and
+
+        may come through as `null` because the AI retrieval service emits
+
+        explicit nulls for absent fields.
+
+        '
+      required:
+      - orgId
+      - mimeType
+      - recordId
+      - recordName
+      - origin
+      properties:
+        orgId:
+          type: string
+        mimeType:
+          type: string
+        recordId:
+          type: string
+        recordName:
+          type: string
+        origin:
+          type: string
+        recordVersion:
+          type:
+          - integer
+          - 'null'
+        extension:
+          type:
+          - string
+          - 'null'
+        webUrl:
+          type:
+          - string
+          - 'null'
+        previewRenderable:
+          type:
+          - boolean
+          - 'null'
+        hideWeburl:
+          type:
+          - boolean
+          - 'null'
+        connector:
+          type:
+          - string
+          - 'null'
+        connectorId:
+          type:
+          - string
+          - 'null'
+          description: 'The connector instance the record came from. `connector` names only
+
+            the kind of source (for example `SLACK`), which several instances can
+
+            share. Absent on citations saved before this field was stored.
+
+            '
+        recordType:
+          type:
+          - string
+          - 'null'
+        blockNum:
+          type:
+          - array
+          - 'null'
+          items:
+            type:
+            - number
+            - 'null'
+        pageNum:
+          type:
+          - array
+          - 'null'
+          items:
+            type:
+            - number
+            - 'null'
+        sheetNum:
+          type:
+          - number
+          - 'null'
+        sheetName:
+          type:
+          - string
+          - 'null'
+        bounding_box:
+          type:
+          - array
+          - 'null'
+          items:
+            $ref: '#/components/schemas/PersistedSemanticSearchBoundingBox'
+        blockType:
+          type:
+          - string
+          - 'null'
+          description: 'Block type for this citation. Common values: `text`, `image`, `table_row`, `table`,
+
+            `record_summary` (whole-record semantic summary chunk).
+
+            '
+        blockText:
+          type:
+          - string
+          - 'null'
+        departments:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+        languages:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+        topics:
+          type:
+          - array
+          - 'null'
+          items:
+            type: string
+    PersistedSemanticSearchBoundingBox:
+      type: object
+      additionalProperties: false
+      description: 'Bounding box subdocument embedded in persisted citation metadata.
+
+        `boundingBoxSchema` does not set `_id: false`, so Mongoose auto-injects an `_id`.
+
+        '
+      required:
+      - _id
+      - x
+      - y
+      properties:
+        _id:
+          type: string
+          format: objectId
+        x:
+          type: number
+        y:
+          type: number
     PersistedSemanticSearch:
       type: object
       additionalProperties: false
@@ -1205,149 +2189,6 @@ components:
         updatedAt:
           type: string
           format: date-time
-    SemanticSearchHistoryFilterToggle:
-      type: object
-      additionalProperties: false
-      description: 'Generic "filter X is available, current value is Y" block used for
-
-        `shared`, `tags`, `minMessages`, `search`, and `messageType`. Either
-
-        `type` (free-form value) or `values` (enum of allowed strings) is
-
-        present, not both. `current` is the caller-supplied value passed
-
-        through from `req.query`, hence string-or-null even when `type` is
-
-        `''number''`.
-
-        '
-      required:
-      - description
-      - current
-      - applied
-      properties:
-        type:
-          type: string
-        values:
-          type: array
-          items:
-            type: string
-        description:
-          type: string
-        current:
-          type:
-          - string
-          - 'null'
-        applied:
-          type: boolean
-    SemanticSearchHistoryAppliedDateRange:
-      type: object
-      additionalProperties: false
-      description: 'Echoed back only when the caller passed `startDate` and/or `endDate`.
-
-        Each bound is an ISO 8601 string when set; the field is absent when
-
-        the corresponding query param was omitted (utils.ts:480-486 reads
-
-        `appliedFilters.createdAt.$gte?.toISOString()` directly, so missing
-
-        bounds become `undefined` and drop out of the JSON).
-
-        '
-      properties:
-        start:
-          type: string
-          format: date-time
-        end:
-          type: string
-          format: date-time
-    PersistedSemanticSearchEnvelope:
-      type: array
-      description: 'GET `/search/{searchId}` calls `Model.find()` (not `findOne()`) and sends
-
-        the result as-is, so the wire format is an array of zero or one
-
-        persisted search docs. A non-existent id returns `200 []`, **not** `404`.
-
-        '
-      items:
-        $ref: '#/components/schemas/PersistedSemanticSearch'
-    SemanticSearchHistoryPagination:
-      type: object
-      additionalProperties: false
-      description: 'Pagination block emitted by `buildPaginationMetadata` (utils.ts:417).
-
-        `totalPages` is `Math.ceil(totalCount / limit)`, so an empty result
-
-        has `totalPages: 0`, not `1`.
-
-        '
-      required:
-      - page
-      - limit
-      - totalCount
-      - totalPages
-      - hasNextPage
-      - hasPrevPage
-      properties:
-        page:
-          type: integer
-        limit:
-          type: integer
-        totalCount:
-          type: integer
-        totalPages:
-          type: integer
-        hasNextPage:
-          type: boolean
-        hasPrevPage:
-          type: boolean
-    Filters:
-      type: object
-      additionalProperties: false
-      description: 'App connector instance ids and knowledge-base / record-group ids that narrow retrieval
-
-        for a turn. For **org assistant** chat streams, send explicit `apps` / `kb` lists.
-
-        For **agent** chat streams, send explicit id lists, or **omit** `filters` (and `tools`)
-
-        to let the service use the agent’s stored knowledge and tool configuration. Sending
-
-        `{ "apps": [], "kb": [] }` on an agent stream means **no** knowledge sources for that
-
-        turn (it is not “full org default”).
-
-        '
-      properties:
-        apps:
-          type: array
-          items:
-            type: string
-          description: 'Connector instance ids to scope retrieval for this turn. Each element
-
-            must be a valid UUID (connector app id, KB app id, record-group id, etc.).
-
-            Gateway validation matches Zod `appOrKbIdSchema`.
-
-            '
-        kb:
-          type: array
-          items:
-            type: string
-          description: 'Knowledge-base app ids to scope retrieval for this turn.
-
-            Each element must be a valid UUID.
-
-            '
-    SemanticSearchBoundingBox:
-      type: object
-      additionalProperties: false
-      description: Normalized bounding region for a chunk (when available).
-      properties:
-        x:
-          type: number
-        y:
-          type: number
     SemanticSearchHistoryMeta:
       type: object
       additionalProperties: false
@@ -1367,253 +2208,26 @@ components:
           format: date-time
         duration:
           type: integer
-    SemanticSearchAppliedFilters:
+    SemanticSearchBoundingBox:
       type: object
       additionalProperties: false
-      description: Present when KB filters were applied to the search request.
-      required:
-      - kb
-      - kb_count
+      description: Normalized bounding region for a chunk (when available).
       properties:
-        kb:
-          type: array
-          items:
-            type: string
-        kb_count:
-          type: integer
-    PersistedSemanticSearchCitation:
-      type: object
-      additionalProperties: false
-      description: 'Populated citation document referenced from a persisted search.
-
-        The controller strips `__v` via `populate({ select: ''-__v'' })`.
-
-        '
-      required:
-      - _id
-      - content
-      - chunkIndex
-      - citationType
-      - metadata
-      - createdAt
-      - updatedAt
-      properties:
-        _id:
-          type: string
-          format: objectId
-        content:
-          type: string
-        chunkIndex:
-          type: integer
-        citationType:
-          type: string
-        metadata:
-          $ref: '#/components/schemas/PersistedSemanticSearchCitationMetadata'
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-    SemanticSearchHit:
-      type: object
-      additionalProperties: false
-      description: 'One search hit returned by the retrieval service. Most hits use string `content`;
-
-        table or grouped blocks may serialize structured payloads as JSON arrays.
-
-        Listed fields are the documented contract; extend this schema when new stable top-level keys are introduced.
-
-        '
-      properties:
-        score:
-          type:
-          - number
-          - 'null'
-        citationType:
-          type:
-          - string
-          - 'null'
-        chunkIndex:
-          type:
-          - integer
-          - 'null'
-        metadata:
-          $ref: '#/components/schemas/SemanticSearchHitMetadata'
-        content:
-          type:
-          - string
-          - 'null'
-        virtual_record_id:
-          type:
-          - string
-          - 'null'
-        block_type:
-          type:
-          - string
-          - 'null'
-          description: 'Block type for this hit. Common values: `text`, `image`, `table_row`, `table`,
-
-            `record_summary` (whole-record semantic summary — `block_index` is `null` for these hits).
-
-            '
-        block_index:
-          type:
-          - integer
-          - 'null'
-    SemanticSearchHistorySortField:
-      type: object
-      additionalProperties: false
-      description: 'Used for `available.sorting.{sortBy,sortOrder}` and
-
-        `available.sortingMessages.{sortBy,sortOrder}`. The `applied` flag
-
-        is present on `sorting.*` and absent on `sortingMessages.*`, so it
-
-        is optional here.
-
-        '
-      required:
-      - values
-      - default
-      - description
-      - current
-      properties:
-        values:
-          type: array
-          items:
-            type: string
-        default:
-          type: string
-        description:
-          type: string
-        current:
-          type: string
-        applied:
-          type: boolean
-    SemanticSearchHistoryPaginationField:
+        x:
+          type: number
+        y:
+          type: number
+    SemanticSearchHistoryFilters:
       type: object
       additionalProperties: false
       required:
-      - type
-      - current
-      - min
-      - max
-      - default
-      - description
       - applied
+      - available
       properties:
-        type:
-          type: string
-        current:
-          type: integer
-        min:
-          type: integer
-        max:
-          type: integer
-        default:
-          type: integer
-        description:
-          type: string
         applied:
-          type: boolean
-    SemanticSearchHistoryFiltersApplied:
-      type: object
-      additionalProperties: false
-      description: 'Echo of which filters the caller actually supplied, built by
-
-        `buildFiltersMetadata` (utils.ts:430-486). `page` and `limit` always
-
-        appear because they are normalised to defaults before being recorded,
-
-        so `filters` is never empty and `values` always contains at least
-
-        `{ page, limit }`. Other keys appear only when the matching query
-
-        param was non-empty (or, for `dateRange`, when `createdAt` was set
-
-        on the Mongo filter).
-
-
-        `values` keys are scalar strings rather than typed primitives
-
-        (`''true''`/`''false''`, `''5''`, etc.) because they are passed through
-
-        from `req.query` as Express parsed them — only `page` and `limit`
-
-        are coerced to integers via `safeParsePagination`.
-
-        '
-      required:
-      - filters
-      - values
-      properties:
-        filters:
-          type: array
-          items:
-            type: string
-            enum:
-            - page
-            - limit
-            - search
-            - shared
-            - tags
-            - minMessages
-            - sortBy
-            - sortOrder
-            - startDate
-            - endDate
-            - messageType
-            - dateRange
-        values:
-          type: object
-          additionalProperties: false
-          properties:
-            page:
-              type: integer
-            limit:
-              type: integer
-            search:
-              type: string
-            shared:
-              type: string
-            tags:
-              type: string
-            minMessages:
-              type: string
-            sortBy:
-              type: string
-            sortOrder:
-              type: string
-            startDate:
-              type: string
-            endDate:
-              type: string
-            messageType:
-              type: string
-            dateRange:
-              $ref: '#/components/schemas/SemanticSearchHistoryAppliedDateRange'
-    SemanticSearchExecuteResponse:
-      type: object
-      additionalProperties: false
-      description: 'Immediate POST `/search` response: persisted search id plus the raw retrieval payload.
-
-        SDK-oriented modeling: named fields only at this level; dynamic-key maps inside `searchResponse` use
-
-        `additionalProperties` with a `$ref` (e.g. `virtual_to_record_map`) rather than boolean `additionalProperties: true`,
-
-        so generated clients retain typed values where possible.
-
-        '
-      required:
-      - searchId
-      - searchResponse
-      properties:
-        searchId:
-          type: string
-          format: objectId
-        searchResponse:
-          $ref: '#/components/schemas/SemanticSearchAiResponse'
+          $ref: '#/components/schemas/SemanticSearchHistoryFiltersApplied'
+        available:
+          $ref: '#/components/schemas/SemanticSearchHistoryFiltersAvailable'
     SemanticSearchHistoryDateRange:
       type: object
       additionalProperties: false
@@ -1865,672 +2479,6 @@ components:
           type:
           - number
           - 'null'
-    SemanticSearchHistoryFilters:
-      type: object
-      additionalProperties: false
-      required:
-      - applied
-      - available
-      properties:
-        applied:
-          $ref: '#/components/schemas/SemanticSearchHistoryFiltersApplied'
-        available:
-          $ref: '#/components/schemas/SemanticSearchHistoryFiltersAvailable'
-    SemanticSearchHistoryItem:
-      type: object
-      additionalProperties: false
-      description: 'One persisted search row as returned by `GET /search`. Mirrors the
-
-        persisted search document except `citationIds` is an array of
-
-        ObjectId strings (citations are not populated on the list endpoint,
-
-        unlike `GET /search/{searchId}`).
-
-
-        `shareLink` is absent from the JSON when the search has not been
-
-        shared. `archivedBy` is `null` on rows that were previously archived
-
-        and then unarchived, and absent on rows that have never been
-
-        archived. The list endpoint already filters out currently-archived
-
-        rows, so a string user-id value never appears here in practice.
-
-        '
-      required:
-      - _id
-      - __v
-      - query
-      - limit
-      - orgId
-      - userId
-      - citationIds
-      - records
-      - isShared
-      - sharedWith
-      - isArchived
-      - createdAt
-      - updatedAt
-      properties:
-        _id:
-          type: string
-          format: objectId
-        __v:
-          type: integer
-        query:
-          type: string
-        limit:
-          type: integer
-        orgId:
-          type: string
-          format: objectId
-        userId:
-          type: string
-          format: objectId
-        citationIds:
-          type: array
-          items:
-            type: string
-            format: objectId
-        records:
-          type: object
-          description: 'Map of source-record id (or `_key`) to `JSON.stringify(<record>)`.
-
-            Clients must `JSON.parse` each value to recover the underlying
-
-            record object. Populated at write-time in the POST `/search` handler.
-
-            '
-          additionalProperties:
-            type: string
-        isShared:
-          type: boolean
-        shareLink:
-          type: string
-          description: Set once the search has been shared via `/search/{searchId}/share`.
-        sharedWith:
-          type: array
-          items:
-            $ref: '#/components/schemas/PersistedSemanticSearchSharedWithEntry'
-        isArchived:
-          type: boolean
-        archivedBy:
-          type:
-          - string
-          - 'null'
-          format: objectId
-          description: 'User ID of the last user who archived this row, or `null` after
-
-            an unarchive cleared the archive state. Absent on rows that have
-
-            never been archived.
-
-            '
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-    SemanticSearchHistoryResponse:
-      type: object
-      additionalProperties: false
-      description: 'Envelope returned by `GET /search`. The handler runs `find()` plus
-
-        `countDocuments()` in parallel and assembles `{ searchHistory,
-
-        pagination, filters, meta }` (es_controller.ts:3925-3973).
-
-        '
-      required:
-      - searchHistory
-      - pagination
-      - filters
-      - meta
-      properties:
-        searchHistory:
-          type: array
-          items:
-            $ref: '#/components/schemas/SemanticSearchHistoryItem'
-        pagination:
-          $ref: '#/components/schemas/SemanticSearchHistoryPagination'
-        filters:
-          $ref: '#/components/schemas/SemanticSearchHistoryFilters'
-        meta:
-          $ref: '#/components/schemas/SemanticSearchHistoryMeta'
-    SemanticSearchAiResponse:
-      type: object
-      additionalProperties: false
-      description: 'Payload returned by the AI retrieval service for a semantic search (embedded in `searchResponse`).
-
-        Optional `virtual_to_record_map` maps each virtual record id (string key) to one resolved graph record document.
-
-        Empty responses from the retrieval layer omit `virtual_to_record_map`; success payloads may include it alongside hits and records.
-
-        '
-      required:
-      - searchResults
-      - records
-      - status
-      - status_code
-      - message
-      properties:
-        searchResults:
-          type: array
-          items:
-            $ref: '#/components/schemas/SemanticSearchHit'
-        records:
-          type: array
-          items:
-            $ref: '#/components/schemas/SemanticSearchGraphRecord'
-        status:
-          type: string
-        status_code:
-          type: integer
-        message:
-          type: string
-        appliedFilters:
-          $ref: '#/components/schemas/SemanticSearchAppliedFilters'
-        virtual_to_record_map:
-          type: object
-          description: Maps virtual record id (object property name) to the accessible graph record document for that id.
-          additionalProperties:
-            $ref: '#/components/schemas/SemanticSearchGraphRecord'
-    SemanticSearchHitMetadata:
-      type: object
-      additionalProperties: false
-      description: 'Per-hit metadata after retrieval enrichment (record + vector context).
-
-        Listed fields are the documented contract; Qdrant or pipeline updates may add more keys over time—extend this schema when new stable fields appear.
-
-        '
-      properties:
-        orgId:
-          type:
-          - string
-          - 'null'
-        recordId:
-          type:
-          - string
-          - 'null'
-        virtualRecordId:
-          type:
-          - string
-          - 'null'
-        recordName:
-          type:
-          - string
-          - 'null'
-        recordType:
-          type:
-          - string
-          - 'null'
-        recordVersion:
-          oneOf:
-          - type: string
-          - type: number
-        origin:
-          type:
-          - string
-          - 'null'
-        connector:
-          type:
-          - string
-          - 'null'
-        connectorId:
-          type:
-          - string
-          - 'null'
-        connectorName:
-          type:
-          - string
-          - 'null'
-        blockText:
-          type:
-          - string
-          - 'null'
-        blockType:
-          type:
-          - string
-          - 'null'
-          description: 'Block type for this hit. Common values: `text`, `image`, `table_row`, `table`,
-
-            `record_summary` (whole-record semantic summary chunk — no block index).
-
-            '
-        bounding_box:
-          type:
-          - array
-          - 'null'
-          items:
-            $ref: '#/components/schemas/SemanticSearchBoundingBox'
-        pageNum:
-          type:
-          - array
-          - 'null'
-          items:
-            type:
-            - integer
-            - 'null'
-        extension:
-          type:
-          - string
-          - 'null'
-        mimeType:
-          type:
-          - string
-          - 'null'
-        blockNum:
-          type:
-          - array
-          - 'null'
-          items:
-            type: number
-        chunkIndex:
-          type:
-          - integer
-          - 'null'
-        sheetName:
-          type:
-          - string
-          - 'null'
-        sheetNum:
-          type:
-          - integer
-          - 'null'
-        webUrl:
-          type:
-          - string
-          - 'null'
-        previewRenderable:
-          type:
-          - boolean
-          - 'null'
-        hideWeburl:
-          type:
-          - boolean
-          - 'null'
-        updatedAt:
-          type:
-          - string
-          - 'null'
-          format: date-time
-        categories:
-          type:
-          - array
-          - 'null'
-          items:
-            type: string
-        departments:
-          type:
-          - array
-          - 'null'
-          items:
-            type: string
-        topics:
-          type:
-          - array
-          - 'null'
-          items:
-            type: string
-        languages:
-          type:
-          - array
-          - 'null'
-          items:
-            type: string
-        subcategoryLevel1:
-          type:
-          - string
-          - 'null'
-        subcategoryLevel2:
-          type:
-          - string
-          - 'null'
-        subcategoryLevel3:
-          type:
-          - string
-          - 'null'
-        score:
-          type:
-          - number
-          - 'null'
-        _id:
-          type:
-          - string
-          - 'null'
-        _collection_name:
-          type:
-          - string
-          - 'null'
-        blockIndex:
-          type:
-          - integer
-          - 'null'
-        blockId:
-          type:
-          - string
-          - 'null'
-        isBlock:
-          type:
-          - boolean
-          - 'null'
-        isBlockGroup:
-          type:
-          - boolean
-          - 'null'
-        isRecordSummary:
-          type:
-          - boolean
-          - 'null'
-          description: 'Set to `true` by the indexing pipeline when this vector chunk represents a
-
-            whole-record semantic summary rather than an individual block. When true,
-
-            `blockIndex` is absent and `block_type` on the parent hit is `record_summary`.
-
-            '
-        kbId:
-          type:
-          - string
-          - 'null'
-          description: Knowledge base id merged from graph record during retrieval (when present).
-        point_id:
-          description: Qdrant point identifier attached during vector lookup (shape varies by deployment).
-          oneOf:
-          - type: string
-          - type: integer
-          - type: number
-    SemanticSearchRequest:
-      type: object
-      description: 'Request body for performing semantic search across the enterprise knowledge base.
-
-
-        **How Semantic Search Works:**
-
-
-        1. Query is converted to vector embeddings
-
-        2. Similar content is found using vector similarity
-
-        3. Results are ranked by relevance score
-
-        4. Matching chunks with metadata are returned
-
-
-        **Filtering:**
-
-
-        Use filters to narrow search scope to specific apps or knowledge bases.
-
-        '
-      required:
-      - query
-      properties:
-        query:
-          type: string
-          minLength: 1
-          description: 'Natural language search query. The system understands
-
-            semantic meaning, not just keywords.
-
-            '
-          example: employee onboarding procedures
-        filters:
-          $ref: '#/components/schemas/Filters'
-        limit:
-          type: integer
-          minimum: 1
-          maximum: 100
-          default: 10
-          description: Maximum number of results to return
-    SemanticSearchHistoryFiltersAvailable:
-      type: object
-      additionalProperties: false
-      description: 'Catalogue of filters the endpoint supports, plus their current values
-
-        and `applied` flags. Built by `buildFiltersMetadata` (utils.ts:430-624).
-
-        '
-      required:
-      - shared
-      - tags
-      - minMessages
-      - search
-      - pagination
-      - sorting
-      - dateFilters
-      - messageFilters
-      - sortingMessages
-      properties:
-        shared:
-          $ref: '#/components/schemas/SemanticSearchHistoryFilterToggle'
-        tags:
-          $ref: '#/components/schemas/SemanticSearchHistoryFilterToggle'
-        minMessages:
-          $ref: '#/components/schemas/SemanticSearchHistoryFilterToggle'
-        search:
-          $ref: '#/components/schemas/SemanticSearchHistoryFilterToggle'
-        pagination:
-          type: object
-          additionalProperties: false
-          required:
-          - page
-          - limit
-          properties:
-            page:
-              $ref: '#/components/schemas/SemanticSearchHistoryPaginationField'
-            limit:
-              $ref: '#/components/schemas/SemanticSearchHistoryPaginationField'
-        sorting:
-          type: object
-          additionalProperties: false
-          required:
-          - sortBy
-          - sortOrder
-          properties:
-            sortBy:
-              $ref: '#/components/schemas/SemanticSearchHistorySortField'
-            sortOrder:
-              $ref: '#/components/schemas/SemanticSearchHistorySortField'
-        dateFilters:
-          type: object
-          additionalProperties: false
-          required:
-          - dateRange
-          properties:
-            dateRange:
-              $ref: '#/components/schemas/SemanticSearchHistoryDateRange'
-        messageFilters:
-          type: object
-          additionalProperties: false
-          required:
-          - messageType
-          properties:
-            messageType:
-              $ref: '#/components/schemas/SemanticSearchHistoryFilterToggle'
-        sortingMessages:
-          type: object
-          additionalProperties: false
-          required:
-          - sortBy
-          - sortOrder
-          properties:
-            sortBy:
-              $ref: '#/components/schemas/SemanticSearchHistorySortField'
-            sortOrder:
-              $ref: '#/components/schemas/SemanticSearchHistorySortField'
-    PersistedSemanticSearchSharedWithEntry:
-      type: object
-      additionalProperties: false
-      description: 'Entry inside `sharedWith[]`. The schema sets `_id: false` on these
-
-        sub-docs, so no auto-injected `_id` is present.
-
-        '
-      required:
-      - userId
-      - accessLevel
-      properties:
-        userId:
-          type: string
-          format: objectId
-        accessLevel:
-          type: string
-          enum:
-          - read
-          - write
-    PersistedSemanticSearchCitationMetadata:
-      type: object
-      additionalProperties: false
-      description: 'Citation metadata as persisted in MongoDB. Required fields mirror the
-
-        Mongoose schema''s `required: true` flags; the rest are optional and
-
-        may come through as `null` because the AI retrieval service emits
-
-        explicit nulls for absent fields.
-
-        '
-      required:
-      - orgId
-      - mimeType
-      - recordId
-      - recordName
-      - origin
-      properties:
-        orgId:
-          type: string
-        mimeType:
-          type: string
-        recordId:
-          type: string
-        recordName:
-          type: string
-        origin:
-          type: string
-        recordVersion:
-          type:
-          - integer
-          - 'null'
-        extension:
-          type:
-          - string
-          - 'null'
-        webUrl:
-          type:
-          - string
-          - 'null'
-        previewRenderable:
-          type:
-          - boolean
-          - 'null'
-        hideWeburl:
-          type:
-          - boolean
-          - 'null'
-        connector:
-          type:
-          - string
-          - 'null'
-        connectorId:
-          type:
-          - string
-          - 'null'
-          description: 'The connector instance the record came from. `connector` names only
-
-            the kind of source (for example `SLACK`), which several instances can
-
-            share. Absent on citations saved before this field was stored.
-
-            '
-        recordType:
-          type:
-          - string
-          - 'null'
-        blockNum:
-          type:
-          - array
-          - 'null'
-          items:
-            type:
-            - number
-            - 'null'
-        pageNum:
-          type:
-          - array
-          - 'null'
-          items:
-            type:
-            - number
-            - 'null'
-        sheetNum:
-          type:
-          - number
-          - 'null'
-        sheetName:
-          type:
-          - string
-          - 'null'
-        bounding_box:
-          type:
-          - array
-          - 'null'
-          items:
-            $ref: '#/components/schemas/PersistedSemanticSearchBoundingBox'
-        blockType:
-          type:
-          - string
-          - 'null'
-          description: 'Block type for this citation. Common values: `text`, `image`, `table_row`, `table`,
-
-            `record_summary` (whole-record semantic summary chunk).
-
-            '
-        blockText:
-          type:
-          - string
-          - 'null'
-        departments:
-          type:
-          - array
-          - 'null'
-          items:
-            type: string
-        languages:
-          type:
-          - array
-          - 'null'
-          items:
-            type: string
-        topics:
-          type:
-          - array
-          - 'null'
-          items:
-            type: string
-    PersistedSemanticSearchBoundingBox:
-      type: object
-      additionalProperties: false
-      description: 'Bounding box subdocument embedded in persisted citation metadata.
-
-        `boundingBoxSchema` does not set `_id: false`, so Mongoose auto-injects an `_id`.
-
-        '
-      required:
-      - _id
-      - x
-      - y
-      properties:
-        _id:
-          type: string
-          format: objectId
-        x:
-          type: number
-        y:
-          type: number
   securitySchemes:
     bearerAuth:
       type: http
@@ -2660,6 +2608,3 @@ components:
             config:write: Update system configuration
             crawl:read: Read crawling jobs
             crawl:write: Create and manage crawling jobs
-x-refined-from:
-- pipeshub-openapi.yaml
-- pipeshub-openapi.yml

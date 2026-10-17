@@ -1,11 +1,11 @@
 openapi: 3.2.0
 info:
-  title: Pipeshub Permissions API
+  title: PipesHub Permissions API
+  description: Unified API documentation for PipesHub services.
   version: 1.0.0
   contact:
     name: API Support
     email: support@pipeshub.com
-  description: 'Operations tagged Permissions across 2 of this provider''s published API definitions: pipeshub-openapi.yaml, pipeshub-openapi.yml. Each path carries the servers of the definition it was published in.'
 servers:
 - url: '{instance_url}/api/v1'
   description: Base API URL
@@ -496,19 +496,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-    servers:
-    - url: '{instance_url}/api/v1'
-      description: Base API URL
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL (without /api/v1)
-    - url: '{instance_url}'
-      description: Root URL (used for MCP endpoints mounted at /mcp)
-      variables:
-        instance_url:
-          default: https://app.pipeshub.com
-          description: Base server URL
 components:
   schemas:
     KnowledgeBaseDeleteResponseSchema:
@@ -533,6 +520,60 @@ components:
       - kbId
       - userIds
       - teamIds
+    KnowledgeBasePermissionCreate:
+      type: object
+      additionalProperties: false
+      description: Response returned when permissions are granted on a knowledge base
+      properties:
+        kbId:
+          type: string
+          description: Knowledge base ID
+        permissionResult:
+          type: object
+          additionalProperties: false
+          description: Connector result from permission creation
+          properties:
+            success:
+              type: boolean
+              description: Success status
+            grantedCount:
+              type: integer
+              description: Number of new permissions granted (users and teams)
+            grantedUsers:
+              type: array
+              items:
+                type: string
+              description: User IDs that received new permissions
+            grantedTeams:
+              type: array
+              items:
+                type: string
+              description: Team IDs that received new permissions
+            role:
+              type: string
+              enum:
+              - OWNER
+              - WRITER
+              - READER
+              description: Granted role (defaults to READER for team-only grants)
+            kbId:
+              type: string
+              description: Knowledge base ID
+            details:
+              type: object
+              additionalProperties: false
+              description: Additional details of the permissions created (currently always empty)
+          required:
+          - success
+          - grantedCount
+          - grantedUsers
+          - grantedTeams
+          - role
+          - kbId
+          - details
+      required:
+      - kbId
+      - permissionResult
     KnowledgeBasePermissionList:
       type: object
       additionalProperties: false
@@ -602,90 +643,6 @@ components:
       - kbId
       - permissions
       - totalCount
-    KnowledgeBasePermissionCreate:
-      type: object
-      additionalProperties: false
-      description: Response returned when permissions are granted on a knowledge base
-      properties:
-        kbId:
-          type: string
-          description: Knowledge base ID
-        permissionResult:
-          type: object
-          additionalProperties: false
-          description: Connector result from permission creation
-          properties:
-            success:
-              type: boolean
-              description: Success status
-            grantedCount:
-              type: integer
-              description: Number of new permissions granted (users and teams)
-            grantedUsers:
-              type: array
-              items:
-                type: string
-              description: User IDs that received new permissions
-            grantedTeams:
-              type: array
-              items:
-                type: string
-              description: Team IDs that received new permissions
-            role:
-              type: string
-              enum:
-              - OWNER
-              - WRITER
-              - READER
-              description: Granted role (defaults to READER for team-only grants)
-            kbId:
-              type: string
-              description: Knowledge base ID
-            details:
-              type: object
-              additionalProperties: false
-              description: Additional details of the permissions created (currently always empty)
-          required:
-          - success
-          - grantedCount
-          - grantedUsers
-          - grantedTeams
-          - role
-          - kbId
-          - details
-      required:
-      - kbId
-      - permissionResult
-    KnowledgebaseUpdatePermissionResponse:
-      type: object
-      additionalProperties: false
-      description: Response returned when user permission roles are updated on a knowledge base
-      properties:
-        kbId:
-          type: string
-          description: Knowledge base ID
-        userIds:
-          type: array
-          items:
-            type: string
-          description: Graph user document IDs whose roles were updated (Arango `users/{id}` key, not Mongo user `_id`)
-        teamIds:
-          type: array
-          items:
-            type: string
-          description: Graph team document IDs updated (always empty — teams cannot have roles updated)
-        newRole:
-          type: string
-          enum:
-          - OWNER
-          - WRITER
-          - READER
-          description: New role assigned to the updated users
-      required:
-      - kbId
-      - userIds
-      - teamIds
-      - newRole
     ErrorResponse:
       type: object
       additionalProperties: false
@@ -731,6 +688,36 @@ components:
               additionalProperties: true
       required:
       - error
+    KnowledgebaseUpdatePermissionResponse:
+      type: object
+      additionalProperties: false
+      description: Response returned when user permission roles are updated on a knowledge base
+      properties:
+        kbId:
+          type: string
+          description: Knowledge base ID
+        userIds:
+          type: array
+          items:
+            type: string
+          description: Graph user document IDs whose roles were updated (Arango `users/{id}` key, not Mongo user `_id`)
+        teamIds:
+          type: array
+          items:
+            type: string
+          description: Graph team document IDs updated (always empty — teams cannot have roles updated)
+        newRole:
+          type: string
+          enum:
+          - OWNER
+          - WRITER
+          - READER
+          description: New role assigned to the updated users
+      required:
+      - kbId
+      - userIds
+      - teamIds
+      - newRole
   securitySchemes:
     bearerAuth:
       type: http
@@ -860,6 +847,3 @@ components:
             config:write: Update system configuration
             crawl:read: Read crawling jobs
             crawl:write: Create and manage crawling jobs
-x-refined-from:
-- pipeshub-openapi.yaml
-- pipeshub-openapi.yml
