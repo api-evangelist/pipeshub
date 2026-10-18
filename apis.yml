@@ -756,6 +756,8 @@ apis:
   humanURL: https://docs.pipeshub.com/developer/api-reference
   baseURL: https://app.pipeshub.com/api/v1
   tags:
+  - Notification
+  tags_raw:
   - Notifications
   properties:
   - type: OpenAPI
@@ -780,6 +782,8 @@ apis:
   humanURL: https://docs.pipeshub.com/developer/api-reference
   baseURL: https://app.pipeshub.com/api/v1
   tags:
+  - Authentication
+  tags_raw:
   - OAuth
   properties:
   - type: OpenAPI
@@ -1051,6 +1055,8 @@ apis:
   humanURL: https://docs.pipeshub.com/developer/api-reference
   baseURL: https://app.pipeshub.com/api/v1
   tags:
+  - Organization
+  tags_raw:
   - Organizations
   properties:
   - type: OpenAPI
@@ -1210,6 +1216,8 @@ apis:
   humanURL: https://docs.pipeshub.com/developer/api-reference
   baseURL: https://app.pipeshub.com/api/v1
   tags:
+  - Project
+  tags_raw:
   - Projects
   properties:
   - type: OpenAPI
@@ -1503,6 +1511,8 @@ apis:
   humanURL: https://docs.pipeshub.com/developer/api-reference
   baseURL: https://app.pipeshub.com/api/v1
   tags:
+  - Team
+  tags_raw:
   - Teams
   properties:
   - type: OpenAPI
@@ -1696,6 +1706,8 @@ apis:
   humanURL: https://docs.pipeshub.com/developer/api-reference
   baseURL: https://app.pipeshub.com/api/v1
   tags:
+  - User
+  tags_raw:
   - Users
   properties:
   - type: OpenAPI
