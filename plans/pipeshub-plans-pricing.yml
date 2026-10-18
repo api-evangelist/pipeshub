@@ -49,3 +49,22 @@ plans:
   limits:
   - 'Connectors: 50+'
   - Configurable usage limits
+x-canonical:
+  generated: '2026-10-18'
+  vocabulary: all/0-working/economics/plans-canonical.yml
+  models:
+  - free
+  units: []
+  plans:
+  - name: Community Edition
+    access: other
+    model: free
+    model_how: derived
+    units: []
+    periods: []
+  - name: Enterprise Edition
+    access: other
+    model: unstated
+    model_how: derived
+    units: []
+    periods: []
